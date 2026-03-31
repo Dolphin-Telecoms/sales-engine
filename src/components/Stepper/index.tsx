@@ -2,7 +2,6 @@
 
 import React from "react";
 import cn from "classnames";
-import Container from "@/src/components/Container";
 
 type Step = {
   label: string;
@@ -17,8 +16,8 @@ interface StepperProps {
 const Stepper: React.FC<StepperProps> = ({ steps, currentStep, className }) => {
   return (
     <div className={cn("w-full border-b-2 border-t-2 border-[#DCDCDC] pt-8", className)}>
-      <Container
-        className={cn("flex items-center justify-between")}
+      <div
+        className={cn("flex items-center justify-between max-w-3xl mx-auto")}
       >
         {steps.map((step, index) => {
           const isActive = index === currentStep;
@@ -88,7 +87,7 @@ const Stepper: React.FC<StepperProps> = ({ steps, currentStep, className }) => {
             </div>
           );
         })}
-      </Container>
+      </div>
     </div>
   );
 };

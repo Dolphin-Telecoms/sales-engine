@@ -131,7 +131,7 @@ export default function AvailabilityChecker() {
             disabled={!selected}
             onClick={() => {
               if (selected) {
-                router.push("/home-internet/plan");
+                router.push(`/home-internet/plan?location=${selected.label}`);
               }
             }}
           >

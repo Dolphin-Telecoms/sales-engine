@@ -36,7 +36,7 @@ export default function PlanSummary({
   return (
     <div className="w-full bg-white rounded-xl shadow-md overflow-hidden">
       {/* Header */}
-      <div className="bg-teal-800 text-white px-5 py-4 font-semibold text-lg">
+      <div className="bg-teal-800 text-white px-5 py-4 font-bold text-[20px] leading-[120%] tracking-normal"  >
         {title}
       </div>
 
@@ -73,53 +73,61 @@ export default function PlanSummary({
           </div>
 
           {/* Pricing Breakdown */}
-          <div className="px-4 pb-4">
-            <button
-              onClick={() => setOpen(!open)}
-              className="w-full bg-gray-100 rounded-lg px-4 py-3 flex justify-between items-center font-medium"
-            >
-              Pricing breakdown
-              <span>{open ? "▴" : "▾"}</span>
-            </button>
+          {pricing.length === 0 ? null : (
+            <div className="px-4 pb-4">
+              <button
+                onClick={() => setOpen(!open)}
+                className="w-full bg-gray-100 rounded-lg px-4 py-3 flex justify-between items-center font-medium"
+              >
+                Pricing breakdown
+                <span>{open ? "▴" : "▾"}</span>
+              </button>
 
-            {open && (
-              <div className="mt-4 space-y-2 text-sm">
-                {pricing.map((item, index) => (
-                  <div key={index} className="flex justify-between">
-                    <span>{item.label}</span>
+              {open && (
+                <div className="mt-4 space-y-2 text-sm">
+                  {pricing.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col justify-between gap-2"
+                    >
+                      <div key={index} className="flex justify-between">
+                        <span>{item.label} Plan</span>
+                        <span>
+                          {currency}
+                          {item.value}/mo
+                        </span>
+                      </div>
+                      <div key={index} className="flex justify-between">
+                        <span>Installation</span>
+                        <span className="px-2 bg-[#0CAB461A] text-[#0CAB46]">
+                          Free
+                        </span>
+                      </div>
+                      <div key={index} className="flex justify-between">
+                        <span>Est. installation</span>
+                        <span className="text-[#F2A413]">3-5 days</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                    {item.type === "free" ? (
-                      <span className="text-green-600 font-semibold">FREE</span>
-                    ) : item.type === "text" ? (
-                      <span className="text-orange-500 font-medium">
-                        {item.value}
-                      </span>
-                    ) : (
-                      <span className="font-semibold">
-                        {currency}
-                        {item.value}/mo
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+              {/* Total */}
+              <div className="mt-4 bg-gray-100 rounded-lg p-4 flex justify-between items-center">
+                <div>
+                  <p className="font-semibold text-sm">Monthly Total</p>
+                  <p className="text-xs text-gray-500">
+                    incl. all selected extras
+                  </p>
+                </div>
 
-            {/* Total */}
-            <div className="mt-4 bg-gray-100 rounded-lg p-4 flex justify-between items-center">
-              <div>
-                <p className="font-semibold text-sm">Monthly Total</p>
-                <p className="text-xs text-gray-500">
-                  incl. all selected extras
+                <p className="text-xl font-bold text-teal-800">
+                  {currency}
+                  {total}/mo
                 </p>
               </div>
-
-              <p className="text-xl font-bold text-teal-800">
-                {currency}
-                {total}/mo
-              </p>
             </div>
-          </div>
+          )}
         </>
       )}
 

@@ -79,7 +79,7 @@ function Connect() {
 
   return (
     <>
-      <div className="text-center pt-[100px] min-h-0" />
+      <div className="text-center pt-[93px] min-h-0" />
       <Stepper steps={steps} currentStep={0} />
       <div className="bg-gray-100 pt-6 min-h-[100vh]">
         <Container>

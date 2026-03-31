@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import Navbar from "@/components/Navbar";
 import "./globals.css";
+import type { Metadata } from "next";
+import Navbar from "@/src/components/NavBar";
 
 export const metadata: Metadata = {
   title: "Dolphin Pay (D pay) — A New Way to Manage Your Digital Lifestyle",
@@ -42,7 +42,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Navbar />
+        <Navbar /> 
         {children}
       </body>
     </html>

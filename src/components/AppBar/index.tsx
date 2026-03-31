@@ -1,8 +1,9 @@
 // components/Header.tsx
 import Image from "next/image";
 import Link from "next/link";
-import Container from "@/src/components/Container";
-import { FaLock, FaShieldAlt, FaPhoneAlt } from "react-icons/fa";
+import Container from "@/src/components/Container"; 
+import { IoLockClosedOutline, IoShieldOutline  } from "react-icons/io5";
+import { LuPhone } from "react-icons/lu";
 
 export default function AppBar() {
   return (
@@ -23,17 +24,17 @@ export default function AppBar() {
         {/* Right: Features */}
         <div className="flex items-center gap-8 text-sm text-gray-700">
           <div className="flex items-center gap-2">
-            <FaLock className="text-orange-500 text-sm" />
+            <IoLockClosedOutline className="text-orange-500 text-sm" />
             <span>Secure Checkout</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <FaShieldAlt className="text-orange-500 text-sm" />
+            <IoShieldOutline  className="text-orange-500 text-sm" />
             <span>No Hidden Fees</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <FaPhoneAlt className="text-orange-500 text-sm" />
+            <LuPhone className="text-orange-500 text-sm" />
             <span>Live Support</span>
           </div>
         </div>

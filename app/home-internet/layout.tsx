@@ -4,8 +4,9 @@ import AppBar from "@/src/components/AppBar";
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useState, Suspense } from "react";
+import Layout from "@/src/components/Layout";
 
 interface ItemType {
   id: string;
@@ -37,52 +38,11 @@ export default function HomeInternetLayout({
   const [items, setItems] = useState<ItemType[]>([]);
   const [pricing, setPricing] = useState<PriceType[]>([]);
   const pathname = usePathname();
-  const search = useSearchParams();
 
   console.log("pathname :: ", pathname);
 
-  useEffect(() => {
-    if (pathname === "/home-internet/plan") {
-      const data: ItemType[] = [];
-      data.push({
-        id: "service",
-        title: "Home Internet",
-        subtitle: "Selected service",
-        icon: "🏠",
-      });
-      if (search.get("location")) {
-        data.push({
-          id: "address",
-          title: `${search.get("location")}`,
-          subtitle: "Service address",
-          icon: "📍",
-        });
-      }
-      setItems([...data]);
-    } else if (pathname === "/home-internet") {
-      setItems([]);
-    }
-
-    if (
-      search.get("location") &&
-      search.get("label") &&
-      search.get("value") &&
-      search.get("type")
-    ) {
-      const price: PriceType[] = [];
-      price.push({
-        label: `${search.get("label")}`,
-        value: parseInt(`${search.get("value")}`),
-        type: `${search.get("type")}`,
-      });
-      setPricing([...price]);
-    } else if (pathname === "/home-internet") {
-      setPricing([]);
-    }
-  }, [pathname, search]);
-
   return (
-    <>
+    <Suspense>
       <AppBar />
       <div className="text-center pt-[93px] min-h-0" />
       <Stepper
@@ -105,6 +65,12 @@ export default function HomeInternetLayout({
           </div>
         </Container>
       </div>
-    </>
+      <Layout
+        setItems={setItems}
+        items={items}
+        pricing={pricing}
+        setPricing={setPricing}
+      />
+    </Suspense>
   );
 }

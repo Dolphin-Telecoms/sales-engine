@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { FaCheck } from "react-icons/fa";
-import { FiFilm, FiBarChart2 } from "react-icons/fi";
+import Image from "next/image";
+import { useState, ReactNode } from "react";
+import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
+import cn from "classnames";
 
 // Types
 interface Item {
   id: string;
   name: string;
   price: string;
+  icon: ReactNode;
 }
 
 interface SectionProps {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 interface CardProps {
@@ -23,45 +25,208 @@ interface CardProps {
 }
 
 const entertainment: Item[] = [
-  { id: "netflix", name: "Netflix", price: "$15/mo" },
-  { id: "spotify", name: "Spotify", price: "$10/mo" },
-  { id: "twitch", name: "Twitch", price: "$25/mo" },
-  { id: "binance", name: "Binance", price: "$50/mo" },
-  { id: "apple", name: "Apple", price: "$20/mo" },
+  {
+    id: "netflix",
+    name: "Netflix",
+    price: "$15/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Netflix.png"
+        alt="Netflix"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "spotify",
+    name: "Spotify",
+    price: "$10/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Spotify.png"
+        alt="Spotify"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "twitch",
+    name: "Twitch",
+    price: "$25/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Twitch.png"
+        alt="Twitch"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "binance",
+    name: "Binance",
+    price: "$50/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Binance.png"
+        alt="Binance"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "apple",
+    name: "Apple",
+    price: "$20/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Vector.png"
+        alt="Apple"
+        width={40}
+        height={40}
+      />
+    ),
+  },
 ];
 
 const gaming: Item[] = [
-  { id: "ps", name: "PlayStation", price: "$20/mo" },
-  { id: "xbox", name: "Xbox", price: "$20/mo" },
-  { id: "steam", name: "Steam", price: "$25/mo" },
-  { id: "roblox", name: "Roblox", price: "$10/mo" },
-  { id: "mc", name: "Minecraft", price: "$30/mo" },
+  {
+    id: "ps",
+    name: "PlayStation",
+    price: "$20/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/PlayStation.png"
+        alt="PlayStation"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "xbox",
+    name: "Xbox",
+    price: "$20/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Xbox.png"
+        alt="Xbox"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "steam",
+    name: "Steam",
+    price: "$25/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Steam.png"
+        alt="Steam"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "roblox",
+    name: "Roblox",
+    price: "$10/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/Roblox_Corporation.png"
+        alt="Roblox"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "mc",
+    name: "Minecraft",
+    price: "$30/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/minecraft.png"
+        alt="Minecraft"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+];
+
+const shoping: Item[] = [
+  {
+    id: "amazon",
+    name: "Amazon",
+    price: "$50/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/amazon.png"
+        alt="Amazon"
+        width={40}
+        height={40}
+      />
+    ),
+  },
 ];
 
 const security: Item[] = [
-  { id: "norton", name: "Norton Security", price: "$40/mo" },
-  { id: "mcafee", name: "McAfee", price: "$35/mo" },
+  {
+    id: "norton",
+    name: "Norton Security",
+    price: "$40/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/norton.png"
+        alt="Norton"
+        width={40}
+        height={40}
+      />
+    ),
+  },
+  {
+    id: "mcafee",
+    name: "McAfee",
+    price: "$35/mo",
+    icon: (
+      <Image
+        src="/social-media-icon/mcafee-antivirus.png"
+        alt="McAfee"
+        width={40}
+        height={40}
+      />
+    ),
+  },
 ];
 
 export default function Extras() {
   const [streaming, setStreaming] = useState<boolean>(true);
   const [dataBoost, setDataBoost] = useState<boolean>(false);
-  const [selectedVouchers, setSelectedVouchers] = useState<string[]>(["spotify"]);
+  const [selectedVouchers, setSelectedVouchers] = useState<string[]>([
+    "spotify",
+  ]);
   const [bundleActive, setBundleActive] = useState<boolean>(false);
   const [mobilePlan, setMobilePlan] = useState<string>("standard");
 
   const toggleVoucher = (id: string) => {
     setSelectedVouchers((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
     );
   };
 
   return (
     <div className="w-full">
       <div className="w-full max-w-3xl bg-white rounded-xl p-8 shadow-sm">
-        <h1 className="text-3xl font-semibold mb-2">Enhance Your Plan</h1>
-        <p className="text-[#6b7280] mb-6">
-          Optional add-ons. Each selection updates your monthly and once-off totals instantly.
+        <h1 className="font-exo font-bold text-[34px] leading-[1.2] tracking-normal mb-2">Enhance Your Plan</h1>
+        <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
+          Optional add-ons. Each selection updates your monthly and once-off
+          totals instantly.
         </p>
 
         {/* Top Addons */}
@@ -69,25 +234,34 @@ export default function Extras() {
           <div
             onClick={() => setStreaming(!streaming)}
             className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
-              streaming ? "border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
+              streaming
+                ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
+                : "border-[#e5e7eb]"
             }`}
           >
             <div className="flex gap-3 items-center">
-              <div className="p-3 bg-[#fef3c7] rounded-lg">
-                <FiFilm />
+              <div
+                className={cn("p-3 rounded-lg", {
+                  "bg-[#fef3c7]": streaming,
+                  "bg-[#e5e7eb]": !streaming,
+                })}
+              >
+                🎬
               </div>
               <div>
-                <p className="font-semibold">Streaming Voucher</p>
-                <p className="text-sm text-[#6b7280]">
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">Streaming Voucher</p>
+                <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#6B7280]">
                   Enjoy your favourite content with a monthly streaming credit.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-semibold">$9/mo</span>
+              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">$9/mo</span>
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                  streaming ? "bg-[#f59e0b] border-[#f59e0b]" : "border-[#d1d5db]"
+                  streaming
+                    ? "bg-[#f59e0b] border-[#f59e0b]"
+                    : "border-[#d1d5db]"
                 }`}
               >
                 {streaming && <FaCheck className="text-white text-xs" />}
@@ -98,25 +272,34 @@ export default function Extras() {
           <div
             onClick={() => setDataBoost(!dataBoost)}
             className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
-              dataBoost ? "border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
+              dataBoost
+                ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
+                : "border-[#e5e7eb]"
             }`}
           >
             <div className="flex gap-3 items-center">
-              <div className="p-3 bg-[#e5e7eb] rounded-lg">
-                <FiBarChart2 />
+              <div
+                className={cn("p-3 rounded-lg", {
+                  "bg-[#fef3c7]": dataBoost,
+                  "bg-[#e5e7eb]": !dataBoost,
+                })}
+              >
+                📶
               </div>
               <div>
-                <p className="font-semibold">Extra Data Boost</p>
-                <p className="text-sm text-[#6b7280]">
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">Extra Data Boost</p>
+                <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#6B7280]">
                   Increase your monthly data allowance by 50GB.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-semibold">$15/mo</span>
+              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">$15/mo</span>
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                  dataBoost ? "bg-[#f59e0b] border-[#f59e0b]" : "border-[#d1d5db]"
+                  dataBoost
+                    ? "bg-[#f59e0b] border-[#f59e0b]"
+                    : "border-[#d1d5db]"
                 }`}
               >
                 {dataBoost && <FaCheck className="text-white text-xs" />}
@@ -147,6 +330,17 @@ export default function Extras() {
           ))}
         </Section>
 
+        <Section title="SHOPPING">
+          {shoping.map((item) => (
+            <Card
+              key={item.id}
+              item={item}
+              selected={selectedVouchers}
+              toggle={toggleVoucher}
+            />
+          ))}
+        </Section>
+
         <Section title="SECURITY">
           {security.map((item) => (
             <Card
@@ -159,12 +353,16 @@ export default function Extras() {
         </Section>
 
         {/* Bundle */}
-        <div className="border border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <p className="font-semibold">Bundle & Save 10%</p>
+        <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
+          <div className="flex justify-between items-center mb-4 gap-4 pb-4 border-b border-[#f59e0b]">
+            <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">📱</div>
+            <div className="flex-1">
+              <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
+                Bundle & Save 10%
+              </p>
               <p className="text-sm text-[#6b7280]">
-                Add a Mobile Plan and save 10% on your Internet package monthly price.
+                Add a Mobile Plan and save 10% on your Internet package monthly
+                price.
               </p>
             </div>
             <button
@@ -181,8 +379,9 @@ export default function Extras() {
 
           {bundleActive && (
             <div className="space-y-3">
-              <p className="font-medium text-sm">Select Mobile Plan</p>
-
+              <p className="font-exo font-bold text-[14px] leading-[1] tracking-normal">
+                Select Mobile Plan
+              </p>
               {["basic", "standard", "global"].map((plan) => {
                 const isActive = mobilePlan === plan;
 
@@ -210,18 +409,20 @@ export default function Extras() {
                     onClick={() => setMobilePlan(plan)}
                     className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
                       isActive
-                        ? "border-[#f59e0b] bg-[#fff7ed]"
-                        : "border-[#e5e7eb]"
+                        ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
+                        : "border-[#e5e7eb] bg-[#FFFFFF]"
                     }`}
                   >
                     <div>
-                      <p className="font-medium">{data.title}</p>
-                      <p className="text-sm text-[#6b7280]">
-                        {data.desc}
+                      <p className="font-exo font-bold text-[16px] leading-[1.5] tracking-normal">
+                        {data.title}
                       </p>
+                      <p className="text-sm text-[#6b7280]">{data.desc}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold">{data.price}</span>
+                      <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
+                        {data.price}
+                      </span>
                       <div
                         className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                           isActive
@@ -229,25 +430,24 @@ export default function Extras() {
                             : "border-[#d1d5db]"
                         }`}
                       >
-                        {isActive && (
-                          <FaCheck className="text-white text-xs" />
-                        )}
+                        {isActive && <FaCheck className="text-white text-xs" />}
                       </div>
                     </div>
                   </div>
                 );
               })}
 
-              <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] text-sm flex items-center gap-2">
-                <FaCheck /> Bundle savings applied. You're saving 10% on your Internet package.
+              <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
+                <FaRegCheckCircle /> Bundle savings applied. You're saving 10%
+                on your Internet package.
               </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between mt-6">
-          <button className="px-6 py-3 border rounded-lg">Back</button>
+        <div className="flex gap-3 mt-6">
+          <button className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg">Back</button>
           <button className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
             Continue →
           </button>
@@ -264,7 +464,7 @@ function Card({ item, selected, toggle }: CardProps) {
     <div
       onClick={() => toggle(item.id)}
       className={`relative border rounded-xl p-4 cursor-pointer transition ${
-        active ? "border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
+        active ? "border-2 border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
       }`}
     >
       <div
@@ -276,10 +476,14 @@ function Card({ item, selected, toggle }: CardProps) {
       </div>
 
       <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
-        IMG
+        {item.icon}
       </div>
-      <p className="font-medium text-sm">{item.name}</p>
-      <p className="text-[#1f4d5a] font-semibold">{item.price}</p>
+      <p className="font-exo font-bold text-[14px] leading-[1.5] tracking-normal text-center mb-2">
+        {item.name}
+      </p>
+      <p className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-center text-[#2C6176]">
+        {item.price}
+      </p>
     </div>
   );
 }
@@ -287,7 +491,7 @@ function Card({ item, selected, toggle }: CardProps) {
 function Section({ title, children }: SectionProps) {
   return (
     <div className="mb-6">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#DCDCDC]">
         <div className="w-1 h-4 bg-[#f59e0b]" />
         <p className="text-xs tracking-widest text-[#6b7280]">{title}</p>
       </div>

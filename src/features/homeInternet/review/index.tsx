@@ -74,7 +74,7 @@ export default function ReviewPlan() {
       {/* Conditional UI */}
       {isConfirmed ? (
         <div className="mt-8 text-center">
-          <div className="text-4xl">🎉</div>
+          <div className="text-8xl">🎉</div>
 
           <h3 className="mt-3 font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-center text-[#111827]">
             You're almost connected!

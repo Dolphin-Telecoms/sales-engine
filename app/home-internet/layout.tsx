@@ -54,7 +54,11 @@ export default function HomeInternetLayout({
               ? 2
               : pathname === "/home-internet/extras"
                 ? 3
-                : 0
+                : pathname === "/home-internet/equipment"
+                  ? 4
+                  : pathname === "/home-internet/review"
+                    ? 5
+                    : 0
         }
       />
       <div className="bg-gray-100 pt-6 min-h-[100vh]">

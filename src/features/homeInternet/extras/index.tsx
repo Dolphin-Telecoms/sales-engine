@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, ReactNode } from "react";
 import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
 import cn from "classnames";
+import { redirect, useSearchParams, useRouter } from "next/navigation";
 
 // Types
 interface Item {
@@ -220,10 +221,15 @@ export default function Extras() {
     );
   };
 
+  const search = useSearchParams();
+  const router = useRouter();
+
   return (
     <div className="w-full">
       <div className="w-full max-w-3xl bg-white rounded-xl p-8 shadow-sm">
-        <h1 className="font-exo font-bold text-[34px] leading-[1.2] tracking-normal mb-2">Enhance Your Plan</h1>
+        <h1 className="font-exo font-bold text-[34px] leading-[1.2] tracking-normal mb-2">
+          Enhance Your Plan
+        </h1>
         <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
           Optional add-ons. Each selection updates your monthly and once-off
           totals instantly.
@@ -249,14 +255,18 @@ export default function Extras() {
                 🎬
               </div>
               <div>
-                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">Streaming Voucher</p>
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">
+                  Streaming Voucher
+                </p>
                 <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#6B7280]">
                   Enjoy your favourite content with a monthly streaming credit.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">$9/mo</span>
+              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
+                $9/mo
+              </span>
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                   streaming
@@ -287,14 +297,18 @@ export default function Extras() {
                 📶
               </div>
               <div>
-                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">Extra Data Boost</p>
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal mb-1">
+                  Extra Data Boost
+                </p>
                 <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#6B7280]">
                   Increase your monthly data allowance by 50GB.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">$15/mo</span>
+              <span className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
+                $15/mo
+              </span>
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                   dataBoost
@@ -354,7 +368,11 @@ export default function Extras() {
 
         {/* Bundle */}
         <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
-          <div className="flex justify-between items-center mb-4 gap-4 pb-4 border-b border-[#f59e0b]">
+          <div
+            className={cn("flex justify-between items-center gap-4", {
+              "mb-4 pb-4 border-b border-[#f59e0b]": bundleActive,
+            })}
+          >
             <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">📱</div>
             <div className="flex-1">
               <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
@@ -447,8 +465,38 @@ export default function Extras() {
 
         {/* Footer */}
         <div className="flex gap-3 mt-6">
-          <button className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg">Back</button>
-          <button className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
+          <button
+            className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
+            onClick={() => {
+              if (
+                search.get("location") &&
+                search.get("label") &&
+                search.get("value") &&
+                search.get("type")
+              ) {
+                router.push(
+                  `/home-internet/plan?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                );
+              }
+            }}
+          >
+            Back
+          </button>
+          <button
+            className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
+            onClick={() => {
+              if (
+                search.get("location") &&
+                search.get("label") &&
+                search.get("value") &&
+                search.get("type")
+              ) {
+                router.push(
+                  `/home-internet/equipment?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                );
+              }
+            }}
+          >
             Continue →
           </button>
         </div>

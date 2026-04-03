@@ -15,7 +15,7 @@ export default function RedirectCheckout() {
   }, [router]);
 
   return (
-    <div className="flex flex-col min-h-full justify-center items-center">
+    <div className="flex flex-col min-h-full justify-center items-center mx-5">
       {/* Abstract layered shapes */}
       <div className="flex items-center justify-center w-fit h-fit rounded-full p-5 bg-[#E6F2F5] mt-[20vh]">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#C7DFE6] border-t-[#2F5D6C]"></div>

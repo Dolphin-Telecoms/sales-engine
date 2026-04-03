@@ -6,7 +6,7 @@ import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
 import { usePathname } from "next/navigation";
 import { useState, Suspense } from "react";
-import Layout from "@/src/components/Layout/HomeInternet";
+import Layout from "@/src/components/Layout/BusinessInternet";
 
 interface ItemType {
   id: string;
@@ -21,7 +21,7 @@ interface PriceType {
   type?: string;
 }
 
-export default function HomeInternetLayout({
+export default function BusinessLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -38,9 +38,6 @@ export default function HomeInternetLayout({
   const [items, setItems] = useState<ItemType[]>([]);
   const [pricing, setPricing] = useState<PriceType[]>([]);
   const pathname = usePathname();
-
-  console.log("pathname :: ", pathname);
-
   return (
     <Suspense>
       <AppBar />
@@ -48,21 +45,21 @@ export default function HomeInternetLayout({
       <Stepper
         steps={steps}
         currentStep={
-          pathname === "/home-internet"
+          pathname === "/business-internet/location"
             ? 1
-            : pathname === "/home-internet/plan"
+            : pathname === "/business-internet/plan"
               ? 2
-              : pathname === "/home-internet/extras"
+              : pathname === "/business-internet/extras"
                 ? 3
-                : pathname === "/home-internet/equipment"
+                : pathname === "/business-internet/equipment"
                   ? 4
-                  : pathname === "/home-internet/review"
+                  : pathname === "/business-internet/review"
                     ? 5
                     : 0
         }
       />
-      <div className="bg-gray-100 pt-6 min-h-[100vh]">
-        <Container className="grid grid-cols-1 gap-y-6 gap-x-6 xl:gap-0 lg:grid-cols-12 justify-between">
+      <div className="bg-gray-100 pt-6 min-h-[100vh] mb-6">
+        <Container className="grid grid-cols-1 gap-y-6 gap-x-6 xl:gap-0  lg:grid-cols-12 justify-between">
           <div className="lg:col-span-8">{children}</div>
           <div className="lg:col-span-4">
             <PlanSummary items={items} pricing={pricing} />

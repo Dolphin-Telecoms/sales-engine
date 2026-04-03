@@ -210,6 +210,9 @@ const security: Item[] = [
 export default function Extras() {
   const [streaming, setStreaming] = useState<boolean>(true);
   const [dataBoost, setDataBoost] = useState<boolean>(false);
+  const [support, setSupport] = useState<boolean>(false);
+  const [boost, setBoost] = useState<boolean>(false);
+  const [routers, setRouter] = useState<boolean>(false);
   const [selectedVouchers, setSelectedVouchers] = useState<string[]>([
     "spotify",
   ]);
@@ -227,30 +230,54 @@ export default function Extras() {
 
   return (
     <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
-      <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
-        Enhance Your Plan
+      <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
+        Enhance Your Business Plan
       </h1>
-      <p className="font-exo font-normal  text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
-        Optional add-ons. Each selection updates your monthly and once-off
-        totals instantly.
+      <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
+        Optional add-ons designed for business needs. Each selection updates
+        your totals instantly.
       </p>
 
       {/* Top Addons */}
       <div className="space-y-4 mb-6">
         <PlanCard
-          image="/extra/Voucher.png"
-          title="Streaming Voucher"
-          description="Enjoy your favourite content with a monthly streaming credit."
+          image="/extra/Address.png"
+          title="Static IP Address"
+          description="Dedicated fixed IP for hosting, VPN, and remote access."
           selected={streaming}
           onClick={() => setStreaming(!streaming)}
-          price="$9/mo"
+          price="$15/mo"
         />
         <PlanCard
           image="/extra/Failover.png"
-          title="Extra Data Boost"
-          description="Increase your monthly data allowance by 50GB."
+          title="Backup LTE Failover"
+          description="Automatic LTE failover keeps your business online if primary drops."
           selected={dataBoost}
           onClick={() => setDataBoost(!dataBoost)}
+          price="$25/mo"
+        />
+        <PlanCard
+          image="/extra/Support.png"
+          title="Priority Business Support"
+          description="Dedicated support line with 4-hour SLA response time."
+          selected={support}
+          onClick={() => setSupport(!support)}
+          price="$20/mo"
+        />
+        <PlanCard
+          image="/extra/Boost.png"
+          title="Extra Data Boost"
+          description="Increase your monthly data allowance by 50GB."
+          selected={boost}
+          onClick={() => setBoost(!boost)}
+          price="$15/mo"
+        />
+        <PlanCard
+          image="/extra/Router.png"
+          title="Additional Router"
+          description="Add a second router for extended coverage across your premises."
+          selected={routers}
+          onClick={() => setRouter(!routers)}
           price="$15/mo"
         />
       </div>
@@ -417,7 +444,7 @@ export default function Extras() {
               search.get("type")
             ) {
               router.push(
-                `/home-internet/plan?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                `/business-internet/plan?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
               );
             }
           }}
@@ -434,7 +461,7 @@ export default function Extras() {
               search.get("type")
             ) {
               router.push(
-                `/home-internet/equipment?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                `/business-internet/equipment?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
               );
             }
           }}

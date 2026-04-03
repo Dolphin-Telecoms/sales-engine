@@ -13,11 +13,10 @@ export default function ReviewPlan() {
     <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
       {/* Header */}
       <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[1.2] tracking-normal">
-        Review Your Plan Before Checkout
+        Review Your Business Plan
       </h1>
-      <p className="font-exo font-normal text-[12px] text-[14px] leading-[1] tracking-normal text-[#2C6176] mt-3">
-        Everything looks good? Hit Get Connected and we'll take care of the
-        rest.
+      <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176] mt-3">
+        Transparent pricing. Secure checkout. Support available.
       </p>
 
       {/* Selection */}
@@ -117,7 +116,6 @@ export default function ReviewPlan() {
       ) : (
         <>
           <div className="my-6 h-[1px] bg-[#E5E7EB]" />
-
           <div className="flex flex-col lg:flex-row gap-4 mt-6">
             <button className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5">
               Edit Plan

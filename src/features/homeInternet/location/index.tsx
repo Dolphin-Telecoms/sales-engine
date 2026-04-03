@@ -40,12 +40,12 @@ export default function AvailabilityChecker() {
 
   return (
     <div className="w-full">
-      <div className="w-full max-w-3xl bg-white rounded-xl p-8 shadow-sm">
+      <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[120%] tracking-normal">
           Check Availability in Your Area
         </h1>
-        <p className="text-sm text-[#6B7280] mt-1">
+        <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-normal text-[#2C6176]">
           Enter your address to see which connection options are available.
         </p>
 
@@ -113,7 +113,7 @@ export default function AvailabilityChecker() {
         <div className="my-6 border-t border-gray-200" />
 
         {/* Buttons */}
-        <div className="flex gap-4">
+        <div className="flex flex-col lg:flex-row gap-4">
           <button
             onClick={() => {
               setQuery("");

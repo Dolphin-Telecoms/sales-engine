@@ -57,12 +57,12 @@ export default function SecureCheckout() {
   return (
     <>
       {/* MAIN CARD */}
-      <div className="w-full max-w-3xl bg-white rounded-xl p-8 shadow-sm">
+      <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         {/* Header */}
-        <h1 className="font-exo font-bold text-[34px] leading-[1.2] tracking-normal">
+        <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[1.2] tracking-normal">
           Secure Checkout
         </h1>
-        <p className="mt-2 font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176]">
+        <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176]">
           Complete your details below to proceed to payment.
         </p>
 
@@ -115,13 +115,13 @@ export default function SecureCheckout() {
               which payment methods are available.
             </p>
 
-            <div className="mt-4 flex gap-3">
+            <div className="mt-4 flex flex-col md:flex-row gap-3 bg-white p-2 border rounded-xl border-[#DCDCDC]">
               <button
                 onClick={() => setCurrency("USD")}
-                className={`flex-1 rounded-lg border px-4 py-3 font-exo text-[14px] ${
+                className={`flex-1 rounded-lg px-4 py-3 font-exo text-[14px] ${
                   currency === "USD"
-                    ? "bg-[#2F5D6C] text-white border-[#2F5D6C]"
-                    : "bg-white border-[#D1D5DB]"
+                    ? "bg-[#2F5D6C] text-white border border-[#2F5D6C]"
+                    : "bg-white"
                 }`}
               >
                 <div className="flex items-center gap-3 w-fit mx-auto">
@@ -137,10 +137,10 @@ export default function SecureCheckout() {
 
               <button
                 onClick={() => setCurrency("ZAR")}
-                className={`flex-1 rounded-lg border px-4 py-3 font-exo text-[14px] ${
+                className={`flex-1 rounded-lg px-4 py-3 font-exo text-[14px] ${
                   currency === "ZAR"
-                    ? "bg-[#2F5D6C] text-white border-[#2F5D6C]"
-                    : "bg-white border-[#D1D5DB]"
+                    ? "bg-[#2F5D6C] border text-white border-[#2F5D6C]"
+                    : "bg-white"
                 }`}
               >
                 <div className="flex items-center gap-3 w-fit mx-auto">

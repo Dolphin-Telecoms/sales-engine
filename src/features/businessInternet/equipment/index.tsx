@@ -57,7 +57,7 @@ export default function EquipmentSetup() {
               search.get("type")
             ) {
               router.push(
-                `/home-internet/extras?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                `/business-internet/extras?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
               );
             }
           }}
@@ -74,7 +74,7 @@ export default function EquipmentSetup() {
               search.get("type")
             ) {
               router.push(
-                `/home-internet/review?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                `/business-internet/review?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
               );
             }
           }}

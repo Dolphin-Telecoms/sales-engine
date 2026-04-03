@@ -69,7 +69,7 @@ export default function Plan() {
   if (search.get("location")) {
     return (
       <div className="w-full">
-        <div className="w-full max-w-3xl bg-white rounded-xl p-8 shadow-sm">
+        <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
           {/* Header */}
           <div className="text-sm text-[#6b7280] mb-2">
             <div className="flex gap-1 items-center">
@@ -83,10 +83,10 @@ export default function Plan() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-semibold text-[#111827] mb-2">
+          <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[120%] tracking-normal mt-4">
             Choose Your Plan
           </h1>
-          <p className="text-[#6b7280] mb-6">
+          <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-[#2C6176] mb-6">
             Available services in your area. Expand a connection type to see
             packages.
           </p>
@@ -204,7 +204,7 @@ export default function Plan() {
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between mt-6">
+          <div className="flex flex-col lg:flex-row gap-y-4 justify-between mt-6">
             <button
               className="px-6 py-3 border border-[#1f2937] rounded-lg"
               onClick={() => {

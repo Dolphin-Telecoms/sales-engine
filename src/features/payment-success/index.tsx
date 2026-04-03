@@ -16,17 +16,17 @@ const PaymentSuccess = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-xl rounded-xl p-8 mx-auto">
+    <div className="min-h-screen w-full md:max-w-xl rounded-xl p-4 xl:p-8 mx-auto">
       {/* Top Section: Success Tick and Text */}
       <div className="flex flex-col items-center text-center gap-5">
         {/* Main Success Circle with White Check - matches the image's simple style */}
-        <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-md">
+        <div className="w-14 h-14 lg:w-24 lg:h-24 p-2 bg-[#0CAB46] rounded-full flex items-center justify-center shadow-md">
           <IoCheckmark className="text-white w-14 h-14" strokeWidth={5} />
         </div>
-        <h1 className="text-3xl font-extrabold text-gray-950">
+        <h1 className="font-exo font-bold text-[18px] lg:text-[24px] leading-[120%] tracking-[0%] text-center">
           Processing Successful!
         </h1>
-        <p className="text-base text-gray-600 max-w-md">
+        <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-center">
           Thank you for choosing Dolphin Telecoms. Your order is confirmed.
         </p>
       </div>
@@ -93,7 +93,7 @@ const PaymentSuccess = () => {
 
       {/* Back to Home Button */}
       <a href="/connect" className="w-full">
-        <button className="w-full bg-cyan-950 text-white p-4 rounded-xl font-semibold text-lg shadow-sm hover:bg-cyan-800 transition duration-150 active:scale-[0.98]">
+        <button className="w-full px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
           Back to Home
         </button>
       </a>

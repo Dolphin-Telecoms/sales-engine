@@ -53,7 +53,9 @@ const ServiceCard: React.FC<Props> = ({
       </div>
 
       {/* Content */}
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <h3 className="font-exo font-bold text-[18px] lg:text-[20px] leading-[120%] tracking-normal">
+        {title}
+      </h3>
       <p className="mt-2 text-sm text-gray-500 leading-relaxed">
         {description}
       </p>

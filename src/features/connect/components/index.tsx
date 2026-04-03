@@ -1,7 +1,7 @@
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
-import Service from "@/src/components/Services"; 
+import Service from "@/src/components/Services";
 import { LuBuilding2 } from "react-icons/lu";
 import { FiSmartphone, FiHome } from "react-icons/fi";
 
@@ -65,7 +65,7 @@ function Connect() {
       description:
         "Scalable internet solutions built for growing businesses and teams.",
       icon: <LuBuilding2 />,
-      link: "#",
+      link: "/business-internet",
     },
     {
       id: "mobile",
@@ -79,19 +79,19 @@ function Connect() {
 
   return (
     <>
-      <div className="text-center pt-[93px] min-h-0" />
+      <div className="text-center pt-[70px] lg:pt-[93px] min-h-0" />
       <Stepper steps={steps} currentStep={0} />
       <div className="bg-gray-100 pt-6 min-h-[100vh]">
         <Container>
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-8">
+          <div className="grid grid-cols-1 gap-y-6 gap-x-6 lg:grid-cols-12 justify-between">
+            <div className="lg:col-span-8">
               <Service
                 title="Let’s Get You Connected"
                 subtitle="Select the service you'd like to set up."
                 services={services}
               />
             </div>
-            <div className="col-span-4">
+            <div className="lg:col-span-4">
               <PlanSummary items={[]} pricing={[]} />
             </div>
           </div>

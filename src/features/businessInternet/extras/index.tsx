@@ -425,8 +425,8 @@ export default function Extras() {
             })}
 
             <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
-              <FaRegCheckCircle /> Bundle savings applied. You're saving 10% on
-              your Internet package.
+              <FaRegCheckCircle className="hidden sm:flex" />  <FaRegCheckCircle size={30} className="sm:hidden flex" /> Bundle savings
+              applied. You're saving 10% on your Internet package.
             </div>
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import AppBar from "@/src/components/AppBar";
+import AppBar from "@/src/components/AppBar"; 
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
@@ -58,14 +58,14 @@ export default function BusinessLayout({
                     : 0
         }
       />
-      <div className="bg-gray-100 pt-6 min-h-[100vh] mb-6">
+      <div className="bg-gray-100 pt-6 min-h-[100vh]">
         <Container className="grid grid-cols-1 gap-y-6 gap-x-6 xl:gap-0  lg:grid-cols-12 justify-between">
           <div className="lg:col-span-8">{children}</div>
           <div className="lg:col-span-4">
             <PlanSummary items={items} pricing={pricing} />
           </div>
         </Container>
-      </div>
+      </div> 
       <Layout
         setItems={setItems}
         items={items}

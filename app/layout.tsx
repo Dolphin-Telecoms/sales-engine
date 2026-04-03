@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import Footer from "@/src/components/Footer";
 
 export const metadata: Metadata = {
   title: "Dolphin Pay (D pay) — A New Way to Manage Your Digital Lifestyle",
@@ -42,9 +43,12 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Exo:wght@700&display=swap"
           rel="stylesheet"
-        /> 
+        />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

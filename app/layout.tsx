@@ -1,7 +1,13 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Footer from "@/src/components/Footer";
+import Script from "next/script";
+import { Exo } from "next/font/google";
 
+const exo = Exo({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
 export const metadata: Metadata = {
   title: "Dolphin Pay (D pay) — A New Way to Manage Your Digital Lifestyle",
   description:
@@ -45,9 +51,26 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className={`${exo.className}`}>
         {children}
         <Footer />
+        {/* <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&libraries=places`}
+          strategy="afterInteractive"
+        /> */}
+        <script
+          src="https://googleapis.com"
+          data-address-field-id="service_address"
+          data-lat-field-id="service_lat"
+          data-lng-field-id="service_lng"
+          data-google-maps-api-key={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
+          data-country="in"
+          defer
+        ></script>
+        {/* <script
+          async
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&loading=async&libraries=places&callback=initMap`}
+        ></script> */}
       </body>
     </html>
   );

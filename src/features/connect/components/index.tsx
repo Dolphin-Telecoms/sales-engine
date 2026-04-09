@@ -73,7 +73,7 @@ function Connect() {
       description:
         "Stay connected with flexible mobile plans and global eSIM across Zimbabwe, South Africa and beyond.",
       icon: <FiSmartphone />,
-      link: "#",
+      link: "/mobile-internet",
     },
   ];
 

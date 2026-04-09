@@ -1,31 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import useDebounce from "@/src/hooks/useDebounce";
 
 type Address = {
-  id: number;
-  label: string;
+  description: string;
+  place_id: string;
 };
-
-const MOCK_ADDRESSES: Address[] = [
-  { id: 1, label: "1243 KENWOOD AVE CAMDEN NJ 08103" },
-  { id: 2, label: "1243 KCLAYTON RD WILLIAMSTOWN NJ 08094" },
-  { id: 3, label: "1243 EASTMONT LN SICKLERVILLE NJ 08081" },
-  { id: 4, label: "1243 FLORENCE AVE ATCO NJ 08004" },
-];
 
 export default function AvailabilityChecker() {
   const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Address[]>([]);
   const [selected, setSelected] = useState<Address | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const filtered = MOCK_ADDRESSES.filter((item) =>
-    item.label.toLowerCase().includes(query.toLowerCase()),
-  );
+  const debouncedQuery = useDebounce(query, 300);
 
   const handleSelect = (item: Address) => {
-    setQuery(item.label);
+    setQuery(item.description);
     setSelected(item);
     setShowDropdown(false);
   };
@@ -37,6 +30,33 @@ export default function AvailabilityChecker() {
   };
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (!debouncedQuery) {
+      setSuggestions([]);
+      return;
+    }
+
+    if (!(window as any).google) return;
+
+    const service = new (
+      window as any
+    ).google.maps.places.AutocompleteService();
+
+    service.getPlacePredictions(
+      {
+        input: debouncedQuery,
+        types: ["address"],
+      },
+      (predictions: any, status: string) => {
+        if (status === "OK" && predictions) {
+          setSuggestions(predictions);
+        } else {
+          setSuggestions([]);
+        }
+      },
+    );
+  }, [debouncedQuery]);
 
   return (
     <div className="w-full">
@@ -60,26 +80,22 @@ export default function AvailabilityChecker() {
               value={query}
               onChange={(e) => handleChange(e.target.value)}
               placeholder="e.g. 14 Samora Machel Ave"
-              className={`
-                w-full rounded-lg border px-4 py-3 outline-none text-sm
-                ${showDropdown ? "border-[#2F5D67]" : "border-gray-300"}
-              `}
+              className={`w-full rounded-lg border px-4 py-3 outline-none text-sm ${
+                showDropdown ? "border-[#2F5D67]" : "border-gray-300"
+              }`}
             />
 
             {/* Dropdown */}
             {showDropdown && query && !selected && (
-              <div className="absolute z-10 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-sm max-h-40 overflow-y-auto">
-                {filtered.length > 0 ? (
-                  filtered.map((item) => (
+              <div className="absolute z-10 mt-2 w-full rounded-lg border bg-white shadow-sm max-h-40 overflow-y-auto">
+                {suggestions.length > 0 ? (
+                  suggestions.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.place_id}
                       onClick={() => handleSelect(item)}
                       className="px-4 py-3 text-sm cursor-pointer hover:bg-gray-50"
                     >
-                      <span className="font-semibold">
-                        {item.label.slice(0, 4)}
-                      </span>{" "}
-                      {item.label.slice(4)}
+                      {item.description}
                     </div>
                   ))
                 ) : (
@@ -131,7 +147,9 @@ export default function AvailabilityChecker() {
             disabled={!selected}
             onClick={() => {
               if (selected) {
-                router.push(`/home-internet/plan?location=${selected.label}`);
+                router.push(
+                  `/home-internet/plan?location=${selected.description}`,
+                );
               }
             }}
           >

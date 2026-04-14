@@ -1,4 +1,4 @@
-import Axios from "@/src/libs/Axios";
+import CoverageAxios from "@/src/libs/Coverage";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await Axios.post(`/external/coverage/validate`, {
+    const response = await CoverageAxios.post(`/external/coverage/validate`, {
       address: address,
       service_use: service_use,
     }).then((res) => res.data);

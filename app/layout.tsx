@@ -53,24 +53,11 @@ export default function RootLayout({
       </head>
       <body className={`${exo.className}`}>
         {children}
-        <Footer />
-        {/* <Script
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&libraries=places`}
-          strategy="afterInteractive"
-        /> */}
-        <script
-          src="https://googleapis.com"
-          data-address-field-id="service_address"
-          data-lat-field-id="service_lat"
-          data-lng-field-id="service_lng"
-          data-google-maps-api-key={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
-          data-country="in"
-          defer
-        ></script>
-        {/* <script
+        <Footer /> 
+        <Script
           async
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&loading=async&libraries=places&callback=initMap`}
-        ></script> */}
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&loading=async&libraries=places`}
+        ></Script>
       </body>
     </html>
   );

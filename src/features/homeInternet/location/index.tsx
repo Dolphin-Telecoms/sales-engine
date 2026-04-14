@@ -3,10 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useDebounce from "@/src/hooks/useDebounce";
+import { checkCoverage } from "@/src/features/homeInternet/apis/checkCoverage";
 
 type Address = {
   description: string;
   place_id: string;
+};
+
+export const formatList = (items: string[]) => {
+  if (items.length === 0) return "";
+  if (items.length === 1) return items[0];
+
+  return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
 };
 
 export default function AvailabilityChecker() {
@@ -14,13 +22,31 @@ export default function AvailabilityChecker() {
   const [suggestions, setSuggestions] = useState<Address[]>([]);
   const [selected, setSelected] = useState<Address | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [isChecking, setIsChecking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [noService, setNoService] = useState(false);
+  const [serviceAvailable, setServiceAvailable] = useState<string[]>([]);
   const debouncedQuery = useDebounce(query, 300);
 
   const handleSelect = (item: Address) => {
     setQuery(item.description);
     setSelected(item);
     setShowDropdown(false);
+    setIsChecking(false);
+    setNoService(false);
+  };
+
+  const checkAddress = async () => {
+    setIsLoading(true);
+    const response = await checkCoverage(selected?.description || query);
+    if (response.status && response?.data?.available) {
+      setIsChecking(true);
+      setServiceAvailable(response?.data?.available_service_types);
+    } else {
+      setIsChecking(false);
+      setNoService(true);
+    }
+    setIsLoading(false);
   };
 
   const handleChange = (value: string) => {
@@ -47,6 +73,7 @@ export default function AvailabilityChecker() {
       {
         input: debouncedQuery,
         types: ["address"],
+        componentRestrictions: { country: "zw" }, // 🇿🇼 restriction
       },
       (predictions: any, status: string) => {
         if (status === "OK" && predictions) {
@@ -109,7 +136,7 @@ export default function AvailabilityChecker() {
         </div>
 
         {/* Success Message */}
-        {selected && (
+        {isChecking && (
           <div className="mt-6 rounded-lg border border-[#86EFAC] bg-[#DCFCE7] p-4 flex gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#BBF7D0]">
               <span className="text-green-700 font-bold">✓</span>
@@ -119,7 +146,29 @@ export default function AvailabilityChecker() {
                 Great news — we&lsquo;re available in your area.
               </p>
               <p className="text-sm text-green-700 mt-1">
-                Fibre, LTE and FWA are all available at your address.
+                {formatList(
+                  serviceAvailable.length > 0
+                    ? serviceAvailable
+                    : ["Fibre", "LTE", "FWA"],
+                )}{" "}
+                are available at your address.
+              </p>
+            </div>
+          </div>
+        )}
+        {noService && (
+          <div className="mt-6 rounded-lg border border-[#FCA5A5] bg-[#FEF2F2] p-4 flex gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FECACA]">
+              <span className="text-red-700 font-bold">✕</span>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-red-800">
+                Sorry — we’re not available in your area.
+              </p>
+
+              <p className="text-sm text-red-700 mt-1">
+                services are currently not available at your address.
               </p>
             </div>
           </div>
@@ -143,17 +192,26 @@ export default function AvailabilityChecker() {
           </button>
 
           <button
-            className="px-6 py-2.5 rounded-lg bg-[#2F5D67] text-white font-medium hover:bg-[#254c54]"
+            className="flex items-center justify-center px-6 py-2.5 rounded-lg bg-[#2F5D67] text-white font-medium hover:bg-[#254c54]"
             disabled={!selected}
             onClick={() => {
-              if (selected) {
-                router.push(
-                  `/home-internet/plan?location=${selected.description}`,
-                );
+              if (isChecking) {
+                if (selected) {
+                  router.push(
+                    `/home-internet/plan?location=${selected.description}`,
+                  );
+                }
+              } else {
+                checkAddress();
               }
             }}
           >
-            Check Availability
+            {isChecking ? "Continue →" : `Check Availability`}&nbsp;&nbsp;
+            {isLoading ? (
+              <div className="flex items-center justify-center w-fit h-fit rounded-full">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+              </div>
+            ) : null}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 // app/api/token/route.ts
 
+import { NextResponse } from "next/server";
 import { SignJWT, importPKCS8 } from "jose";
 import fs from "fs";
 import path from "path";
@@ -11,7 +12,11 @@ export async function GET(req: Request) {
     const userAgent = req.headers.get("user-agent") || "unknown-client";
 
     // ✅ Read private key (server-side only)
-    const privateKeyPath = path.join(process.cwd(), "keys", "private_pkcs8.pem");
+    const privateKeyPath = path.join(
+      process.cwd(),
+      "keys",
+      "private_pkcs8.pem",
+    );
     const privateKeyPem = fs.readFileSync(privateKeyPath, "utf8");
     const privateKey = await importPKCS8(privateKeyPem, "RS256");
 
@@ -31,7 +36,18 @@ export async function GET(req: Request) {
       .setExpirationTime("15m")
       .sign(privateKey);
 
-    return Response.json({ token });
+    const response = NextResponse.json({ token });
+
+    // ✅ THIS is how you set cookie in Next.js server
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: true, // must be true on Vercel
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60, // optional (1 hour)
+    });
+
+    return response;
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Token generation failed" }, { status: 500 });

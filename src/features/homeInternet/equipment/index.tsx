@@ -74,16 +74,7 @@ export default function EquipmentSetup() {
           <button
             className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
             onClick={() => {
-              if (
-                search.get("location") &&
-                search.get("label") &&
-                search.get("value") &&
-                search.get("type")
-              ) {
-                router.push(
-                  `/home-internet/review?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-                );
-              }
+              router.push(`/home-internet/review?${params.toString()}`);
             }}
           >
             Continue →

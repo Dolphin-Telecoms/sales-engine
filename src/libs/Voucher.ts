@@ -27,9 +27,7 @@ export const getServerAccessToken = async (): Promise<string | null> => {
   const res = await axios
     .get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/apis/token`)
     .then((req) => req.data);
-
-  (await cookies()).set("token", res.token);
-
+    
   return res.token;
 };
 

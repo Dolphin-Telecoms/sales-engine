@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import PlanCard from "@/src/components/PlanCard";
-
+import { Voucher } from "@/src/features/homeInternet/types/type";
+import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
 // Types
 interface Item {
   id: string;
@@ -21,78 +22,10 @@ interface SectionProps {
 }
 
 interface CardProps {
-  item: Item;
+  item: Voucher;
   selected: string[];
   toggle: (id: string) => void;
 }
-
-const entertainment: Item[] = [
-  {
-    id: "netflix",
-    name: "Netflix",
-    price: "$15/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Netflix.png"
-        alt="Netflix"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "spotify",
-    name: "Spotify",
-    price: "$10/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Spotify.png"
-        alt="Spotify"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "twitch",
-    name: "Twitch",
-    price: "$25/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Twitch.png"
-        alt="Twitch"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "binance",
-    name: "Binance",
-    price: "$50/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Binance.png"
-        alt="Binance"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "apple",
-    name: "Apple",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Vector.png"
-        alt="Apple"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
 
 const gaming: Item[] = [
   {
@@ -215,6 +148,10 @@ export default function Extras() {
   ]);
   const [bundleActive, setBundleActive] = useState<boolean>(false);
   const [mobilePlan, setMobilePlan] = useState<string>("standard");
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [entertainment, setEntertainment] = useState<Voucher[]>([]);
 
   const toggleVoucher = (id: string) => {
     setSelectedVouchers((prev) =>
@@ -224,6 +161,34 @@ export default function Extras() {
 
   const search = useSearchParams();
   const router = useRouter();
+
+  const getCategories = async () => {
+    try {
+      setLoading(true);
+      const res = await getVouchers();
+      if (res.status) {
+        setVouchers(res.data as Voucher[]);
+        setEntertainment(
+          res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("entertainment"),
+          ) as Voucher[],
+        );
+      } else {
+        setVouchers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching vouchers:", error);
+      setVouchers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  console.log(vouchers);
 
   return (
     <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
@@ -266,7 +231,7 @@ export default function Extras() {
         ))}
       </Section>
 
-      <Section title="GAMING">
+      {/* <Section title="GAMING">
         {gaming.map((item) => (
           <Card
             key={item.id}
@@ -297,7 +262,7 @@ export default function Extras() {
             toggle={toggleVoucher}
           />
         ))}
-      </Section>
+      </Section> */}
 
       {/* Bundle */}
       <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
@@ -324,10 +289,11 @@ export default function Extras() {
 
           <button
             onClick={() => setBundleActive(!bundleActive)}
+            disabled={true}
             className={`px-4 w-full md:w-[200px] py-2 rounded-lg border ${
               bundleActive
                 ? "bg-[#ecfdf5] text-[#065f46] border-[#10b981]"
-                : "bg-[#f59e0b] text-white border-[#f59e0b]"
+                : "bg-[#f59e0b] text-white border-[#f59e0b] opacity-20"
             }`}
           >
             {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
@@ -466,13 +432,23 @@ function Card({ item, selected, toggle }: CardProps) {
       </div>
 
       <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
-        {item.icon}
+        <Image
+          src={item.metadata.logo_url}
+          alt={item.metadata.description}
+          height={80}
+          width={80}
+        />
       </div>
       <p className="font-exo font-bold text-[14px] leading-[1.5] tracking-normal text-center mb-2">
         {item.name}
       </p>
       <p className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-center text-[#2C6176]">
-        {item.price}
+        ${" "}
+        {
+          item.prices.find(
+            (items) => items.currency.toLocaleLowerCase() === "usd",
+          )?.value
+        }
       </p>
     </div>
   );

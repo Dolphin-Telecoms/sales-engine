@@ -1,9 +1,14 @@
+"use client";
+
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
 import Service from "@/src/components/Services";
 import { LuBuilding2 } from "react-icons/lu";
 import { FiSmartphone, FiHome } from "react-icons/fi";
+import { getHomeCategories } from "@/src/features/connect/apis/homeCategories";
+import { useEffect, useState } from "react";
+import { HomeCategory } from "@/src/features/connect/types/connect";
 
 function Connect() {
   const steps = [
@@ -14,6 +19,30 @@ function Connect() {
     { label: "Equipment" },
     { label: "Review" },
   ];
+
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<HomeCategory[]>([]);
+
+  const getCategories = async () => {
+    try {
+      setLoading(true);
+      const res = await getHomeCategories();
+      if (res.status) {
+        setCategories(res.data as HomeCategory[]);
+      } else {
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   // const items = [
   //   {
@@ -51,22 +80,29 @@ function Connect() {
 
   // data/services.ts
   const services = [
-    {
-      id: "home",
-      title: "Home Internet",
-      description:
-        "Reliable connectivity for your household. Fibre, LTE and wireless options available.",
-      icon: <FiHome />,
-      link: "/home-internet",
-    },
-    {
-      id: "business",
-      title: "Business",
-      description:
-        "Scalable internet solutions built for growing businesses and teams.",
-      icon: <LuBuilding2 />,
-      link: "/business-internet",
-    },
+    ...categories
+      .filter(
+        (category) =>
+          category.name.toLocaleLowerCase().includes("home") ||
+          category.name.toLocaleLowerCase().includes("business"),
+      )
+      .map((category) => ({
+        id: category.id.toString(),
+        title: category.name.toLocaleLowerCase().includes("home")
+          ? "Home Internet"
+          : category.name,
+        description: category.name.toLocaleLowerCase().includes("home")
+          ? "Reliable connectivity for your household. Fibre, LTE and wireless options available."
+          : "Scalable internet solutions built for growing businesses and teams.",
+        icon: category.name.toLocaleLowerCase().includes("home") ? (
+          <FiHome />
+        ) : (
+          <LuBuilding2 />
+        ),
+        link: category.name.toLocaleLowerCase().includes("home")
+          ? "/home-internet"
+          : "/business-internet",
+      })),
     {
       id: "mobile",
       title: "Mobile",
@@ -89,6 +125,7 @@ function Connect() {
                 title="Let’s Get You Connected"
                 subtitle="Select the service you'd like to set up."
                 services={services}
+                loading={loading}
               />
             </div>
             <div className="lg:col-span-4">

@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState, ReactNode, useEffect } from "react";
+import { useState, ReactNode, useEffect, use } from "react";
 import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import PlanCard from "@/src/components/PlanCard";
 import { Voucher } from "@/src/features/homeInternet/types/type";
 import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
-// Types
+
 interface Item {
   id: string;
   name: string;
@@ -143,9 +143,7 @@ const security: Item[] = [
 export default function Extras() {
   const [streaming, setStreaming] = useState<boolean>(true);
   const [dataBoost, setDataBoost] = useState<boolean>(false);
-  const [selectedVouchers, setSelectedVouchers] = useState<string[]>([
-    "spotify",
-  ]);
+  const [selectedVouchers, setSelectedVouchers] = useState<string[]>([]);
   const [bundleActive, setBundleActive] = useState<boolean>(false);
   const [mobilePlan, setMobilePlan] = useState<string>("standard");
 
@@ -161,6 +159,8 @@ export default function Extras() {
 
   const search = useSearchParams();
   const router = useRouter();
+  const searchParams = Object.fromEntries(search.entries());
+  const params = new URLSearchParams(searchParams);
 
   const getCategories = async () => {
     try {
@@ -172,17 +172,15 @@ export default function Extras() {
         );
         setEntertainment(entertainmentSelected as Voucher[]);
 
-        const params = Object.fromEntries(search.entries());
+        let updated: string[] = [];
 
-        entertainmentSelected?.map((item) => {
-          if (params[item.name]) {
-            setSelectedVouchers((prev) =>
-              prev.includes(item.id)
-                ? prev.filter((v) => v !== item.id)
-                : [...prev, item.id],
-            );
+        entertainmentSelected?.forEach((item) => {
+          if (searchParams[item.name] === item.id) {
+            updated.push(item.id);
           }
         });
+
+        setSelectedVouchers(updated);
       } else {
         setEntertainment([]);
       }
@@ -413,34 +411,14 @@ export default function Extras() {
         <div className="flex flex-col lg:flex-row gap-4 mt-6">
           <button
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
-            onClick={() => {
-              if (
-                search.get("location") &&
-                search.get("label") &&
-                search.get("value") &&
-                search.get("type")
-              ) {
-                router.push(
-                  `/home-internet/plan?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-                );
-              }
-            }}
+            onClick={() => router.back()}
           >
             Back
           </button>
           <button
             className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
             onClick={() => {
-              if (
-                search.get("location") &&
-                search.get("label") &&
-                search.get("value") &&
-                search.get("type")
-              ) {
-                router.push(
-                  `/home-internet/equipment?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-                );
-              }
+              router.push(`/home-internet/equipment?${params.toString()}`);
             }}
           >
             Continue →
@@ -473,44 +451,61 @@ const CardSkeleton = () => {
 
 function Card({ item, selected, onClick }: CardProps) {
   const active = selected.includes(item.id);
-  const router = useRouter();
+
+  const isOutOfStock = item.available_count === 0;
 
   return (
     <div
       onClick={() => {
-        onClick(item.id);
+        if (!isOutOfStock) onClick(item.id);
       }}
-      className={`relative border rounded-xl p-4 cursor-pointer transition ${
-        active ? "border-2 border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
-      }`}
+      className={cn("relative border rounded-xl p-4 transition", {
+        "cursor-not-allowed bg-gray-100 border-gray-200 opacity-60":
+          isOutOfStock,
+        "cursor-pointer border-2 border-[#f59e0b] bg-[#fff7ed]":
+          !isOutOfStock && active,
+        "cursor-pointer border-[#e5e7eb]": !isOutOfStock && !active,
+      })}
     >
+      {/* Checkbox */}
       <div
-        className={`absolute top-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center ${
-          active ? "bg-[#f59e0b] border-[#f59e0b]" : "border-[#d1d5db]"
-        }`}
+        className={cn(
+          "absolute top-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center",
+          {
+            "border-gray-300 bg-gray-200": isOutOfStock,
+            "bg-[#f59e0b] border-[#f59e0b]": !isOutOfStock && active,
+            "border-[#d1d5db]": !isOutOfStock && !active,
+          },
+        )}
       >
-        {active && <FaCheck className="text-white text-xs" />}
+        {!isOutOfStock && active && <FaCheck className="text-white text-xs" />}
       </div>
 
+      {/* Image */}
       <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
         <Image
           src={item.metadata.logo_url}
           alt={item.metadata.description}
           height={80}
           width={80}
+          className={cn({ grayscale: isOutOfStock })}
         />
       </div>
-      <p className="font-exo font-bold text-[14px] leading-[1.5] tracking-normal text-center mb-2">
+
+      {/* Name */}
+      <p className="font-exo font-bold text-[14px] text-center mb-2">
         {item.name}
       </p>
-      <p className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-center text-[#2C6176]">
-        ${" "}
-        {
-          item.prices.find(
-            (items) => items.currency.toLocaleLowerCase() === "usd",
-          )?.value
-        }
+
+      {/* Price */}
+      <p className="font-exo font-bold text-[16px] text-center text-[#2C6176]">
+        ${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}
       </p>
+
+      {/* Optional label */}
+      {isOutOfStock && (
+        <p className="text-xs text-center text-red-500 mt-1">Out of Stock</p>
+      )}
     </div>
   );
 }

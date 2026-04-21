@@ -186,7 +186,7 @@ export default function AvailabilityChecker() {
                 setQuery("");
                 setSelected(null);
                 setShowDropdown(false);
-                router.push("/connect");
+                router.back();
               }}
               className="px-6 py-2.5 rounded-lg border border-[#2F5D67] text-[#2F5D67] font-medium hover:bg-gray-50"
             >

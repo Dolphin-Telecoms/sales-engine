@@ -281,9 +281,7 @@ export default function Plan() {
             <button
               className="px-6 py-3 border border-[#1f2937] rounded-lg"
               onClick={() => {
-                router.push(
-                  `/home-internet?homeCategory=${search.get("homeCategory")}`,
-                );
+                router.back();
               }}
             >
               Back

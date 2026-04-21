@@ -24,7 +24,7 @@ interface SectionProps {
 interface CardProps {
   item: Voucher;
   selected: string[];
-  toggle: (id: string) => void;
+  onClick: (id: string) => void;
 }
 
 const gaming: Item[] = [
@@ -148,7 +148,7 @@ export default function Extras() {
   ]);
   const [bundleActive, setBundleActive] = useState<boolean>(false);
   const [mobilePlan, setMobilePlan] = useState<string>("standard");
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+
   const [loading, setLoading] = useState(true);
 
   const [entertainment, setEntertainment] = useState<Voucher[]>([]);
@@ -167,18 +167,28 @@ export default function Extras() {
       setLoading(true);
       const res = await getVouchers();
       if (res.status) {
-        setVouchers(res.data as Voucher[]);
-        setEntertainment(
-          res?.data?.filter((item) =>
-            item.metadata.group.toLocaleLowerCase().includes("entertainment"),
-          ) as Voucher[],
+        const entertainmentSelected = res?.data?.filter((item) =>
+          item.metadata.group.toLocaleLowerCase().includes("entertainment"),
         );
+        setEntertainment(entertainmentSelected as Voucher[]);
+
+        const params = Object.fromEntries(search.entries());
+
+        entertainmentSelected?.map((item) => {
+          if (params[item.name]) {
+            setSelectedVouchers((prev) =>
+              prev.includes(item.id)
+                ? prev.filter((v) => v !== item.id)
+                : [...prev, item.id],
+            );
+          }
+        });
       } else {
-        setVouchers([]);
+        setEntertainment([]);
       }
     } catch (error) {
       console.error("Error fetching vouchers:", error);
-      setVouchers([]);
+      setEntertainment([]);
     } finally {
       setLoading(false);
     }
@@ -188,50 +198,75 @@ export default function Extras() {
     getCategories();
   }, []);
 
-  console.log(vouchers);
+  if (!search.get("homeCategory")) {
+    redirect("/connect");
+  } else if (!search.get("location")) {
+    redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
+  } else if (
+    !search.get("childCategory") ||
+    !search.get("product") ||
+    !search.get("price") ||
+    !search.get("attribute")
+  ) {
+    redirect(
+      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}`,
+    );
+  } else {
+    return (
+      <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
+        <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
+          Enhance Your Plan
+        </h1>
+        <p className="font-exo font-normal  text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
+          Optional add-ons. Each selection updates your monthly and once-off
+          totals instantly.
+        </p>
 
-  return (
-    <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
-      <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
-        Enhance Your Plan
-      </h1>
-      <p className="font-exo font-normal  text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
-        Optional add-ons. Each selection updates your monthly and once-off
-        totals instantly.
-      </p>
-
-      {/* Top Addons */}
-      <div className="space-y-4 mb-6">
-        <PlanCard
-          image="/extra/Voucher.png"
-          title="Streaming Voucher"
-          description="Enjoy your favourite content with a monthly streaming credit."
-          selected={streaming}
-          onClick={() => setStreaming(!streaming)}
-          price="$9/mo"
-        />
-        <PlanCard
-          image="/extra/Failover.png"
-          title="Extra Data Boost"
-          description="Increase your monthly data allowance by 50GB."
-          selected={dataBoost}
-          onClick={() => setDataBoost(!dataBoost)}
-          price="$15/mo"
-        />
-      </div>
-
-      <Section title="ENTERTAINMENT">
-        {entertainment.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
+        {/* Top Addons */}
+        <div className="space-y-4 mb-6">
+          <PlanCard
+            image="/extra/Voucher.png"
+            title="Streaming Voucher"
+            description="Enjoy your favourite content with a monthly streaming credit."
+            selected={streaming}
+            onClick={() => setStreaming(!streaming)}
+            price="$9/mo"
           />
-        ))}
-      </Section>
+          <PlanCard
+            image="/extra/Failover.png"
+            title="Extra Data Boost"
+            description="Increase your monthly data allowance by 50GB."
+            selected={dataBoost}
+            onClick={() => setDataBoost(!dataBoost)}
+            price="$15/mo"
+          />
+        </div>
 
-      {/* <Section title="GAMING">
+        <Section title="ENTERTAINMENT">
+          {loading
+            ? [1, 2, 3, 4, 5].map((item, index) => <CardSkeleton key={index} />)
+            : entertainment.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(item.id);
+                    const params = new URLSearchParams(searchParams);
+                    if (searchParams[item.name]) {
+                      params.delete(item.name, item.id);
+                      router.push(`/home-internet/extras?${params.toString()}`);
+                    } else {
+                      params.append(item.name, item.id);
+                      router.push(`/home-internet/extras?${params.toString()}`);
+                    }
+                  }}
+                />
+              ))}
+        </Section>
+
+        {/* <Section title="GAMING">
         {gaming.map((item) => (
           <Card
             key={item.id}
@@ -264,161 +299,187 @@ export default function Extras() {
         ))}
       </Section> */}
 
-      {/* Bundle */}
-      <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
-        <div
-          className={cn(
-            "flex flex-col md:flex-row justify-between items-center gap-4",
-            {
-              "mb-4 pb-4 border-b border-[#f59e0b]": bundleActive,
-            },
-          )}
-        >
-          <div className="flex gap-4">
-            <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">📱</div>
-            <div className="flex-1">
-              <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
-                Bundle & Save 10%
-              </p>
-              <p className="text-sm text-[#6b7280]">
-                Add a Mobile Plan and save 10% on your Internet package monthly
-                price.
-              </p>
+        {/* Bundle */}
+        <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
+          <div
+            className={cn(
+              "flex flex-col md:flex-row justify-between items-center gap-4",
+              {
+                "mb-4 pb-4 border-b border-[#f59e0b]": bundleActive,
+              },
+            )}
+          >
+            <div className="flex gap-4">
+              <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">
+                📱
+              </div>
+              <div className="flex-1">
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
+                  Bundle & Save 10%
+                </p>
+                <p className="text-sm text-[#6b7280]">
+                  Add a Mobile Plan and save 10% on your Internet package
+                  monthly price.
+                </p>
+              </div>
             </div>
+
+            <button
+              onClick={() => setBundleActive(!bundleActive)}
+              disabled={true}
+              className={`px-4 w-full md:w-[200px] py-2 rounded-lg border ${
+                bundleActive
+                  ? "bg-[#ecfdf5] text-[#065f46] border-[#10b981]"
+                  : "bg-[#f59e0b] text-white border-[#f59e0b] opacity-20"
+              }`}
+            >
+              {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
+            </button>
           </div>
 
-          <button
-            onClick={() => setBundleActive(!bundleActive)}
-            disabled={true}
-            className={`px-4 w-full md:w-[200px] py-2 rounded-lg border ${
-              bundleActive
-                ? "bg-[#ecfdf5] text-[#065f46] border-[#10b981]"
-                : "bg-[#f59e0b] text-white border-[#f59e0b] opacity-20"
-            }`}
-          >
-            {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
-          </button>
-        </div>
+          {bundleActive && (
+            <div className="space-y-3">
+              <p className="font-exo font-bold text-[14px] leading-[1] tracking-normal">
+                Select Mobile Plan
+              </p>
+              {["basic", "standard", "global"].map((plan) => {
+                const isActive = mobilePlan === plan;
 
-        {bundleActive && (
-          <div className="space-y-3">
-            <p className="font-exo font-bold text-[14px] leading-[1] tracking-normal">
-              Select Mobile Plan
-            </p>
-            {["basic", "standard", "global"].map((plan) => {
-              const isActive = mobilePlan === plan;
+                const data = {
+                  basic: {
+                    title: "Basic Mobile",
+                    desc: "3GB Data · Calls & SMS · Zimbabwe & SA",
+                    price: "$19/mo",
+                  },
+                  standard: {
+                    title: "Standard Mobile",
+                    desc: "8GB Data · Calls & SMS · Zimbabwe & SA",
+                    price: "$29/mo",
+                  },
+                  global: {
+                    title: "Global eSIM",
+                    desc: "10GB Data · 100+ countries",
+                    price: "$39/mo",
+                  },
+                }[plan as "basic" | "standard" | "global"];
 
-              const data = {
-                basic: {
-                  title: "Basic Mobile",
-                  desc: "3GB Data · Calls & SMS · Zimbabwe & SA",
-                  price: "$19/mo",
-                },
-                standard: {
-                  title: "Standard Mobile",
-                  desc: "8GB Data · Calls & SMS · Zimbabwe & SA",
-                  price: "$29/mo",
-                },
-                global: {
-                  title: "Global eSIM",
-                  desc: "10GB Data · 100+ countries",
-                  price: "$39/mo",
-                },
-              }[plan as "basic" | "standard" | "global"];
-
-              return (
-                <div
-                  key={plan}
-                  onClick={() => setMobilePlan(plan)}
-                  className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
-                    isActive
-                      ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
-                      : "border-[#e5e7eb] bg-[#FFFFFF]"
-                  }`}
-                >
-                  <div>
-                    <p className="font-exo font-bold text-[16px] leading-[1.5] tracking-normal">
-                      {data.title}
-                    </p>
-                    <p className="text-sm text-[#6b7280]">{data.desc}</p>
-                    <span className="lg:hidden block font-exo font-bold text-[16px] leading-[1.2] tracking-normal mt-3 text-[#2C6176]">
-                      {data.price}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="hidden lg:block font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
-                      {data.price}
-                    </span>
-                    <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        isActive
-                          ? "bg-[#f59e0b] border-[#f59e0b]"
-                          : "border-[#d1d5db]"
-                      }`}
-                    >
-                      {isActive && <FaCheck className="text-white text-xs" />}
+                return (
+                  <div
+                    key={plan}
+                    onClick={() => setMobilePlan(plan)}
+                    className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
+                      isActive
+                        ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
+                        : "border-[#e5e7eb] bg-[#FFFFFF]"
+                    }`}
+                  >
+                    <div>
+                      <p className="font-exo font-bold text-[16px] leading-[1.5] tracking-normal">
+                        {data.title}
+                      </p>
+                      <p className="text-sm text-[#6b7280]">{data.desc}</p>
+                      <span className="lg:hidden block font-exo font-bold text-[16px] leading-[1.2] tracking-normal mt-3 text-[#2C6176]">
+                        {data.price}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="hidden lg:block font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
+                        {data.price}
+                      </span>
+                      <div
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                          isActive
+                            ? "bg-[#f59e0b] border-[#f59e0b]"
+                            : "border-[#d1d5db]"
+                        }`}
+                      >
+                        {isActive && <FaCheck className="text-white text-xs" />}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
-            <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
-              <FaRegCheckCircle className="hidden sm:flex" />
-              <FaRegCheckCircle size={30} className="sm:hidden flex" /> Bundle
-              savings applied. You're saving 10% on your Internet package.
+              <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
+                <FaRegCheckCircle className="hidden sm:flex" />
+                <FaRegCheckCircle size={30} className="sm:hidden flex" /> Bundle
+                savings applied. You're saving 10% on your Internet package.
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Footer */}
-      <div className="flex flex-col lg:flex-row gap-4 mt-6">
-        <button
-          className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
-          onClick={() => {
-            if (
-              search.get("location") &&
-              search.get("label") &&
-              search.get("value") &&
-              search.get("type")
-            ) {
-              router.push(
-                `/home-internet/plan?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-              );
-            }
-          }}
-        >
-          Back
-        </button>
-        <button
-          className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
-          onClick={() => {
-            if (
-              search.get("location") &&
-              search.get("label") &&
-              search.get("value") &&
-              search.get("type")
-            ) {
-              router.push(
-                `/home-internet/equipment?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-              );
-            }
-          }}
-        >
-          Continue →
-        </button>
+        {/* Footer */}
+        <div className="flex flex-col lg:flex-row gap-4 mt-6">
+          <button
+            className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
+            onClick={() => {
+              if (
+                search.get("location") &&
+                search.get("label") &&
+                search.get("value") &&
+                search.get("type")
+              ) {
+                router.push(
+                  `/home-internet/plan?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                );
+              }
+            }}
+          >
+            Back
+          </button>
+          <button
+            className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
+            onClick={() => {
+              if (
+                search.get("location") &&
+                search.get("label") &&
+                search.get("value") &&
+                search.get("type")
+              ) {
+                router.push(
+                  `/home-internet/equipment?location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
+                );
+              }
+            }}
+          >
+            Continue →
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
-function Card({ item, selected, toggle }: CardProps) {
+const CardSkeleton = () => {
+  return (
+    <div className="relative border rounded-xl p-4 border-[#e5e7eb] animate-pulse">
+      {/* Checkbox */}
+      <div className="absolute top-2 right-2 w-5 h-5 rounded-full border border-[#d1d5db]" />
+
+      {/* Image Skeleton */}
+      <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
+        <div className="w-12 h-12 bg-gray-200 rounded-md" />
+      </div>
+
+      {/* Title Skeleton */}
+      <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2" />
+
+      {/* Price Skeleton */}
+      <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto" />
+    </div>
+  );
+};
+
+function Card({ item, selected, onClick }: CardProps) {
   const active = selected.includes(item.id);
+  const router = useRouter();
 
   return (
     <div
-      onClick={() => toggle(item.id)}
+      onClick={() => {
+        onClick(item.id);
+      }}
       className={`relative border rounded-xl p-4 cursor-pointer transition ${
         active ? "border-2 border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
       }`}

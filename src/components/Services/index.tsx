@@ -26,7 +26,7 @@ export default function Service({
   loading,
 }: ServiceType) {
   const [selected, setSelected] = useState<string>(
-    services.length > 0 ? services[0].id : "",
+   loading ? "" : services.length > 0 ? services[0].id : "",
   );
 
   const router = useRouter();

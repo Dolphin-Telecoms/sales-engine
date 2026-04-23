@@ -44,41 +44,6 @@ function Connect() {
     getCategories();
   }, []);
 
-  // const items = [
-  //   {
-  //     id: "service",
-  //     title: "Home Internet",
-  //     subtitle: "Selected service",
-  //     icon: "🏠",
-  //   },
-  //   {
-  //     id: "address",
-  //     title: "14 Samora Machel Ave",
-  //     subtitle: "Service address",
-  //     icon: "📍",
-  //   },
-  //   {
-  //     id: "connection",
-  //     title: "Fibre",
-  //     subtitle: "Connection type",
-  //     icon: "📡",
-  //   },
-  //   {
-  //     id: "plan",
-  //     title: "Lite Plan",
-  //     subtitle: "50GB / 20Mbps",
-  //     value: "$29/mo",
-  //     icon: "📦",
-  //   },
-  // ];
-
-  // const pricing = [
-  //   { label: "Lite Plan", value: 29, type: "price" },
-  //   { label: "Installation", value: 0, type: "free" },
-  //   { label: "Est. installation", value: 0, type: "text" }, // custom display
-  // ];
-
-  // data/services.ts
   const services = [
     ...categories
       .filter(

@@ -3,30 +3,19 @@
 import Service from "@/src/components/Services";
 import { CiWifiOn, CiMobile2 } from "react-icons/ci";
 import { BsBoxSeam } from "react-icons/bs";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 function BusinessInternet() {
-  const router = useRouter();
   const searchParam = useSearchParams();
-
-
-  const steps = [
-    { label: "Service" },
-    { label: "Location" },
-    { label: "Plan" },
-    { label: "Extras" },
-    { label: "Equipment" },
-    { label: "Review" },
-  ];
 
   // data/services.ts
   const services = [
     {
-      id: "Internet",
+      id: `${searchParam.get("homeCategory")}`,
       title: "Business Internet",
       description: "Enterprise-grade connectivity for your business.",
       icon: <CiWifiOn />,
-      link: "/business-internet/location?businesstype=internet",
+      link: `/business-internet/location`,
     },
     {
       id: "Mobile",

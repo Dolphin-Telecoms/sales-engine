@@ -1,3 +1,5 @@
+import { AttributeValue } from "@/src/types";
+
 export type Many2One = [number, string];
 export type One2Many = number[];
 export type OdooDateTime = string;
@@ -61,36 +63,7 @@ export interface HomeInternetProductCategory {
   property_price_difference_account_id: Many2One | false;
   property_stock_account_production_cost_id: Many2One | false;
 }
-
-export interface ProductAttributeValue {
-  id: number;
-  display_name: string;
-  name: string;
-  sequence: number;
-
-  attribute_id: Many2One;
-
-  pav_attribute_line_ids: number[];
-
-  default_extra_price: number;
-  is_custom: boolean;
-
-  html_color: string | false;
-  display_type: "select" | "radio" | "color" | "multi";
-
-  color: number;
-  image: string | false;
-
-  active: boolean;
-  is_used_on_products: boolean;
-  default_extra_price_changed: boolean;
-
-  create_uid: Many2One;
-  create_date: OdooDateTime;
-  write_uid: Many2One;
-  write_date: OdooDateTime;
-}
-
+ 
 export interface ProductAttributeLine {
   id: number;
   display_name: string;
@@ -111,7 +84,7 @@ export interface ProductAttributeLine {
   write_date: OdooDateTime;
 
   // ✅ NEW FIELD
-  values: ProductAttributeValue[];
+  values: AttributeValue[];
 }
 
 export interface ProductTemplate {

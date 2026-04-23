@@ -59,14 +59,14 @@ export async function POST(req: NextRequest) {
               // ✅ Step 2: Fetch values for each attribute
               const enrichedAttributes = await Promise.all(
                 attributes.map(async (attr: any) => {
-                  if (!attr.value_ids || attr.value_ids.length === 0) {
+                  if (!attr.product_template_value_ids || attr.product_template_value_ids.length === 0) {
                     return { ...attr, values: [] };
                   }
 
                   const values = await OddoAxios.post(
-                    `/json/2/product.attribute.value/search_read`,
+                    `/json/2/product.template.attribute.value/search_read`,
                     {
-                      domain: [["id", "in", attr.value_ids]],
+                      domain: [["id", "in", attr.product_template_value_ids]],
                     },
                   ).then((res) => res.data);
 

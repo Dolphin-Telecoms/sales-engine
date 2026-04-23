@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
 import { useState, Suspense } from "react";
 import Layout from "@/src/components/Layout/HomeInternet";
 
+export const dynamic = "force-dynamic";
+
 interface ItemType {
   id: string;
   title: string;
@@ -39,8 +41,6 @@ export default function HomeInternetLayout({
   const [pricing, setPricing] = useState<PriceType[]>([]);
   const pathname = usePathname();
 
-  console.log("pathname :: ", pathname);
-
   return (
     <Suspense>
       <AppBar />
@@ -69,12 +69,7 @@ export default function HomeInternetLayout({
           </div>
         </Container>
       </div>
-      <Layout
-        setItems={setItems}
-        items={items}
-        pricing={pricing}
-        setPricing={setPricing}
-      />
+      <Layout setItems={setItems} setPricing={setPricing} items={items} />
     </Suspense>
   );
 }

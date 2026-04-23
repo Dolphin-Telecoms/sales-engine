@@ -23,7 +23,7 @@ function PlanCardSkeleton() {
 
 export default function Plan() {
   const [selected, setSelected] = useState("");
-  const [categoryOpen, setCategoryOpen] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState({ name: "", id: "" });
   const [loading, setLoading] = useState(true);
   const [selectedAttribute, setSelectedAttribute] = useState<number[]>([]);
   const [categories, setCategories] = useState<HomeInternetProductCategory[]>(
@@ -55,10 +55,13 @@ export default function Plan() {
           search.get("attribute")
         ) {
           router.push(
-            `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}`,
+            `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}`,
           );
           setSelectedAttribute(JSON.parse(search.get("attribute") ?? "[]"));
-          setCategoryOpen(search.get("childCategory") ?? "");
+          setCategoryOpen({
+            id: search.get("childCategory") ?? "",
+            name: search.get("childCategoryName") ?? "",
+          });
           setSelected(search.get("product") ?? "");
           setPrice(parseInt(search.get("price") ?? "") ?? 0);
         }
@@ -145,15 +148,18 @@ export default function Plan() {
                         onClick={() => {
                           setSelectedAttribute([]); // reset attribute selection when switching categories
                           setSelected(""); // reset plan selection when switching categories
-                          if (categoryOpen === category.id.toString()) {
-                            setCategoryOpen("");
+                          if (categoryOpen.id === category.id.toString()) {
+                            setCategoryOpen({ name: "", id: "" });
                           } else {
-                            setCategoryOpen(category.id.toString());
+                            setCategoryOpen({
+                              id: category.id.toString(),
+                              name: category.name,
+                            });
                           }
                         }}
                         className="px-4 py-2 border rounded-lg text-sm"
                       >
-                        {category.id.toString() === categoryOpen
+                        {category.id.toString() === categoryOpen.id
                           ? "Collapse"
                           : "Expand"}
                       </button>
@@ -162,7 +168,7 @@ export default function Plan() {
                     )}
                   </div>
 
-                  {category.id.toString() === categoryOpen && (
+                  {category.id.toString() === categoryOpen.id && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                       {category.products.map((plan) => {
                         const isSelected = selected === plan.id.toString();
@@ -281,7 +287,9 @@ export default function Plan() {
             <button
               className="px-6 py-3 border border-[#1f2937] rounded-lg"
               onClick={() => {
-                router.back();
+                router.push(
+                  `/home-internet?homeCategory=${search.get("homeCategory")}`,
+                );
               }}
             >
               Back
@@ -300,7 +308,7 @@ export default function Plan() {
                     categoryOpen
                   ) {
                     router.push(
-                      `/home-internet/extras?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${categoryOpen}&product=${selected}&price=${price}&attribute=${JSON.stringify(selectedAttribute)}`,
+                      `/home-internet/extras?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${categoryOpen.id}&childCategoryName=${categoryOpen.name}&product=${selected}&price=${price}&attribute=${JSON.stringify(selectedAttribute)}`,
                     );
                   }
                 }

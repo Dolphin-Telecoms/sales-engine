@@ -8,6 +8,7 @@ import { redirect, useSearchParams, useRouter } from "next/navigation";
 import PlanCard from "@/src/components/PlanCard";
 import { Voucher } from "@/src/features/homeInternet/types/type";
 import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
+import { reserveVoucher } from "@/src/features/homeInternet/apis/reserveVoucher";
 
 interface Item {
   id: string;
@@ -141,60 +142,7 @@ const security: Item[] = [
 ];
 
 export default function Extras() {
-  const [streaming, setStreaming] = useState<boolean>(true);
-  const [dataBoost, setDataBoost] = useState<boolean>(false);
-  const [selectedVouchers, setSelectedVouchers] = useState<string[]>([]);
-  const [bundleActive, setBundleActive] = useState<boolean>(false);
-  const [mobilePlan, setMobilePlan] = useState<string>("standard");
-
-  const [loading, setLoading] = useState(true);
-
-  const [entertainment, setEntertainment] = useState<Voucher[]>([]);
-
-  const toggleVoucher = (id: string) => {
-    setSelectedVouchers((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
-    );
-  };
-
   const search = useSearchParams();
-  const router = useRouter();
-  const searchParams = Object.fromEntries(search.entries());
-  const params = new URLSearchParams(searchParams);
-
-  const getCategories = async () => {
-    try {
-      setLoading(true);
-      const res = await getVouchers();
-      if (res.status) {
-        const entertainmentSelected = res?.data?.filter((item) =>
-          item.metadata.group.toLocaleLowerCase().includes("entertainment"),
-        );
-        setEntertainment(entertainmentSelected as Voucher[]);
-
-        let updated: string[] = [];
-
-        entertainmentSelected?.forEach((item) => {
-          if (searchParams[item.name] === item.id) {
-            updated.push(item.id);
-          }
-        });
-
-        setSelectedVouchers(updated);
-      } else {
-        setEntertainment([]);
-      }
-    } catch (error) {
-      console.error("Error fetching vouchers:", error);
-      setEntertainment([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getCategories();
-  }, []);
 
   if (!search.get("homeCategory")) {
     redirect("/connect");
@@ -202,6 +150,7 @@ export default function Extras() {
     redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
+    !search.get("childCategoryName") ||
     !search.get("product") ||
     !search.get("price") ||
     !search.get("attribute")
@@ -210,6 +159,78 @@ export default function Extras() {
       `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}`,
     );
   } else {
+    const [streaming, setStreaming] = useState<boolean>(true);
+    const [dataBoost, setDataBoost] = useState<boolean>(false);
+    const [selectedVouchers, setSelectedVouchers] = useState<string[]>([]);
+    const [bundleActive, setBundleActive] = useState<boolean>(false);
+    const [mobilePlan, setMobilePlan] = useState<string>("standard");
+    const [loading, setLoading] = useState(true);
+    const [entertainment, setEntertainment] = useState<Voucher[]>([]);
+
+    const toggleVoucher = (id: string) => {
+      setSelectedVouchers((prev) =>
+        prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+      );
+    };
+
+    const router = useRouter();
+    const searchParams = Object.fromEntries(search.entries());
+    const params = new URLSearchParams(searchParams);
+
+    const getCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await getVouchers();
+        if (res.status) {
+          const entertainmentSelected = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("entertainment"),
+          );
+          setEntertainment(entertainmentSelected as Voucher[]);
+
+          let updated: string[] = [];
+
+          entertainmentSelected?.forEach((item) => {
+            if (searchParams[item.name] === item.id) {
+              updated.push(item.id);
+            }
+          });
+
+          setSelectedVouchers(updated);
+        } else {
+          setEntertainment([]);
+        }
+      } catch (error) {
+        console.error("Error fetching vouchers:", error);
+        setEntertainment([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      getCategories();
+    }, []);
+
+    const onSubmit = async () => {
+      const res = await Promise.allSettled(
+        entertainment.map(async (item) => {
+          if (searchParams[item.name] === item.id) {
+            return await reserveVoucher(
+              item.id,
+              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.currency}`,
+              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+            );
+          }
+        }),
+      ).then((results) =>
+        results.map((r) => (r.status === "fulfilled" ? r : [])).flat(),
+      ); // ✅ flatten all product arrays;
+ 
+      if (!res.find((item) => item?.value?.status === false)) {
+        router.push(`/home-internet/equipment?${params.toString()}`);
+      }
+    };
+
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
@@ -411,14 +432,18 @@ export default function Extras() {
         <div className="flex flex-col lg:flex-row gap-4 mt-6">
           <button
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
-            onClick={() => router.back()}
+            onClick={() =>
+              router.push(
+                `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}`,
+              )
+            }
           >
             Back
           </button>
           <button
             className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
             onClick={() => {
-              router.push(`/home-internet/equipment?${params.toString()}`);
+              onSubmit();
             }}
           >
             Continue →

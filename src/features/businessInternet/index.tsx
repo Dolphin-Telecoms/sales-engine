@@ -1,8 +1,15 @@
+"use client";
+
 import Service from "@/src/components/Services";
 import { CiWifiOn, CiMobile2 } from "react-icons/ci";
 import { BsBoxSeam } from "react-icons/bs";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function BusinessInternet() {
+  const router = useRouter();
+  const searchParam = useSearchParams();
+
+
   const steps = [
     { label: "Service" },
     { label: "Location" },

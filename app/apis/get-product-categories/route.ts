@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
       },
     ).then((res) => res.data);
 
+    response = response.filter(
+      (item: any) => !item?.name?.toLocaleLowerCase().includes("equipment"),
+    );
+
     if (response) {
       const categoriesIds = response.map((category: any) => category.id);
 

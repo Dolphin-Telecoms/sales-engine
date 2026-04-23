@@ -1,6 +1,9 @@
 "use client";
 
 import { redirect, useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { HomeInternetProductCategory } from "@/src/features/homeInternet/types/type";
+import { getEquipment } from "@/src/features/homeInternet/apis/getEquipment";
 
 export default function EquipmentSetup() {
   const search = useSearchParams();
@@ -14,6 +17,7 @@ export default function EquipmentSetup() {
     redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
+    !search.get("childCategoryName") ||
     !search.get("product") ||
     !search.get("price") ||
     !search.get("attribute")
@@ -22,6 +26,38 @@ export default function EquipmentSetup() {
       `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}`,
     );
   } else {
+    const [loading, setLoading] = useState(true);
+    const [equipment, setEquipment] =
+      useState<HomeInternetProductCategory | null>(null);
+
+    const getProductEquipments = async () => {
+      try {
+        setLoading(true);
+        const res = await getEquipment(
+          search.get("homeCategory") || "",
+          search.get("childCategoryName") ?? "",
+        );
+        if (res.status) {
+          setEquipment(res.data as HomeInternetProductCategory);
+        } else {
+          setEquipment(null);
+        }
+      } catch (error) {
+        console.error("Error fetching equipment:", error);
+        setEquipment(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      if (search.get("homeCategory")) {
+        getProductEquipments();
+      } else {
+        router.push("/connect");
+      }
+    }, []);
+
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         {/* Header */}
@@ -44,11 +80,10 @@ export default function EquipmentSetup() {
             {/* Content */}
             <div>
               <h2 className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
-                ONT Device
+                {equipment?.name}
               </h2>
               <p className="font-exo font-normal text-[14px] leading-[1.2] tracking-normal mt-2 text-[#6B7280]">
-                Your ONT (Optical Network Terminal) is included with your fibre
-                installation at no additional cost. Our technician will install
+                Your {equipment?.name} is included with your&nbsp;{search.get("childCategoryName")}&nbsp;installation at no additional cost. Our technician will install
                 and configure it during your scheduled visit.
               </p>
               <p className="mt-2 font-exo font-bold text-[14px] leading-[1] tracking-normal text-[#16A34A]">

@@ -245,9 +245,9 @@ export default function Plan() {
                                               setPrice((prev) =>
                                                 prev
                                                   ? prev +
-                                                    value.default_extra_price
+                                                    value.price_extra
                                                   : plan.list_price +
-                                                    value.default_extra_price,
+                                                    value.price_extra,
                                               );
                                               handleSelect(attrIndex, value.id);
                                             }

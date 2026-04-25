@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState, ReactNode, useEffect, use } from "react";
-import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
+import { useState, ReactNode, useEffect } from "react";
+import { FaCheck } from "react-icons/fa";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
-import PlanCard from "@/src/components/PlanCard";
 import { Voucher } from "@/src/features/homeInternet/types/type";
 import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
 import { reserveVoucher } from "@/src/features/homeInternet/apis/reserveVoucher";
@@ -166,6 +165,7 @@ export default function Extras() {
     const [mobilePlan, setMobilePlan] = useState<string>("standard");
     const [loading, setLoading] = useState(true);
     const [entertainment, setEntertainment] = useState<Voucher[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const toggleVoucher = (id: string) => {
       setSelectedVouchers((prev) =>
@@ -186,16 +186,9 @@ export default function Extras() {
             item.metadata.group.toLocaleLowerCase().includes("entertainment"),
           );
           setEntertainment(entertainmentSelected as Voucher[]);
-
-          let updated: string[] = [];
-
-          entertainmentSelected?.forEach((item) => {
-            if (searchParams[item.name] === item.id) {
-              updated.push(item.id);
-            }
-          });
-
-          setSelectedVouchers(updated);
+          if (search.get("voucher")) {
+            setSelectedVouchers(JSON.parse(`${search.get("voucher")}` || "[]"));
+          }
         } else {
           setEntertainment([]);
         }
@@ -212,6 +205,7 @@ export default function Extras() {
     }, []);
 
     const onSubmit = async () => {
+      setIsLoading(true);
       const res = await Promise.allSettled(
         entertainment.map(async (item) => {
           if (searchParams[item.name] === item.id) {
@@ -225,10 +219,11 @@ export default function Extras() {
       ).then((results) =>
         results.map((r) => (r.status === "fulfilled" ? r : [])).flat(),
       ); // ✅ flatten all product arrays;
- 
+
       if (!res.find((item) => item?.value?.status === false)) {
         router.push(`/home-internet/equipment?${params.toString()}`);
       }
+      setIsLoading(false);
     };
 
     return (
@@ -242,7 +237,7 @@ export default function Extras() {
         </p>
 
         {/* Top Addons */}
-        <div className="space-y-4 mb-6">
+        {/* <div className="space-y-4 mb-6">
           <PlanCard
             image="/extra/Voucher.png"
             title="Streaming Voucher"
@@ -259,7 +254,7 @@ export default function Extras() {
             onClick={() => setDataBoost(!dataBoost)}
             price="$15/mo"
           />
-        </div>
+        </div> */}
 
         <Section title="ENTERTAINMENT">
           {loading
@@ -272,14 +267,16 @@ export default function Extras() {
                   onClick={() => {
                     const searchParams = Object.fromEntries(search.entries());
                     toggleVoucher(item.id);
+                    const voucher = selectedVouchers.includes(item.id)
+                      ? selectedVouchers.filter((v) => v !== item.id)
+                      : [...selectedVouchers, item.id];
                     const params = new URLSearchParams(searchParams);
-                    if (searchParams[item.name]) {
-                      params.delete(item.name, item.id);
-                      router.push(`/home-internet/extras?${params.toString()}`);
-                    } else {
-                      params.append(item.name, item.id);
-                      router.push(`/home-internet/extras?${params.toString()}`);
-                    }
+                    params.set("voucher", JSON.stringify(voucher));
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
                   }}
                 />
               ))}
@@ -319,7 +316,7 @@ export default function Extras() {
       </Section> */}
 
         {/* Bundle */}
-        <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
+        {/* <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
           <div
             className={cn(
               "flex flex-col md:flex-row justify-between items-center gap-4",
@@ -426,7 +423,7 @@ export default function Extras() {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Footer */}
         <div className="flex flex-col lg:flex-row gap-4 mt-6">
@@ -434,19 +431,24 @@ export default function Extras() {
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
             onClick={() =>
               router.push(
-                `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}`,
+                `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}&services=${search.get("services")}`,
               )
             }
           >
             Back
           </button>
           <button
-            className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
+            className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg flex items-center justify-center"
             onClick={() => {
               onSubmit();
             }}
           >
-            Continue →
+            Continue → &nbsp;&nbsp;
+            {isLoading ? (
+              <div className="flex items-center justify-center w-fit h-fit rounded-full">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+              </div>
+            ) : null}
           </button>
         </div>
       </div>
@@ -477,7 +479,9 @@ const CardSkeleton = () => {
 function Card({ item, selected, onClick }: CardProps) {
   const active = selected.includes(item.id);
 
-  const isOutOfStock = item.available_count === 0;
+  const isOutOfStock =
+    item.available_count === 0 ||
+    !item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value;
 
   return (
     <div

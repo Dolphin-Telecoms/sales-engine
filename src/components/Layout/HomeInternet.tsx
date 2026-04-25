@@ -20,11 +20,10 @@ interface PriceType {
 
 interface LayoutType {
   setItems: (event: ItemType[]) => void;
-  items: ItemType[];
   setPricing: (event: PriceType[]) => void;
 }
 
-export default function Layout({ setItems, setPricing, items }: LayoutType) {
+export default function Layout({ setItems, setPricing }: LayoutType) {
   const pathname = usePathname();
   const search = useSearchParams();
 
@@ -32,7 +31,7 @@ export default function Layout({ setItems, setPricing, items }: LayoutType) {
     const { status, data } = await getAttributeValues(attributeIds);
 
     if (status && data) {
-      console.log("data ", data)
+      console.log("data ", data);
       const values = [];
 
       values.push({
@@ -67,6 +66,8 @@ export default function Layout({ setItems, setPricing, items }: LayoutType) {
       };
       // ✅ Insert if not found
       values.push(newItem);
+
+      console.log(values);
 
       setItems(values);
     }
@@ -133,7 +134,7 @@ export default function Layout({ setItems, setPricing, items }: LayoutType) {
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         });
-      }
+      } 
       if (
         search.get("productName") &&
         search.get("product") &&

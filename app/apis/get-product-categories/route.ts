@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { homeCategory } = await req.json();
+    const { homeCategory, services } = await req.json();
     let response = await OddoAxios.post(
       `/json/2/product.category/search_read`,
       {
@@ -12,8 +12,16 @@ export async function POST(req: NextRequest) {
       },
     ).then((res) => res.data);
 
+    const filterservices = services.map((str: string) =>
+      str.toLowerCase() === "FIBRE".toLocaleLowerCase()
+        ? "Fiber".toLowerCase()
+        : str.toLowerCase(),
+    );
+
     response = response.filter(
-      (item: any) => !item?.name?.toLocaleLowerCase().includes("equipment"),
+      (item: any) =>
+        !item?.name?.toLocaleLowerCase().includes("equipment") &&
+        filterservices.includes(item?.name?.toLocaleLowerCase()),
     );
 
     if (response) {
@@ -59,7 +67,10 @@ export async function POST(req: NextRequest) {
               // ✅ Step 2: Fetch values for each attribute
               const enrichedAttributes = await Promise.all(
                 attributes.map(async (attr: any) => {
-                  if (!attr.product_template_value_ids || attr.product_template_value_ids.length === 0) {
+                  if (
+                    !attr.product_template_value_ids ||
+                    attr.product_template_value_ids.length === 0
+                  ) {
                     return { ...attr, values: [] };
                   }
 

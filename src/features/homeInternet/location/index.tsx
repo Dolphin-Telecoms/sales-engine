@@ -26,6 +26,7 @@ export default function AvailabilityChecker() {
   const [isLoading, setIsLoading] = useState(false);
   const [noService, setNoService] = useState(false);
   const [serviceAvailable, setServiceAvailable] = useState<string[]>([]);
+
   const debouncedQuery = useDebounce(query, 300);
 
   const handleSelect = (item: Address) => {
@@ -200,7 +201,7 @@ export default function AvailabilityChecker() {
                 if (isChecking) {
                   if (selected) {
                     router.push(
-                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}`,
+                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(serviceAvailable)}`,
                     );
                   }
                 } else {

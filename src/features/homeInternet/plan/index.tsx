@@ -12,7 +12,6 @@ import cn from "classnames";
 function PlanCardSkeleton() {
   return (
     <div className="relative border border-[#e5e7eb] bg-white rounded-xl p-5 animate-pulse mb-5">
-      {/* Header */}
       <div className="flex justify-between items-center gap-x-4">
         <div className="h-8 w-full bg-gray-200 rounded"></div>
         <div className="w-20 h-8 bg-gray-200 rounded"></div>
@@ -26,7 +25,7 @@ export default function Plan() {
 
   if (!search.get("homeCategory")) {
     redirect("/connect");
-  } else if (!search.get("location")) {
+  } else if (!search.get("location") || !search.get("services")) {
     redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else {
     const [selected, setSelected] = useState("");
@@ -62,8 +61,9 @@ export default function Plan() {
         setLoading(true);
         const res = await getProductCategories(
           search.get("homeCategory") || "",
+          JSON.parse(`${search.get("services")}`) || [],
         );
-        if (res.status) {
+        if (res.status && Array.isArray(res?.data)) {
           setCategories(res.data as HomeInternetProductCategory[]);
           if (
             search.get("childCategory") &&
@@ -71,7 +71,11 @@ export default function Plan() {
             search.get("price") &&
             search.get("attribute")
           ) {
-            router.push(`/home-internet/plan?${params.toString()}`);
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
             setSelectedAttribute(JSON.parse(search.get("attribute") ?? "[]"));
             setCategoryOpen({
               id: search.get("childCategory") ?? "",
@@ -79,6 +83,34 @@ export default function Plan() {
             });
             setSelected(search.get("product") ?? "");
             setPrice(parseInt(search.get("price") ?? "") ?? 0);
+          } else {
+            const data = res?.data[0];
+            setCategoryOpen({
+              id: `${data?.id}`,
+              name: `${data?.name}`,
+            });
+            params.set("childCategory", `${data?.id}`);
+            params.set("childCategoryName", `${data?.name}`);
+            if (data?.products?.length) {
+              const product = data.products[0];
+              setSelected(`${product?.id}`);
+              setPrice(parseInt(`${product?.list_price}`));
+              params.set("product", `${product?.id}`);
+              params.set("price", `${product?.list_price}`);
+              params.set("productName", `${product?.name}`);
+              if (product?.attributes?.length) {
+                const attribute = product?.attributes.map(
+                  (item) => item.values[0].id,
+                );
+                setSelectedAttribute(attribute);
+                params.set("attribute", JSON.stringify([...attribute]));
+              }
+            }
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
           }
         } else {
           setCategories([]);
@@ -169,8 +201,24 @@ export default function Plan() {
                             params.set("childCategoryName", category.name);
                             params.delete("product");
                             params.delete("price");
-                            params.delete("productName");
                             params.delete("attribute");
+                            params.delete("productName");
+                            const product = category.products[0];
+                            setSelected(`${product?.id}`);
+                            setPrice(parseInt(`${product?.list_price}`));
+                            params.set("product", `${product?.id}`);
+                            params.set("productName", `${product?.name}`);
+                            params.set("price", `${product?.list_price}`);
+                            if (product?.attributes?.length) {
+                              const attribute = product?.attributes.map(
+                                (item) => item.values[0].id,
+                              );
+                              setSelectedAttribute(attribute);
+                              params.set(
+                                "attribute",
+                                JSON.stringify([...attribute]),
+                              );
+                            }
                             window.history.replaceState(
                               null,
                               "",
@@ -231,8 +279,18 @@ export default function Plan() {
                                       "price",
                                       plan.list_price.toString(),
                                     );
-                                    params.set("productName", plan.name);
+                                    params.set("productName", `${plan?.name}`);
                                     params.delete("attribute");
+                                    if (plan?.attributes?.length) {
+                                      const attribute = plan?.attributes.map(
+                                        (item) => item.values[0].id,
+                                      );
+                                      setSelectedAttribute(attribute);
+                                      params.set(
+                                        "attribute",
+                                        JSON.stringify([...attribute]),
+                                      );
+                                    }
                                     window.history.replaceState(
                                       null,
                                       "",
@@ -350,7 +408,6 @@ export default function Plan() {
                   selected &&
                   search.get("homeCategory") &&
                   search.get("location") &&
-                  selectedAttribute.length &&
                   categoryOpen
                 ) {
                   router.push(`/home-internet/extras?${params.toString()}`);

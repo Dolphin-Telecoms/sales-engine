@@ -3,10 +3,12 @@ import { HomeInternetProductCategory } from "@/src/features/homeInternet/types/t
 
 export const getProductCategories = async (
   homeCategory: string,
+  services: string[],
 ): Promise<{ status: boolean; data: HomeInternetProductCategory[] | null }> => {
   try {
     const response = await Axios.post(`/apis/get-product-categories`, {
       homeCategory,
+      services,
     }).then((res) => res.data);
 
     if (response) {

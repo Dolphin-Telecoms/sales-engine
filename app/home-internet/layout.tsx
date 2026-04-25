@@ -69,7 +69,7 @@ export default function HomeInternetLayout({
           </div>
         </Container>
       </div>
-      <Layout setItems={setItems} setPricing={setPricing} items={items} />
+      <Layout setItems={setItems} setPricing={setPricing} />
     </Suspense>
   );
 }

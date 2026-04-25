@@ -25,7 +25,12 @@ export default function Plan() {
 
   if (!search.get("homeCategory")) {
     redirect("/connect");
-  } else if (!search.get("location") || !search.get("services")) {
+  } else if (
+    !search.get("location") ||
+    !search.get("services") ||
+    !search.get("coordinates") ||
+    !search.get("city")
+  ) {
     redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else {
     const [selected, setSelected] = useState("");

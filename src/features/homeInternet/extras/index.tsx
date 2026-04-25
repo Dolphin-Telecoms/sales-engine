@@ -145,17 +145,21 @@ export default function Extras() {
 
   if (!search.get("homeCategory")) {
     redirect("/connect");
-  } else if (!search.get("location")) {
+  } else if (
+    !search.get("location") ||
+    !search.get("services") ||
+    !search.get("coordinates") ||
+    !search.get("city")
+  ) {
     redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
     !search.get("product") ||
-    !search.get("price") ||
-    !search.get("attribute")
+    !search.get("price")
   ) {
     redirect(
-      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}`,
+      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
     );
   } else {
     const [streaming, setStreaming] = useState<boolean>(true);
@@ -431,7 +435,7 @@ export default function Extras() {
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
             onClick={() =>
               router.push(
-                `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}&services=${search.get("services")}`,
+                `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
               )
             }
           >
@@ -528,7 +532,10 @@ function Card({ item, selected, onClick }: CardProps) {
 
       {/* Price */}
       <p className="font-exo font-bold text-[16px] text-center text-[#2C6176]">
-        ${Number(item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value).toFixed(2)}
+        $
+        {Number(
+          item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value,
+        ).toFixed(2)}
       </p>
 
       {/* Optional label */}

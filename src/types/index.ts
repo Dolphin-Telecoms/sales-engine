@@ -35,3 +35,21 @@ export interface AttributeValue {
   write_uid: OdooRef;
   write_date: string;
 }
+
+export type ServiceAvailability = {
+  city: string;
+  address: string;
+  coverage: "FIBRE" | "LTE" | string;
+  available: boolean;
+  available_service_types: ("FIBRE" | "LTE" | string)[];
+  requires_service_selection: boolean;
+  fibre_priority_enabled: boolean;
+  service_use: "HOME" | "BUSINESS" | string;
+  service_code: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  validated_at: string; // ISO date string
+  log_id: number;
+};

@@ -94,6 +94,16 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
         }
       }
 
+      if (search.get("equipmentName") && search.get("equipmentId")) {
+        values.push({
+          id: `equipment`,
+          title: `${search.get("equipmentName")}`,
+          subtitle: `Equipment`,
+          icon: `🛜`,
+          value: `Included`,
+        });
+      }
+
       setItems(values);
     }
   };

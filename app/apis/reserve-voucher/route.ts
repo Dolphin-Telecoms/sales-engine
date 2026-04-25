@@ -6,8 +6,6 @@ export async function POST(req: Request) {
   try {
     const { category_id, currency, value } = await req.json();
 
-    console.log(category_id, currency, value);
-
     const uuid = uuidv4();
 
     const response = await VoucherAxios.post(

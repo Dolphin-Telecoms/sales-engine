@@ -31,7 +31,6 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
     const { status, data } = await getAttributeValues(attributeIds);
 
     if (status && data) {
-      console.log("data ", data);
       const values = [];
 
       values.push({
@@ -66,8 +65,6 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
       };
       // ✅ Insert if not found
       values.push(newItem);
-
-      console.log(values);
 
       setItems(values);
     }

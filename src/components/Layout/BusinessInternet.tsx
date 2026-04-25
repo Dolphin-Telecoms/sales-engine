@@ -32,8 +32,6 @@ export default function Layout({
   const pathname = usePathname();
   const search = useSearchParams();
 
-  console.log("pathname :: ", pathname);
-
   useEffect(() => {
     if (pathname === "/business-internet/plan") {
       const data: ItemType[] = [];

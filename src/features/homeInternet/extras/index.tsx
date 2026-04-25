@@ -528,7 +528,7 @@ function Card({ item, selected, onClick }: CardProps) {
 
       {/* Price */}
       <p className="font-exo font-bold text-[16px] text-center text-[#2C6176]">
-        ${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}
+        ${Number(item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value).toFixed(2)}
       </p>
 
       {/* Optional label */}

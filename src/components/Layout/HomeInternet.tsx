@@ -1,9 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import getAttributeValues from "@/src/components/Layout/apis/getAttributeValue";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { AttributeValue } from "@/src/types";
+import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
+
 interface ItemType {
   id: string;
   title: string;
@@ -65,6 +68,31 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
       };
       // ✅ Insert if not found
       values.push(newItem);
+
+      if (search.get("voucher")) {
+        const { status: voucherStatus, data: vouchers } = await getVouchers();
+        if (voucherStatus && vouchers) {
+          vouchers.map((item) => {
+            const voucher = JSON.parse(`${search.get("voucher")}`);
+            if (voucher.includes(item.id)) {
+              values.push({
+                id: `voucher-${item.id}`,
+                title: `${item.name}`,
+                subtitle: `${item.metadata.group.charAt(0).toUpperCase() + item.metadata.group.slice(1).toLowerCase()} Voucher`,
+                icon: (
+                  <Image
+                    src={item.metadata.logo_url}
+                    alt={item.name}
+                    height={40}
+                    width={40}
+                  />
+                ),
+                value: `$${Number(item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value).toFixed(2)}/mo`,
+              });
+            }
+          });
+        }
+      }
 
       setItems(values);
     }
@@ -131,7 +159,7 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         });
-      } 
+      }
       if (
         search.get("productName") &&
         search.get("product") &&
@@ -140,6 +168,7 @@ export default function Layout({ setItems, setPricing }: LayoutType) {
       ) {
         getProductAttribute(JSON.parse(`${search.get("attribute")}`));
       }
+
       setItems([...data]);
     } else if (pathname === "/home-internet") {
       setItems([]);

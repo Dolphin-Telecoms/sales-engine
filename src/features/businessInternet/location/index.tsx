@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, redirect } from "next/navigation";
 import useDebounce from "@/src/hooks/useDebounce";
 import { checkCoverage } from "@/src/features/businessInternet/apis/checkCoverage";
+import { ServiceAvailability } from "@/src/types";
 
 type Address = {
   description: string;
   place_id: string;
+  city: string;
 };
 
 export const formatList = (items: string[]) => {
@@ -25,7 +27,8 @@ export default function AvailabilityChecker() {
   const [isChecking, setIsChecking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [noService, setNoService] = useState(false);
-  const [serviceAvailable, setServiceAvailable] = useState<string[]>([]);
+  const [coverage, setCoverage] = useState<ServiceAvailability | null>(null);
+
   const debouncedQuery = useDebounce(query, 300);
 
   const handleSelect = (item: Address) => {
@@ -41,7 +44,7 @@ export default function AvailabilityChecker() {
     const response = await checkCoverage(selected?.description || query);
     if (response.status && response?.data?.available) {
       setIsChecking(true);
-      setServiceAvailable(response?.data?.available_service_types);
+      setCoverage(response?.data);
     } else {
       setIsChecking(false);
       setNoService(true);
@@ -58,6 +61,9 @@ export default function AvailabilityChecker() {
   const router = useRouter();
   const search = useSearchParams();
 
+  const getCity = (prediction: any): string => {
+    return prediction.structured_formatting.secondary_text.split(",")[0];
+  };
   useEffect(() => {
     if (!debouncedQuery) {
       setSuggestions([]);
@@ -78,7 +84,13 @@ export default function AvailabilityChecker() {
       },
       (predictions: any, status: string) => {
         if (status === "OK" && predictions) {
-          setSuggestions(predictions);
+    
+          const sugession = predictions.map((items: any) => ({
+            ...items,
+            city: `${getCity(items)}`, 
+          }));
+
+          setSuggestions([...sugession]);
         } else {
           setSuggestions([]);
         }
@@ -149,8 +161,9 @@ export default function AvailabilityChecker() {
                 </p>
                 <p className="text-sm text-green-700 mt-1">
                   {formatList(
-                    serviceAvailable.length > 0
-                      ? serviceAvailable
+                    Array.isArray(coverage?.available_service_types) &&
+                      coverage?.available_service_types?.length > 0
+                      ? coverage?.available_service_types
                       : ["Fibre", "LTE", "FWA"],
                   )}{" "}
                   are available at your address.
@@ -186,9 +199,7 @@ export default function AvailabilityChecker() {
                 setQuery("");
                 setSelected(null);
                 setShowDropdown(false);
-                router.push(
-                  `/business-internet?homeCategory=${search.get("homeCategory")}`,
-                );
+                router.back();
               }}
               className="px-6 py-2.5 rounded-lg border border-[#2F5D67] text-[#2F5D67] font-medium hover:bg-gray-50"
             >
@@ -202,7 +213,7 @@ export default function AvailabilityChecker() {
                 if (isChecking) {
                   if (selected) {
                     router.push(
-                      `/business-internet/plan?businesstype=${search.get("businesstype")}&homeCategory=${search.get("homeCategory")}&location=${selected.description}`,
+                      `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${selected?.city}`,
                     );
                   }
                 } else {
@@ -222,6 +233,6 @@ export default function AvailabilityChecker() {
       </div>
     );
   } else {
-    redirect("/connect");
+    redirect("/business-internet");
   }
 }

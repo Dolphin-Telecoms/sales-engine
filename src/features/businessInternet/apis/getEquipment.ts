@@ -1,14 +1,14 @@
 import Axios from "@/src/libs/Axios";
 import { ProductCategory } from "@/src/types";
 
-export const getProductCategories = async (
-  homeCategory: string,
-  services: string[],
-): Promise<{ status: boolean; data: ProductCategory[] | null }> => {
+export const getEquipment = async (
+  parentCategory: string,
+  equipmentType: string,
+): Promise<{ status: boolean; data: ProductCategory | null }> => {
   try {
-    const response = await Axios.post(`/apis/get-product-categories`, {
-      homeCategory,
-      services,
+    const response = await Axios.post(`/apis/get-product-equipment`, {
+      parentCategory,
+      equipmentType,
     }).then((res) => res.data);
 
     if (response) {

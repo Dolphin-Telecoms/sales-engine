@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState, ReactNode } from "react";
-import { FaCheck, FaRegCheckCircle } from "react-icons/fa";
+import { useState, ReactNode, useEffect } from "react";
+import { FaCheck } from "react-icons/fa";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
-import PlanCard from "@/src/components/PlanCard";
+import { Voucher } from "@/src/types";
+import { getVouchers } from "@/src/features/businessInternet/apis/getVouchers";
+import { reserveVoucher } from "@/src/features/businessInternet/apis/reserveVoucher";
 
-// Types
 interface Item {
   id: string;
   name: string;
@@ -21,78 +22,10 @@ interface SectionProps {
 }
 
 interface CardProps {
-  item: Item;
-  selected: string[];
-  toggle: (id: string) => void;
+  item: Voucher;
+  selected: { id: string; price: string }[];
+  onClick: (id: string, price: string) => void;
 }
-
-const entertainment: Item[] = [
-  {
-    id: "netflix",
-    name: "Netflix",
-    price: "$15/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Netflix.png"
-        alt="Netflix"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "spotify",
-    name: "Spotify",
-    price: "$10/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Spotify.png"
-        alt="Spotify"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "twitch",
-    name: "Twitch",
-    price: "$25/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Twitch.png"
-        alt="Twitch"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "binance",
-    name: "Binance",
-    price: "$50/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Binance.png"
-        alt="Binance"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "apple",
-    name: "Apple",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Vector.png"
-        alt="Apple"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
 
 const gaming: Item[] = [
   {
@@ -208,92 +141,173 @@ const security: Item[] = [
 ];
 
 export default function Extras() {
-  const [streaming, setStreaming] = useState<boolean>(true);
-  const [dataBoost, setDataBoost] = useState<boolean>(false);
-  const [support, setSupport] = useState<boolean>(false);
-  const [boost, setBoost] = useState<boolean>(false);
-  const [routers, setRouter] = useState<boolean>(false);
-  const [selectedVouchers, setSelectedVouchers] = useState<string[]>([
-    "spotify",
-  ]);
-  const [bundleActive, setBundleActive] = useState<boolean>(false);
-  const [mobilePlan, setMobilePlan] = useState<string>("standard");
-
-  const toggleVoucher = (id: string) => {
-    setSelectedVouchers((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
-    );
-  };
-
   const search = useSearchParams();
-  const router = useRouter();
 
-  return (
-    <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
-      <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
-        Enhance Your Business Plan
-      </h1>
-      <p className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
-        Optional add-ons designed for business needs. Each selection updates
-        your totals instantly.
-      </p>
+  if (!search.get("homeCategory")) {
+    redirect("/connect");
+  } else if (
+    !search.get("location") ||
+    !search.get("services") ||
+    !search.get("coordinates") ||
+    !search.get("city")
+  ) {
+    redirect(`/business-internet/location?homeCategory=${search.get("homeCategory")}`);
+  } else if (
+    !search.get("childCategory") ||
+    !search.get("childCategoryName") ||
+    !search.get("product") ||
+    !search.get("price") ||
+    !search.get("productName")
+  ) {
+    redirect(
+      `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
+    );
+  } else {
+    const [streaming, setStreaming] = useState<boolean>(true);
+    const [dataBoost, setDataBoost] = useState<boolean>(false);
+    const [selectedVouchers, setSelectedVouchers] = useState<
+      { id: string; price: string }[]
+    >([]);
+    const [bundleActive, setBundleActive] = useState<boolean>(false);
+    const [mobilePlan, setMobilePlan] = useState<string>("standard");
+    const [loading, setLoading] = useState(true);
+    const [entertainment, setEntertainment] = useState<Voucher[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-      {/* Top Addons */}
-      <div className="space-y-4 mb-6">
-        <PlanCard
-          image="/extra/Address.png"
-          title="Static IP Address"
-          description="Dedicated fixed IP for hosting, VPN, and remote access."
-          selected={streaming}
-          onClick={() => setStreaming(!streaming)}
-          price="$15/mo"
-        />
-        <PlanCard
-          image="/extra/Failover.png"
-          title="Backup LTE Failover"
-          description="Automatic LTE failover keeps your business online if primary drops."
-          selected={dataBoost}
-          onClick={() => setDataBoost(!dataBoost)}
-          price="$25/mo"
-        />
-        <PlanCard
-          image="/extra/Support.png"
-          title="Priority Business Support"
-          description="Dedicated support line with 4-hour SLA response time."
-          selected={support}
-          onClick={() => setSupport(!support)}
-          price="$20/mo"
-        />
-        <PlanCard
-          image="/extra/Boost.png"
-          title="Extra Data Boost"
-          description="Increase your monthly data allowance by 50GB."
-          selected={boost}
-          onClick={() => setBoost(!boost)}
-          price="$15/mo"
-        />
-        <PlanCard
-          image="/extra/Router.png"
-          title="Additional Router"
-          description="Add a second router for extended coverage across your premises."
-          selected={routers}
-          onClick={() => setRouter(!routers)}
-          price="$15/mo"
-        />
-      </div>
+    const toggleVoucher = (id: string, price: string) => {
+      setSelectedVouchers((prev) =>
+        prev.some((v) => v.id === id)
+          ? prev.filter((v) => v.id !== id)
+          : [...prev, { id, price }],
+      );
+    };
 
-      <Section title="ENTERTAINMENT">
-        {entertainment.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
+    const router = useRouter();
+    const searchParams = Object.fromEntries(search.entries());
+    const params = new URLSearchParams(searchParams);
+
+    const getCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await getVouchers();
+        if (res.status) {
+          const entertainmentSelected = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("entertainment"),
+          );
+          setEntertainment(entertainmentSelected as Voucher[]);
+          if (search.get("voucher")) {
+            setSelectedVouchers(JSON.parse(`${search.get("voucher")}` || "[]"));
+          }
+        } else {
+          setEntertainment([]);
+        }
+      } catch (error) {
+        console.error("Error fetching vouchers:", error);
+        setEntertainment([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      getCategories();
+    }, []);
+
+    const onSubmit = async () => {
+      setIsLoading(true);
+      const res = await Promise.allSettled(
+        entertainment.map(async (item) => {
+          if (searchParams[item.name] === item.id) {
+            return await reserveVoucher(
+              item.id,
+              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.currency}`,
+              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+            );
+          }
+        }),
+      ).then((results) =>
+        results.map((r) => (r.status === "fulfilled" ? r : [])).flat(),
+      ); // ✅ flatten all product arrays;
+
+      if (!res.find((item) => item?.value?.status === false)) {
+        router.push(`/business-internet/equipment?${params.toString()}`);
+      }
+      setIsLoading(false);
+    };
+
+    return (
+      <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
+        <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
+          Enhance Your Plan
+        </h1>
+        <p className="font-exo font-normal  text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176] mb-6">
+          Optional add-ons. Each selection updates your monthly and once-off
+          totals instantly.
+        </p>
+
+        {/* Top Addons */}
+        {/* <div className="space-y-4 mb-6">
+          <PlanCard
+            image="/extra/Voucher.png"
+            title="Streaming Voucher"
+            description="Enjoy your favourite content with a monthly streaming credit."
+            selected={streaming}
+            onClick={() => setStreaming(!streaming)}
+            price="$9/mo"
           />
-        ))}
-      </Section>
+          <PlanCard
+            image="/extra/Failover.png"
+            title="Extra Data Boost"
+            description="Increase your monthly data allowance by 50GB."
+            selected={dataBoost}
+            onClick={() => setDataBoost(!dataBoost)}
+            price="$15/mo"
+          />
+        </div> */}
 
-      <Section title="GAMING">
+        <Section title="ENTERTAINMENT">
+          {loading
+            ? [1, 2, 3, 4, 5].map((item, index) => <CardSkeleton key={index} />)
+            : entertainment.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
+
+        {/* <Section title="GAMING">
         {gaming.map((item) => (
           <Card
             key={item.id}
@@ -324,182 +338,235 @@ export default function Extras() {
             toggle={toggleVoucher}
           />
         ))}
-      </Section>
+      </Section> */}
 
-      {/* Bundle */}
-      <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
-        <div
-          className={cn(
-            "flex flex-col md:flex-row justify-between items-center gap-4",
-            {
-              "mb-4 pb-4 border-b border-[#f59e0b]": bundleActive,
-            },
-          )}
-        >
-          <div className="flex gap-4">
-            <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">📱</div>
-            <div className="flex-1">
-              <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
-                Bundle & Save 10%
-              </p>
-              <p className="text-sm text-[#6b7280]">
-                Add a Mobile Plan and save 10% on your Internet package monthly
-                price.
-              </p>
+        {/* Bundle */}
+        {/* <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
+          <div
+            className={cn(
+              "flex flex-col md:flex-row justify-between items-center gap-4",
+              {
+                "mb-4 pb-4 border-b border-[#f59e0b]": bundleActive,
+              },
+            )}
+          >
+            <div className="flex gap-4">
+              <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">
+                📱
+              </div>
+              <div className="flex-1">
+                <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
+                  Bundle & Save 10%
+                </p>
+                <p className="text-sm text-[#6b7280]">
+                  Add a Mobile Plan and save 10% on your Internet package
+                  monthly price.
+                </p>
+              </div>
             </div>
+
+            <button
+              onClick={() => setBundleActive(!bundleActive)}
+              disabled={true}
+              className={`px-4 w-full md:w-[200px] py-2 rounded-lg border ${
+                bundleActive
+                  ? "bg-[#ecfdf5] text-[#065f46] border-[#10b981]"
+                  : "bg-[#f59e0b] text-white border-[#f59e0b] opacity-20"
+              }`}
+            >
+              {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
+            </button>
           </div>
 
-          <button
-            onClick={() => setBundleActive(!bundleActive)}
-            className={`px-4 w-full md:w-[200px] py-2 rounded-lg border ${
-              bundleActive
-                ? "bg-[#ecfdf5] text-[#065f46] border-[#10b981]"
-                : "bg-[#f59e0b] text-white border-[#f59e0b]"
-            }`}
-          >
-            {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
-          </button>
-        </div>
+          {bundleActive && (
+            <div className="space-y-3">
+              <p className="font-exo font-bold text-[14px] leading-[1] tracking-normal">
+                Select Mobile Plan
+              </p>
+              {["basic", "standard", "global"].map((plan) => {
+                const isActive = mobilePlan === plan;
 
-        {bundleActive && (
-          <div className="space-y-3">
-            <p className="font-exo font-bold text-[14px] leading-[1] tracking-normal">
-              Select Mobile Plan
-            </p>
-            {["basic", "standard", "global"].map((plan) => {
-              const isActive = mobilePlan === plan;
+                const data = {
+                  basic: {
+                    title: "Basic Mobile",
+                    desc: "3GB Data · Calls & SMS · Zimbabwe & SA",
+                    price: "$19/mo",
+                  },
+                  standard: {
+                    title: "Standard Mobile",
+                    desc: "8GB Data · Calls & SMS · Zimbabwe & SA",
+                    price: "$29/mo",
+                  },
+                  global: {
+                    title: "Global eSIM",
+                    desc: "10GB Data · 100+ countries",
+                    price: "$39/mo",
+                  },
+                }[plan as "basic" | "standard" | "global"];
 
-              const data = {
-                basic: {
-                  title: "Basic Mobile",
-                  desc: "3GB Data · Calls & SMS · Zimbabwe & SA",
-                  price: "$19/mo",
-                },
-                standard: {
-                  title: "Standard Mobile",
-                  desc: "8GB Data · Calls & SMS · Zimbabwe & SA",
-                  price: "$29/mo",
-                },
-                global: {
-                  title: "Global eSIM",
-                  desc: "10GB Data · 100+ countries",
-                  price: "$39/mo",
-                },
-              }[plan as "basic" | "standard" | "global"];
-
-              return (
-                <div
-                  key={plan}
-                  onClick={() => setMobilePlan(plan)}
-                  className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
-                    isActive
-                      ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
-                      : "border-[#e5e7eb] bg-[#FFFFFF]"
-                  }`}
-                >
-                  <div>
-                    <p className="font-exo font-bold text-[16px] leading-[1.5] tracking-normal">
-                      {data.title}
-                    </p>
-                    <p className="text-sm text-[#6b7280]">{data.desc}</p>
-                    <span className="lg:hidden block font-exo font-bold text-[16px] leading-[1.2] tracking-normal mt-3 text-[#2C6176]">
-                      {data.price}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="hidden lg:block font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
-                      {data.price}
-                    </span>
-                    <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        isActive
-                          ? "bg-[#f59e0b] border-[#f59e0b]"
-                          : "border-[#d1d5db]"
-                      }`}
-                    >
-                      {isActive && <FaCheck className="text-white text-xs" />}
+                return (
+                  <div
+                    key={plan}
+                    onClick={() => setMobilePlan(plan)}
+                    className={`flex justify-between items-center p-4 rounded-xl border cursor-pointer ${
+                      isActive
+                        ? "border-2 border-[#f59e0b] bg-[#fff7ed]"
+                        : "border-[#e5e7eb] bg-[#FFFFFF]"
+                    }`}
+                  >
+                    <div>
+                      <p className="font-exo font-bold text-[16px] leading-[1.5] tracking-normal">
+                        {data.title}
+                      </p>
+                      <p className="text-sm text-[#6b7280]">{data.desc}</p>
+                      <span className="lg:hidden block font-exo font-bold text-[16px] leading-[1.2] tracking-normal mt-3 text-[#2C6176]">
+                        {data.price}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="hidden lg:block font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-right text-[#2C6176]">
+                        {data.price}
+                      </span>
+                      <div
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                          isActive
+                            ? "bg-[#f59e0b] border-[#f59e0b]"
+                            : "border-[#d1d5db]"
+                        }`}
+                      >
+                        {isActive && <FaCheck className="text-white text-xs" />}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
-            <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
-              <FaRegCheckCircle className="hidden sm:flex" />  <FaRegCheckCircle size={30} className="sm:hidden flex" /> Bundle savings
-              applied. You're saving 10% on your Internet package.
+              <div className="mt-3 p-3 rounded-lg bg-[#ecfdf5] border border-[#10b981] text-[#065f46] font-[Exo] font-bold text-[14px] leading-[100%] tracking-[0%] flex items-center gap-2">
+                <FaRegCheckCircle className="hidden sm:flex" />
+                <FaRegCheckCircle size={30} className="sm:hidden flex" /> Bundle
+                savings applied. You're saving 10% on your Internet package.
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div> */}
 
-      {/* Footer */}
-      <div className="flex flex-col lg:flex-row gap-4 mt-6">
-        <button
-          className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
-          onClick={() => {
-            if (
-              search.get("location") &&
-              search.get("label") &&
-              search.get("value") &&
-              search.get("type")
-            ) {
+        {/* Footer */}
+        <div className="flex flex-col lg:flex-row gap-4 mt-6">
+          <button
+            className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
+            onClick={() =>
               router.push(
-                `/business-internet/plan?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-              );
+                `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
+              )
             }
-          }}
-        >
-          Back
-        </button>
-        <button
-          className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
-          onClick={() => {
-            if (
-              search.get("location") &&
-              search.get("label") &&
-              search.get("value") &&
-              search.get("type")
-            ) {
-              router.push(
-                `/business-internet/equipment?businesstype=${search.get("businesstype")}&location=${search.get("location")}&label=${search.get("label")}&value=${search.get("value")}&type=${search.get("type")}`,
-              );
-            }
-          }}
-        >
-          Continue →
-        </button>
+          >
+            Back
+          </button>
+          <button
+            className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg flex items-center justify-center"
+            onClick={() => {
+              onSubmit();
+            }}
+          >
+            Continue → &nbsp;&nbsp;
+            {isLoading ? (
+              <div className="flex items-center justify-center w-fit h-fit rounded-full">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+              </div>
+            ) : null}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
-function Card({ item, selected, toggle }: CardProps) {
-  const active = selected.includes(item.id);
+const CardSkeleton = () => {
+  return (
+    <div className="relative border rounded-xl p-4 border-[#e5e7eb] animate-pulse">
+      {/* Checkbox */}
+      <div className="absolute top-2 right-2 w-5 h-5 rounded-full border border-[#d1d5db]" />
+
+      {/* Image Skeleton */}
+      <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
+        <div className="w-12 h-12 bg-gray-200 rounded-md" />
+      </div>
+
+      {/* Title Skeleton */}
+      <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2" />
+
+      {/* Price Skeleton */}
+      <div className="h-5 bg-gray-200 rounded w-1/3 mx-auto" />
+    </div>
+  );
+};
+
+function Card({ item, selected, onClick }: CardProps) {
+  const active = selected.some((v) => v.id === item.id);
+
+  const isOutOfStock =
+    item.available_count === 0 ||
+    !item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value;
 
   return (
     <div
-      onClick={() => toggle(item.id)}
-      className={`relative border rounded-xl p-4 cursor-pointer transition ${
-        active ? "border-2 border-[#f59e0b] bg-[#fff7ed]" : "border-[#e5e7eb]"
-      }`}
+      onClick={() => {
+        if (!isOutOfStock)
+          onClick(
+            item.id,
+            `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+          );
+      }}
+      className={cn("relative border rounded-xl p-4 transition", {
+        "cursor-not-allowed bg-gray-100 border-gray-200 opacity-60":
+          isOutOfStock,
+        "cursor-pointer border-2 border-[#f59e0b] bg-[#fff7ed]":
+          !isOutOfStock && active,
+        "cursor-pointer border-[#e5e7eb]": !isOutOfStock && !active,
+      })}
     >
+      {/* Checkbox */}
       <div
-        className={`absolute top-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center ${
-          active ? "bg-[#f59e0b] border-[#f59e0b]" : "border-[#d1d5db]"
-        }`}
+        className={cn(
+          "absolute top-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center",
+          {
+            "border-gray-300 bg-gray-200": isOutOfStock,
+            "bg-[#f59e0b] border-[#f59e0b]": !isOutOfStock && active,
+            "border-[#d1d5db]": !isOutOfStock && !active,
+          },
+        )}
       >
-        {active && <FaCheck className="text-white text-xs" />}
+        {!isOutOfStock && active && <FaCheck className="text-white text-xs" />}
       </div>
 
+      {/* Image */}
       <div className="h-16 bg-[#f3f4f6] rounded-lg mb-3 flex items-center justify-center">
-        {item.icon}
+        <Image
+          src={item.metadata.logo_url}
+          alt={item.metadata.description}
+          height={80}
+          width={80}
+          className={cn({ grayscale: isOutOfStock })}
+        />
       </div>
-      <p className="font-exo font-bold text-[14px] leading-[1.5] tracking-normal text-center mb-2">
+
+      {/* Name */}
+      <p className="font-exo font-bold text-[14px] text-center mb-2">
         {item.name}
       </p>
-      <p className="font-exo font-bold text-[16px] leading-[1.2] tracking-normal text-center text-[#2C6176]">
-        {item.price}
+
+      {/* Price */}
+      <p className="font-exo font-bold text-[16px] text-center text-[#2C6176]">
+        $
+        {Number(
+          item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value,
+        ).toFixed(2)}
       </p>
+
+      {/* Optional label */}
+      {isOutOfStock && (
+        <p className="text-xs text-center text-red-500 mt-1">Out of Stock</p>
+      )}
     </div>
   );
 }

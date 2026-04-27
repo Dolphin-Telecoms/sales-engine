@@ -6,13 +6,13 @@ import { FaCheck } from "react-icons/fa";
 import { CiLocationOn } from "react-icons/ci";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { getProductCategories } from "@/src/features/businessInternet/apis/productCategories";
-import { HomeInternetProductCategory } from "@/src/features/homeInternet/types/type";
+import { ProductCategory } from "@/src/types";
+
 import cn from "classnames";
 
 function PlanCardSkeleton() {
   return (
     <div className="relative border border-[#e5e7eb] bg-white rounded-xl p-5 animate-pulse mb-5">
-      {/* Header */}
       <div className="flex justify-between items-center gap-x-4">
         <div className="h-8 w-full bg-gray-200 rounded"></div>
         <div className="w-20 h-8 bg-gray-200 rounded"></div>
@@ -22,73 +22,119 @@ function PlanCardSkeleton() {
 }
 
 export default function Plan() {
-  const [selected, setSelected] = useState("");
-  const [categoryOpen, setCategoryOpen] = useState({ name: "", id: "" });
-  const [loading, setLoading] = useState(true);
-  const [selectedAttribute, setSelectedAttribute] = useState<number[]>([]);
-  const [categories, setCategories] = useState<HomeInternetProductCategory[]>(
-    [],
-  );
-  const [price, setPrice] = useState<number | null>(null);
-
   const search = useSearchParams();
-  const router = useRouter();
-
-  const handleSelect = (attrIndex: number, valueId: number) => {
-    setSelectedAttribute((prev) => {
-      const updated = [...prev];
-      updated[attrIndex] = valueId; // 👈 store by index
-      return updated;
-    });
-  };
-
-  const getCategories = async () => {
-    try {
-      setLoading(true);
-      const res = await getProductCategories(search.get("homeCategory") || "");
-      if (res.status) {
-        setCategories(res.data as HomeInternetProductCategory[]);
-        if (
-          search.get("childCategory") &&
-          search.get("product") &&
-          search.get("price") &&
-          search.get("attribute")
-        ) {
-          router.push(
-            `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${search.get("childCategory")}&childCategoryName=${search.get("childCategoryName")}&product=${search.get("product")}&price=${search.get("price")}&attribute=${search.get("attribute")}`,
-          );
-          setSelectedAttribute(JSON.parse(search.get("attribute") ?? "[]"));
-          setCategoryOpen({
-            id: search.get("childCategory") ?? "",
-            name: search.get("childCategoryName") ?? "",
-          });
-          setSelected(search.get("product") ?? "");
-          setPrice(parseInt(search.get("price") ?? "") ?? 0);
-        }
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (search.get("homeCategory")) {
-      getCategories();
-    } else {
-      router.push("/connect");
-    }
-  }, []);
 
   if (!search.get("homeCategory")) {
     redirect("/connect");
-  } else if (!search.get("location")) {
-    redirect(`/business-internet/location?homeCategory=${search.get("homeCategory")}`);
+  } else if (
+    !search.get("location") ||
+    !search.get("services") ||
+    !search.get("coordinates") ||
+    !search.get("city")
+  ) {
+    redirect(`/business-internet?homeCategory=${search.get("homeCategory")}`);
   } else {
+    const [selected, setSelected] = useState("");
+    const [categoryOpen, setCategoryOpen] = useState({ name: "", id: "" });
+    const [loading, setLoading] = useState(true);
+    const [selectedAttribute, setSelectedAttribute] = useState<number[]>([]);
+    const [categories, setCategories] = useState<ProductCategory[]>([]);
+    const [price, setPrice] = useState<number | null>(null);
+
+    const router = useRouter();
+    const params = new URLSearchParams(search);
+
+    const handleSelect = (attrIndex: number, valueId: number) => {
+      setSelectedAttribute((prev) => {
+        const updated = [...prev];
+        updated[attrIndex] = valueId; // 👈 store by index
+        return updated;
+      });
+      const updated = [...selectedAttribute];
+      updated[attrIndex] = valueId;
+      params.set("attribute", JSON.stringify([...updated]));
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}?${params.toString()}`,
+      );
+    };
+
+    const getCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await getProductCategories(
+          search.get("homeCategory") || "",
+          JSON.parse(`${search.get("services")}`) || [],
+        );
+        if (res.status && Array.isArray(res?.data)) {
+          setCategories(res.data as ProductCategory[]);
+          if (
+            search.get("childCategory") &&
+            search.get("product") &&
+            search.get("price") &&
+            search.get("attribute")
+          ) {
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
+            setSelectedAttribute(JSON.parse(search.get("attribute") ?? "[]"));
+            setCategoryOpen({
+              id: search.get("childCategory") ?? "",
+              name: search.get("childCategoryName") ?? "",
+            });
+            setSelected(search.get("product") ?? "");
+            setPrice(parseInt(search.get("price") ?? "") ?? 0);
+          } else {
+            const data = res?.data[0];
+            setCategoryOpen({
+              id: `${data?.id}`,
+              name: `${data?.name}`,
+            });
+            params.set("childCategory", `${data?.id}`);
+            params.set("childCategoryName", `${data?.name}`);
+            if (data?.products?.length) {
+              const product = data.products[0];
+              setSelected(`${product?.id}`);
+              setPrice(parseInt(`${product?.list_price}`));
+              params.set("product", `${product?.id}`);
+              params.set("price", `${product?.list_price}`);
+              params.set("productName", `${product?.name}`);
+              if (product?.attributes?.length) {
+                const attribute = product?.attributes.map(
+                  (item) => item.values[0].id,
+                );
+                setSelectedAttribute(attribute);
+                params.set("attribute", JSON.stringify([...attribute]));
+              }
+            }
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
+          }
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      if (search.get("homeCategory")) {
+        getCategories();
+      } else {
+        router.push("/connect");
+      }
+    }, []);
+
     return (
       <div className="w-full">
         <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
@@ -101,7 +147,7 @@ export default function Plan() {
               </span>
               <button className="ml-2 text-[#2563eb] underline">
                 <Link
-                  href={`/business-internet/location?homeCategory=${search.get("homeCategory")}`}
+                  href={`/business-internet?homeCategory=${search.get("homeCategory")}`}
                 >
                   Change
                 </Link>
@@ -155,6 +201,33 @@ export default function Plan() {
                               id: category.id.toString(),
                               name: category.name,
                             });
+                            params.set("childCategory", category.id.toString());
+                            params.set("childCategoryName", category.name);
+                            params.delete("product");
+                            params.delete("price");
+                            params.delete("attribute");
+                            params.delete("productName");
+                            const product = category.products[0];
+                            setSelected(`${product?.id}`);
+                            setPrice(parseInt(`${product?.list_price}`));
+                            params.set("product", `${product?.id}`);
+                            params.set("productName", `${product?.name}`);
+                            params.set("price", `${product?.list_price}`);
+                            if (product?.attributes?.length) {
+                              const attribute = product?.attributes.map(
+                                (item) => item.values[0].id,
+                              );
+                              setSelectedAttribute(attribute);
+                              params.set(
+                                "attribute",
+                                JSON.stringify([...attribute]),
+                              );
+                            }
+                            window.history.replaceState(
+                              null,
+                              "",
+                              `${window.location.pathname}?${params.toString()}`,
+                            );
                           }
                         }}
                         className="px-4 py-2 border rounded-lg text-sm"
@@ -193,23 +266,46 @@ export default function Plan() {
                               <h3 className="text-lg font-semibold">
                                 {plan.name}
                               </h3>
-
-                              <div
-                                className={`w-5 h-5 rounded-full border flex items-center justify-center 
+                              <div className="w-5">
+                                <div
+                                  className={`w-5 h-5 rounded-full border flex items-center justify-center 
                             ${
                               isSelected
                                 ? "bg-[#f59e0b] border-[#f59e0b]"
                                 : "border-[#d1d5db]"
                             }`}
-                                onClick={() => {
-                                  setSelected(plan.id.toString());
-                                  setPrice(plan.list_price);
-                                  setSelectedAttribute([]); // reset attribute selection when switching categories 
-                                }}
-                              >
-                                {isSelected && (
-                                  <FaCheck className="w-3 h-3 text-white" />
-                                )}
+                                  onClick={() => {
+                                    setSelected(plan.id.toString());
+                                    setPrice(plan.list_price);
+                                    setSelectedAttribute([]); // reset attribute selection when switching categories
+                                    params.set("product", plan.id.toString());
+                                    params.set(
+                                      "price",
+                                      plan.list_price.toString(),
+                                    );
+                                    params.set("productName", `${plan?.name}`);
+                                    params.delete("attribute");
+                                    if (plan?.attributes?.length) {
+                                      const attribute = plan?.attributes.map(
+                                        (item) => item.values[0].id,
+                                      );
+                                      setSelectedAttribute(attribute);
+                                      params.set(
+                                        "attribute",
+                                        JSON.stringify([...attribute]),
+                                      );
+                                    }
+                                    window.history.replaceState(
+                                      null,
+                                      "",
+                                      `${window.location.pathname}?${params.toString()}`,
+                                    );
+                                  }}
+                                >
+                                  {isSelected && (
+                                    <FaCheck className="w-3 h-3 text-white" />
+                                  )}
+                                </div>
                               </div>
                             </div>
 
@@ -239,32 +335,48 @@ export default function Plan() {
                                       return (
                                         <li
                                           key={i}
-                                          className="flex items-center gap-2 ml-4 cursor-pointer"
+                                          className="flex items-center gap-2 ml-4 pr-3 cursor-pointer w-full"
                                           onClick={() => {
                                             if (selected) {
-                                              setPrice((prev) =>
-                                                prev
-                                                  ? prev +
-                                                    value.price_extra
-                                                  : plan.list_price +
-                                                    value.price_extra,
+                                              setPrice(
+                                                plan.list_price +
+                                                  value.price_extra,
                                               );
                                               handleSelect(attrIndex, value.id);
+                                              const finalPrice =
+                                                plan.list_price +
+                                                value.price_extra;
+
+                                              params.set(
+                                                "price",
+                                                finalPrice.toString(),
+                                              );
+
+                                              window.history.replaceState(
+                                                null,
+                                                "",
+                                                `${window.location.pathname}?${params.toString()}`,
+                                              );
                                             }
                                           }}
                                         >
-                                          <span
-                                            className={cn(
-                                              "w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px]",
-                                              {
-                                                "bg-[#f59e0b]": isSelected,
-                                                "bg-gray-300": !isSelected,
-                                              },
-                                            )}
-                                          >
-                                            {isSelected ? "✓" : ""}
-                                          </span>
-                                          {value.name}
+                                          <div className="flex items-center gap-2 w-full">
+                                            <span
+                                              className={cn(
+                                                "w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px]",
+                                                {
+                                                  "bg-[#f59e0b]": isSelected,
+                                                  "bg-gray-300": !isSelected,
+                                                },
+                                              )}
+                                            >
+                                              {isSelected ? "✓" : ""}
+                                            </span>
+                                            <div className="flex items-center justify-between w-[92%]">
+                                              <p>{value.name}</p>
+                                              <p>${value.price_extra}</p>
+                                            </div>
+                                          </div>
                                         </li>
                                       );
                                     })}
@@ -285,7 +397,7 @@ export default function Plan() {
               className="px-6 py-3 border border-[#1f2937] rounded-lg"
               onClick={() => {
                 router.push(
-                  `/business-internet/location?homeCategory=${search.get("homeCategory")}`,
+                  `/business-internet?homeCategory=${search.get("homeCategory")}`,
                 );
               }}
             >
@@ -295,19 +407,14 @@ export default function Plan() {
               className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg"
               disabled={loading}
               onClick={() => {
-                if (search.get("location")) {
-                  if (
-                    price &&
-                    selected &&
-                    search.get("homeCategory") &&
-                    search.get("location") &&
-                    selectedAttribute.length &&
-                    categoryOpen
-                  ) {
-                    router.push(
-                      `/business-internet/extras?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&childCategory=${categoryOpen.id}&childCategoryName=${categoryOpen.name}&product=${selected}&price=${price}&attribute=${JSON.stringify(selectedAttribute)}`,
-                    );
-                  }
+                if (
+                  price &&
+                  selected &&
+                  search.get("homeCategory") &&
+                  search.get("location") &&
+                  categoryOpen
+                ) {
+                  router.push(`/business-internet/extras?${params.toString()}`);
                 }
               }}
             >

@@ -1,6 +1,6 @@
 "use client";
 
-import AppBar from "@/src/components/AppBar"; 
+import AppBar from "@/src/components/AppBar";
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
@@ -27,12 +27,12 @@ export default function BusinessLayout({
   children: React.ReactNode;
 }>) {
   const steps = [
-    { label: "Service" },
-    { label: "Location" },
-    { label: "Plan" },
-    { label: "Extras" },
-    { label: "Equipment" },
-    { label: "Review" },
+    { label: "Service", link: "#" },
+    { label: "Location", link: "#" },
+    { label: "Plan", link: "#" },
+    { label: "Extras", link: "#" },
+    { label: "Equipment", link: "#" },
+    { label: "Review", link: "#" },
   ];
 
   const [items, setItems] = useState<ItemType[]>([]);
@@ -65,7 +65,7 @@ export default function BusinessLayout({
             <PlanSummary items={items} pricing={pricing} />
           </div>
         </Container>
-      </div> 
+      </div>
       <Layout
         setItems={setItems}
         items={items}

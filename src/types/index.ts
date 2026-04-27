@@ -53,3 +53,8 @@ export type ServiceAvailability = {
   validated_at: string; // ISO date string
   log_id: number;
 };
+
+export type Step = {
+  label: string;
+  link: string;
+};

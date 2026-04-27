@@ -1,11 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import cn from "classnames";
-
-type Step = {
-  label: string;
-};
+import { Step } from "@/src/types";
 
 interface StepperProps {
   steps: Step[];
@@ -53,12 +51,14 @@ const Stepper: React.FC<StepperProps> = ({ steps, currentStep, className }) => {
                 >
                   {/* Inner dot */}
                   {(isActive || isCompleted) && (
-                    <div
-                      className={cn("w-2.5 h-2.5 rounded-full", {
-                        "bg-[#F2A413]": isCompleted,
-                        "bg-teal-700": isActive,
-                      })}
-                    />
+                    <Link href={step.link}>
+                      <div
+                        className={cn("w-2.5 h-2.5 rounded-full", {
+                          "bg-[#F2A413]": isCompleted,
+                          "bg-teal-700": isActive,
+                        })}
+                      />
+                    </Link>
                   )}
                 </div>
 

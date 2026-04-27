@@ -23,8 +23,8 @@ interface SectionProps {
 
 interface CardProps {
   item: Voucher;
-  selected: string[];
-  onClick: (id: string) => void;
+  selected: { id: string; price: string }[];
+  onClick: (id: string, price: string) => void;
 }
 
 const gaming: Item[] = [
@@ -156,7 +156,8 @@ export default function Extras() {
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
     !search.get("product") ||
-    !search.get("price")
+    !search.get("price") ||
+    !search.get("productName")
   ) {
     redirect(
       `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
@@ -164,16 +165,20 @@ export default function Extras() {
   } else {
     const [streaming, setStreaming] = useState<boolean>(true);
     const [dataBoost, setDataBoost] = useState<boolean>(false);
-    const [selectedVouchers, setSelectedVouchers] = useState<string[]>([]);
+    const [selectedVouchers, setSelectedVouchers] = useState<
+      { id: string; price: string }[]
+    >([]);
     const [bundleActive, setBundleActive] = useState<boolean>(false);
     const [mobilePlan, setMobilePlan] = useState<string>("standard");
     const [loading, setLoading] = useState(true);
     const [entertainment, setEntertainment] = useState<Voucher[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const toggleVoucher = (id: string) => {
+    const toggleVoucher = (id: string, price: string) => {
       setSelectedVouchers((prev) =>
-        prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+        prev.some((v) => v.id === id)
+          ? prev.filter((v) => v.id !== id)
+          : [...prev, { id, price }],
       );
     };
 
@@ -270,12 +275,28 @@ export default function Extras() {
                   selected={selectedVouchers}
                   onClick={() => {
                     const searchParams = Object.fromEntries(search.entries());
-                    toggleVoucher(item.id);
-                    const voucher = selectedVouchers.includes(item.id)
-                      ? selectedVouchers.filter((v) => v !== item.id)
-                      : [...selectedVouchers, item.id];
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                          },
+                        ];
                     const params = new URLSearchParams(searchParams);
                     params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
                     window.history.replaceState(
                       null,
                       "",
@@ -481,7 +502,7 @@ const CardSkeleton = () => {
 };
 
 function Card({ item, selected, onClick }: CardProps) {
-  const active = selected.includes(item.id);
+  const active = selected.some((v) => v.id === item.id);
 
   const isOutOfStock =
     item.available_count === 0 ||
@@ -490,7 +511,11 @@ function Card({ item, selected, onClick }: CardProps) {
   return (
     <div
       onClick={() => {
-        if (!isOutOfStock) onClick(item.id);
+        if (!isOutOfStock)
+          onClick(
+            item.id,
+            `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+          );
       }}
       className={cn("relative border rounded-xl p-4 transition", {
         "cursor-not-allowed bg-gray-100 border-gray-200 opacity-60":

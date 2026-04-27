@@ -4,7 +4,6 @@ import AppBar from "@/src/components/AppBar";
 import Container from "@/src/components/Container";
 import PlanSummary from "@/src/components/SummaryPlan";
 import { useState, Suspense } from "react";
-import Layout from "@/src/components/Layout/HomeInternet";
 
 interface ItemType {
   id: string;
@@ -39,7 +38,6 @@ export default function HomeInternetLayout({
           </div>
         </Container>
       </div>
-      <Layout setItems={setItems} setPricing={setPricing} />
     </Suspense>
   );
 }

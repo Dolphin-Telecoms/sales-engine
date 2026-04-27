@@ -12,12 +12,12 @@ import { HomeCategory } from "@/src/features/connect/types/connect";
 
 function Connect() {
   const steps = [
-    { label: "Service" },
-    { label: "Location" },
-    { label: "Plan" },
-    { label: "Extras" },
-    { label: "Equipment" },
-    { label: "Review" },
+    { label: "Service", link: "#" },
+    { label: "Location", link: "#" },
+    { label: "Plan", link: "#" },
+    { label: "Extras", link: "#" },
+    { label: "Equipment", link: "#" },
+    { label: "Review", link: "#" },
   ];
 
   const [loading, setLoading] = useState(true);

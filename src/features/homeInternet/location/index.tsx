@@ -84,9 +84,10 @@ export default function AvailabilityChecker() {
       },
       (predictions: any, status: string) => {
         if (status === "OK" && predictions) {
+    
           const sugession = predictions.map((items: any) => ({
             ...items,
-            city: getCity(items),
+            city: `${getCity(items)}`, 
           }));
 
           setSuggestions([...sugession]);
@@ -212,7 +213,7 @@ export default function AvailabilityChecker() {
                 if (isChecking) {
                   if (selected) {
                     router.push(
-                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${coverage?.city}`,
+                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${selected?.city}`,
                     );
                   }
                 } else {

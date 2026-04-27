@@ -95,8 +95,11 @@ export default function EquipmentSetup() {
         params.set("equipmentName", `${equipment?.name}`);
         params.set("equipmentId", `${equipment?.id}`);
         params.set("customerId", `${response.data[0]}`);
+        params.set("customerName", `${name}`);
+        params.set("customerEmail", `${email}`);
+        params.set("customerPhone", `${phone}`);
         router.push(`/home-internet/review?${params.toString()}`);
-      } 
+      }
       setSubmitLoader(false);
     };
 
@@ -113,10 +116,24 @@ export default function EquipmentSetup() {
     };
 
     const [form, setForm] = useState<FormData>({
-      fullName: "",
-      email: "",
-      phone: "",
+      fullName: ``,
+      email: ``,
+      phone: ``,
     });
+
+    useEffect(() => {
+      if (
+        search.get("customerName") &&
+        search.get("customerEmail") &&
+        search.get("customerPhone")
+      ) {
+        setForm({
+          fullName: `${search.get("customerName")}`,
+          email: `${search.get("customerEmail")}`,
+          phone: `${search.get("customerPhone")}`,
+        });
+      }
+    }, [search]);
 
     const [errors, setErrors] = useState<FormErrors>({});
 

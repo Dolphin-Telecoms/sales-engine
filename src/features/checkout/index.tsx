@@ -6,14 +6,16 @@ import { FaTimes, FaCheckCircle } from "react-icons/fa";
 import { RxPerson } from "react-icons/rx";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { IoLockClosedOutline } from "react-icons/io5";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import cn from "classnames";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
   const [currency, setCurrency] = useState("USD");
   const [selectedMethod, setSelectedMethod] = useState("");
+  const [isLoading, setIsLoading] =  useState(false);
   const router = useRouter();
+  const search = useSearchParams();
 
   const paymentMethods = [
     {
@@ -54,6 +56,34 @@ export default function SecureCheckout() {
     },
   ];
 
+  const handlePayment = async () => {
+    setIsLoading(true);
+    const res = await fetch("/apis/payment/ecocash", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: 1,
+        customer_name: `${search.get("customerName")}`,
+        account_number: "108644",
+        phone: `${search.get("customerPhone")}`,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data?.success) {
+      console.log(data)
+      // router.push(`/redirect-checkout`);
+      alert("Payment request sent. Check your phone 📱");
+    } else {
+      alert("Payment failed");
+    }
+
+    setIsLoading(false);
+  };
+
   return (
     <>
       {/* MAIN CARD */}
@@ -65,40 +95,6 @@ export default function SecureCheckout() {
         <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176]">
           Complete your details below to proceed to payment.
         </p>
-
-        {/* Customer Details */}
-        <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB]">
-          <div className="flex items-center gap-3 border-b border-[#E5E7EB] p-4">
-            <div className="p-2 rounded-lg bg-[#FFFFFF]">
-              <RxPerson
-                className="text-[#2F5D6C]"
-                size={20}
-                strokeWidth={0.4}
-              />
-            </div>
-            <h2 className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
-              Customer Details
-            </h2>
-          </div>
-
-          <div className="p-4 space-y-4">
-            {[
-              { label: "Full Name", placeholder: "e.g. John Makumuri" },
-              { label: "Email Address", placeholder: "e.g. john@email.com" },
-              { label: "Phone Number", placeholder: "e.g. +263 77 123 4567" },
-            ].map((field) => (
-              <div key={field.label}>
-                <label className="font-exo font-bold text-[14px] text-[#111827]">
-                  {field.label}
-                </label>
-                <input
-                  placeholder={field.placeholder}
-                  className="mt-1 w-full rounded-lg border border-[#D1D5DB] bg-white px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Currency */}
         <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB]">
@@ -244,12 +240,20 @@ export default function SecureCheckout() {
               {/* Cancel */}
               {selectedMethod ? (
                 <button
-                  className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4 w-full"
+                  className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4 w-full flex items-center justify-center"
+                  disabled={isLoading}
                   onClick={() => {
-                    router.push(`/redirect-checkout`);
+                    if (selectedMethod === "EcoCash") {
+                      handlePayment();
+                    }
                   }}
                 >
-                  Make a payment →
+                  Make a payment →&nbsp;&nbsp;
+                {isLoading ? (
+                  <div className="flex items-center justify-center w-fit h-fit rounded-full">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+                  </div>
+                ) : null}
                 </button>
               ) : (
                 <button

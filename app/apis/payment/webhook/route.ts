@@ -1,7 +1,7 @@
 // app/api/webhook/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { OddoAxios } from "@/src/libs/axios";
+import OddoAxios from "@/src/libs/Oddo";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

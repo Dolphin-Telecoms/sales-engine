@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaTimes, FaCheckCircle } from "react-icons/fa";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { IoLockClosedOutline } from "react-icons/io5";
 import { useRouter, useSearchParams } from "next/navigation";
 import cn from "classnames";
+import { createCustomer } from "@/src/features/homeInternet/apis/createCustomer";
+import { RxPerson } from "react-icons/rx";
+import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -16,6 +19,140 @@ export default function SecureCheckout() {
   const router = useRouter();
   const search = useSearchParams();
   const params = new URLSearchParams(search);
+  const [submitLoader, setSubmitLoader] = useState<boolean>(false);
+
+  const generateCustomer = async (
+    email: string,
+    name: string,
+    phone: string,
+  ) => {
+    setSubmitLoader(true);
+    const coordinates = JSON.parse(`${search.get("coordinates")}`);
+
+    const body = {
+      partner_latitude: coordinates?.lat,
+      partner_longitude: coordinates?.lng,
+      email: email,
+      street: `${search.get("location")}`,
+      city: `${search.get("city")}`,
+      country_code: "ZW",
+      name: name,
+      phone: phone,
+    };
+
+    const response = await createCustomer(body);
+
+    if (response.status && response.data) {
+      params.set("customerId", `${response.data[0]}`);
+      params.set("customerName", `${name}`);
+      params.set("customerEmail", `${email}`);
+      params.set("customerPhone", `${phone}`);
+      const body = {
+        companyId: `${response.data[0]}`,
+        partnerId: `${response.data[0]}`,
+        partnerInvoiceId: `${response.data[0]}`,
+        name: `${name}`,
+        partnerShippingId: `${response.data[0]}`,
+      };
+
+      const orderResponse = await generateSaleOrder(body);
+
+      if (orderResponse.status && orderResponse.data) {
+        params.set("salesOderId", `${orderResponse.data[0]}`);
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?${params.toString()}`,
+        );
+        setShowModal(true);
+        setSubmitLoader(false);
+      }
+    }
+  };
+
+  type FormData = {
+    fullName: string;
+    email: string;
+    phone: string;
+  };
+
+  type FormErrors = {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+  };
+
+  const [form, setForm] = useState<FormData>({
+    fullName: ``,
+    email: ``,
+    phone: ``,
+  });
+
+  useEffect(() => {
+    if (
+      search.get("customerName") &&
+      search.get("customerEmail") &&
+      search.get("customerPhone")
+    ) {
+      setForm({
+        fullName: `${search.get("customerName")}`,
+        email: `${search.get("customerEmail")}`,
+        phone: `${search.get("customerPhone")}`,
+      });
+    }
+  }, [search]);
+
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // clear error on typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {};
+
+    if (!form.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      newErrors.email = "Invalid email";
+    }
+
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\+?\d{7,15}$/.test(form.phone.replace(/\s/g, ""))) {
+      newErrors.phone = "Invalid phone number";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const validationErrors = validate();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    await generateCustomer(form.email, form.fullName, form.phone); // your API call
+    setIsLoading(false);
+  };
 
   const paymentMethods = [
     {
@@ -67,6 +204,69 @@ export default function SecureCheckout() {
         <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176]">
           Complete your details below to proceed to payment.
         </p>
+
+        {/* Customer Details */}
+        <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB]">
+          <div className="flex items-center gap-3 border-b border-[#E5E7EB] p-4">
+            <div className="p-2 rounded-lg bg-[#FFFFFF]">
+              <RxPerson
+                className="text-[#2F5D6C]"
+                size={20}
+                strokeWidth={0.4}
+              />
+            </div>
+            <h2 className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
+              Customer Details
+            </h2>
+          </div>
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="font-exo font-bold text-[14px] text-[#111827]">
+                Full Name
+              </label>
+              <input
+                name="fullName"
+                value={form.fullName}
+                onChange={handleChange}
+                placeholder="e.g. John Makumuri"
+                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+              />
+              {errors.fullName && (
+                <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+              )}
+            </div>
+            <div>
+              <label className="font-exo font-bold text-[14px] text-[#111827]">
+                Email Address
+              </label>
+              <input
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="e.g. john@email.com"
+                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs">{errors.email}</p>
+              )}
+            </div>
+            <div>
+              <label className="font-exo font-bold text-[14px] text-[#111827]">
+                Phone Number
+              </label>
+              <input
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="e.g. +263 77 123 4567"
+                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-xs">{errors.phone}</p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Currency */}
         <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB]">
@@ -131,10 +331,16 @@ export default function SecureCheckout() {
 
         {/* Button */}
         <button
-          onClick={() => setShowModal(true)}
-          className="mt-6 w-full rounded-xl bg-[#F59E0B] py-3 font-exo font-bold text-[16px] text-white hover:bg-[#D97706]"
+          disabled={submitLoader}
+          onClick={handleSubmit}
+          className="mt-6 w-full rounded-xl bg-[#F59E0B] py-3 font-exo font-bold text-[16px] text-white hover:bg-[#D97706] flex items-center justify-center "
         >
-          Proceed to Payment
+          Proceed to Payment&nbsp;&nbsp;
+          {isLoading ? (
+            <div className="flex items-center justify-center w-fit h-fit rounded-full">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+            </div>
+          ) : null}
         </button>
 
         {/* Footer */}
@@ -213,7 +419,6 @@ export default function SecureCheckout() {
               {selectedMethod ? (
                 <button
                   className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4 w-full flex items-center justify-center"
-                  disabled={isLoading}
                   onClick={() => {
                     if (selectedMethod === "EcoCash") {
                       router.push(
@@ -226,12 +431,7 @@ export default function SecureCheckout() {
                     }
                   }}
                 >
-                  Make a payment →&nbsp;&nbsp;
-                  {isLoading ? (
-                    <div className="flex items-center justify-center w-fit h-fit rounded-full">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
-                    </div>
-                  ) : null}
+                  Make a payment →
                 </button>
               ) : (
                 <button

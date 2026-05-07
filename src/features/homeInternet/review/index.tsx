@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaCalendarAlt, FaCheckCircle } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
 import { Voucher } from "@/src/features/homeInternet/types/type";
-import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
 
 export default function ReviewPlan() {
   const search = useSearchParams();
@@ -32,8 +31,6 @@ export default function ReviewPlan() {
     );
   } else {
     const router = useRouter();
-    const [isConfirmed, setIsConfirmed] = useState(false);
-    const [isOrderLoading, setIsOrderLoading] = useState(false);
     const [voucher, setVouchers] = useState<Voucher[]>([]);
 
     const getFinalVoucher = async () => {
@@ -42,36 +39,12 @@ export default function ReviewPlan() {
         setVouchers(vouchers);
       }
     };
+    
     useEffect(() => {
       getFinalVoucher();
     }, []);
 
     const voucherSystem = JSON.parse(`${search.get("voucher")}`);
-
-    const generateOrder = async () => {
-      setIsOrderLoading(true);
-
-      const body = {
-        companyId: `${search.get("customerId")}`,
-        partnerId: `${search.get("customerId")}`,
-        partnerInvoiceId: `${search.get("customerId")}`,
-        name: `${search.get("customerName")}`,
-        partnerShippingId: `${search.get("customerId")}`,
-      };
-
-      const response = await generateSaleOrder(body);
-
-      if (response.status && response.data) {
-        params.set("salesOderId", `${response.data[0]}`);
-        window.history.replaceState(
-          null,
-          "",
-          `${window.location.pathname}?${params.toString()}`,
-        );
-        setIsConfirmed(true);
-      }
-      setIsOrderLoading(false);
-    };
 
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
@@ -145,70 +118,20 @@ export default function ReviewPlan() {
         </div>
 
         {/* Conditional UI */}
-        {isConfirmed ? (
-          <div className="mt-8 text-center">
-            <div className="text-8xl">🎉</div>
-
-            <h3 className="mt-3 font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-center text-[#111827]">
-              You're almost connected!
-            </h3>
-
-            <p className="mt-2 font-exo font-normal text-[16px] leading-[1.5] tracking-normal text-center mx-auto text-[#2C6176]">
-              We've received your order. Our team will contact you within 24
-              hours to schedule installation.
-            </p>
-
-            <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#DCE7EB] px-5 py-3">
-              <FaCheckCircle className="text-[#2F5D6C]" />
-              <span className="font-exo font-bold text-[16px] text-[#2F5D6C]">
-                DTL-{new Date().getFullYear()}-{search.get("salesOderId")}
-              </span>
-            </div>
-
-            <p className="mt-3 font-exo text-[12px] text-[#2C6176]">
-              A confirmation has been sent to your email.
-            </p>
-            <div className="flex flex-col lg:flex-row gap-4 mt-6 w-full justify-center">
-              <button
-                onClick={() => setIsConfirmed(false)}
-                className="rounded-lg border border-[#2F5D6C] px-6 py-4 mt-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5"
-              >
-                Back
-              </button>
-              <button
-                className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4"
-                onClick={() => {
-                  router.push(`/checkout?${params.toString()}`);
-                }}
-              >
-                Checkout →
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="my-6 h-[1px] bg-[#E5E7EB]" />
-            <div className="flex flex-col lg:flex-row gap-4 mt-6">
-              <button className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5">
-                Edit Plan
-              </button>
-              <button
-                disabled={isOrderLoading}
-                onClick={() => {
-                  generateOrder();
-                }}
-                className="rounded-lg bg-[#F59E0B] px-6 py-4 font-exo font-bold text-[14px] text-white hover:bg-[#D97706] flex items-center justify-center"
-              >
-                Get Connected →&nbsp;&nbsp;
-                {isOrderLoading ? (
-                  <div className="flex items-center justify-center w-fit h-fit rounded-full">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
-                  </div>
-                ) : null}
-              </button>
-            </div>
-          </>
-        )}
+        <div className="my-6 h-[1px] bg-[#E5E7EB]" />
+        <div className="flex flex-col lg:flex-row gap-4 mt-6">
+          <button className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5">
+            Edit Plan
+          </button>
+          <button
+            onClick={() => {
+              router.push(`/home-internet/checkout?${params.toString()}`);
+            }}
+            className="rounded-lg bg-[#F59E0B] px-6 py-4 font-exo font-bold text-[14px] text-white hover:bg-[#D97706] flex items-center justify-center"
+          >
+            Get Connected →
+          </button>
+        </div>
       </div>
     );
   }

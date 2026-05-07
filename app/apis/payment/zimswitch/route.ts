@@ -13,12 +13,15 @@ export async function POST(req: NextRequest) {
     const res = await OddoAxios.post(
       `/api/payment/initiate`,
       {
-        payment_method: "ecocash",
+        payment_method: "zimswitch",
         amount: body.amount,
         customer_name: body.customer_name,
         account_number: body.account_number,
         phone: body.phone,
         webhook_url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/apis/payment/webhook?${paramsObject.toString()}`,
+        customer_email: body.customer_email,
+        currency: body.currency,
+        return_url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/payment-success/zimswitch?${paramsObject.toString()}`,
       },
       {
         headers: {
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest) {
       },
     );
 
-    const data = await res.data;
+    const data = res.data;
 
     const response = NextResponse.json(data);
 
@@ -39,6 +42,20 @@ export async function POST(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 365, // 1 year
         sameSite: "lax",
       });
+    });
+
+    response.cookies.set("widget_url", data?.widget_url, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365, // 365 days
+    });
+
+    response.cookies.set("checkout_id", data?.checkout_id, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365, // 365 days
     });
 
     response.cookies.set("transactionID", data?.transaction_id, {

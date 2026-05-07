@@ -15,6 +15,22 @@ const PaymentSuccess = () => {
     paymentMethod: "EcoCash",
   };
 
+  //   useEffect(() => {
+  //   const interval = setInterval(async () => {
+  //     const res = await fetch(`/api/payment/${tx}/status`);
+  //     const data = await res.json();
+
+  //     if (data.status === "completed") {
+  //       clearInterval(interval);
+
+  //       // ✅ This refreshes the page (re-fetch server data)
+  //       router.refresh();
+  //     }
+  //   }, 4000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
   return (
     <div className="min-h-screen w-full md:max-w-xl rounded-xl p-4 xl:p-8 mx-auto">
       {/* Top Section: Success Tick and Text */}

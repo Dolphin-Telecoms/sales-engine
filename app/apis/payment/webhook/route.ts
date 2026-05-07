@@ -24,11 +24,21 @@ export async function POST(req: NextRequest) {
     transaction_id,
   } = body;
 
-  if (status === "completed") {
-    const invoice = await OddoAxios.post("/json/2/sale.order/_create_invoices", {
-      ids: [transaction_id],
-    });
-  }
+  // if (status === "completed") {
+  //   const invoice = await OddoAxios.post(
+  //     "/json/2/sale.order/_create_invoices",
+  //     {
+  //       ids: [transaction_id],
+  //     },
+  //   );
+  // }
+
+  // ✅ get query params
+  const { searchParams } = new URL(req.url);
+
+  const paramsObject = Object.fromEntries(searchParams.entries());
+
+  console.log(body, paramsObject);
 
   return NextResponse.json({ received: true });
 }

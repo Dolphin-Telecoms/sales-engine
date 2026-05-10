@@ -53,14 +53,19 @@ export async function POST(req: NextRequest) {
   } = body;
 
   if (status === "completed" && payment_id) {
-    const invoice = await OddoAxios.post(
-      "/json/2/sale.order/_create_invoices",
-      {
-        ids: [salesOderId],
-      },
-    ).then((res) => res.data);
+    const confirmsaleOrder = await OddoAxios.post(
+      "/json/2/sale.order/action_confirm",
+      { ids: [salesOderId] },
+    );
+    console.log("confirmsaleOrder :: ", confirmsaleOrder)
+    if (confirmsaleOrder) {
+      const invoice = await OddoAxios.post(
+        "/json/2/sale.order/_create_invoices",
+        { ids: [salesOderId] },
+      ).then((res) => res.data);
 
-    console.log("Invoice created successfully:", invoice);
+      console.log("Invoice created successfully:", invoice);
+    }
   }
 
   // ✅ get query params

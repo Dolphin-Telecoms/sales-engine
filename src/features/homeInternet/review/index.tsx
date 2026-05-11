@@ -70,6 +70,7 @@ export default function ReviewPlan() {
               ["Package", `${search.get("productName")}`],
               ...voucher
                 .filter((item) =>
+                  voucherSystem &&
                   voucherSystem.find((v: any) => v.id === item.id),
                 )
                 .map((item) => [

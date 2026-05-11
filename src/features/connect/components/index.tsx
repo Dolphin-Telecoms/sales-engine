@@ -44,47 +44,13 @@ function Connect() {
     getCategories();
   }, []);
 
-  // const items = [
-  //   {
-  //     id: "service",
-  //     title: "Home Internet",
-  //     subtitle: "Selected service",
-  //     icon: "🏠",
-  //   },
-  //   {
-  //     id: "address",
-  //     title: "14 Samora Machel Ave",
-  //     subtitle: "Service address",
-  //     icon: "📍",
-  //   },
-  //   {
-  //     id: "connection",
-  //     title: "Fibre",
-  //     subtitle: "Connection type",
-  //     icon: "📡",
-  //   },
-  //   {
-  //     id: "plan",
-  //     title: "Lite Plan",
-  //     subtitle: "50GB / 20Mbps",
-  //     value: "$29/mo",
-  //     icon: "📦",
-  //   },
-  // ];
-
-  // const pricing = [
-  //   { label: "Lite Plan", value: 29, type: "price" },
-  //   { label: "Installation", value: 0, type: "free" },
-  //   { label: "Est. installation", value: 0, type: "text" }, // custom display
-  // ];
-
-  // data/services.ts
   const services = [
     ...categories
       .filter(
         (category) =>
           category.name.toLocaleLowerCase().includes("home") ||
-          category.name.toLocaleLowerCase().includes("business"),
+          category.name.toLocaleLowerCase().includes("business") ||
+          category.name.toLocaleLowerCase().includes("mobile"),
       )
       .map((category) => ({
         id: category.id.toString(),
@@ -93,24 +59,22 @@ function Connect() {
           : category.name,
         description: category.name.toLocaleLowerCase().includes("home")
           ? "Reliable connectivity for your household. Fibre, LTE and wireless options available."
-          : "Scalable internet solutions built for growing businesses and teams.",
+          : category.name.toLocaleLowerCase().includes("business")
+            ? "Scalable internet solutions built for growing businesses and teams."
+            : "Stay connected with flexible mobile plans and global eSIM across Zimbabwe, South Africa and beyond.",
         icon: category.name.toLocaleLowerCase().includes("home") ? (
           <FiHome />
-        ) : (
+        ) : category.name.toLocaleLowerCase().includes("business") ? (
           <LuBuilding2 />
+        ) : (
+          <FiSmartphone />
         ),
         link: category.name.toLocaleLowerCase().includes("home")
           ? "/home-internet"
-          : "/business-internet",
+          : category.name.toLocaleLowerCase().includes("business")
+            ? "/business-internet"
+            : "/mobile-internet",
       })),
-    {
-      id: "mobile",
-      title: "Mobile",
-      description:
-        "Stay connected with flexible mobile plans and global eSIM across Zimbabwe, South Africa and beyond.",
-      icon: <FiSmartphone />,
-      link: "/mobile-internet",
-    },
   ];
 
   return (

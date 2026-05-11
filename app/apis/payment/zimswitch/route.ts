@@ -18,10 +18,10 @@ export async function POST(req: NextRequest) {
         customer_name: body.customer_name,
         account_number: body.account_number,
         phone: body.phone,
-        webhook_url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/apis/payment/webhook?${paramsObject.toString()}`,
+        webhook_url: `https://dolphin-pay.vercel.app/apis/payment/webhook?${searchParams.toString()}`,
         customer_email: body.customer_email,
         currency: body.currency,
-        return_url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/payment-success/zimswitch?${paramsObject.toString()}`,
+        return_url: `https://dolphin-pay.vercel.app/payment-success/zimswitch?${paramsObject.toString()}`,
       },
       {
         headers: {

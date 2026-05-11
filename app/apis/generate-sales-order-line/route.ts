@@ -4,38 +4,32 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const {
+      order_id,
       name,
-      companyId,
-      partnerId,
-      partnerInvoiceId,
-      partnerShippingId,
-      order_line,
+      product_uom_qty,
+      price_unit,
+      customer_lead,
+      product_id,
     } = await req.json();
 
-    console.log({
-      vals_list: [
-        {
-          name: name,
-          company_id: Number(companyId),
-          partner_id: Number(partnerId),
-          partner_invoice_id: Number(partnerInvoiceId),
-          partner_shipping_id: Number(partnerShippingId),
-          picking_policy: "direct",
-          order_line: [order_line],
-        },
-      ],
-    }, order_line);
+    console.log(
+      order_id,
+      name,
+      product_uom_qty,
+      price_unit,
+      customer_lead,
+      product_id,
+    );
 
-    let response = await OddoAxios.post(`/json/2/sale.order/create`, {
+    const response = await OddoAxios.post(`/json/2/sale.order.line/create`, {
       vals_list: [
         {
+          order_id: order_id,
           name: name,
-          company_id: Number(companyId),
-          partner_id: Number(partnerId),
-          partner_invoice_id: Number(partnerInvoiceId),
-          partner_shipping_id: Number(partnerShippingId),
-          picking_policy: "direct",
-          order_line: [order_line],
+          product_uom_qty: product_uom_qty,
+          price_unit: price_unit,
+          customer_lead: customer_lead,
+          product_id: product_id,
         },
       ],
     }).then((res) => res.data);

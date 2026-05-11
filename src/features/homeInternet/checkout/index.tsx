@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import cn from "classnames";
 import { createCustomer } from "@/src/features/homeInternet/apis/createCustomer";
 import { RxPerson } from "react-icons/rx";
-import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
+import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration"; 
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -47,12 +47,22 @@ export default function SecureCheckout() {
       params.set("customerName", `${name}`);
       params.set("customerEmail", `${email}`);
       params.set("customerPhone", `${phone}`);
+
       const body = {
-        companyId: `${response.data[0]}`,
-        partnerId: `${response.data[0]}`,
-        partnerInvoiceId: `${response.data[0]}`,
+        companyId: 1,
+        partnerId: Number(`${response.data[0]}`),
+        partnerInvoiceId: Number(`${response.data[0]}`),
         name: `${name}`,
-        partnerShippingId: `${response.data[0]}`,
+        partnerShippingId: Number(`${response.data[0]}`),
+        order_line: [
+          0,
+          0,
+          {
+            product_id: Number(`${search.get("product")}`),
+            product_uom_qty: 1,
+            price_unit: Number(`${search.get("price")}`),
+          },
+        ],
       };
 
       const orderResponse = await generateSaleOrder(body);

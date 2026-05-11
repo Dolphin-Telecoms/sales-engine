@@ -7,22 +7,24 @@ export async function POST(req: NextRequest) {
     let response = await OddoAxios.post(
       `/json/2/product.category/search_read`,
       {
-        domain: [["parent_id.id", "=", homeCategory]],
+        domain: [["parent_id.id", "=", parseInt(homeCategory)]],
         limit: 20,
       },
     ).then((res) => res.data);
 
-    const filterservices = services.map((str: string) =>
-      str.toLowerCase() === "FIBRE".toLocaleLowerCase()
-        ? "Fiber".toLowerCase()
-        : str.toLowerCase(),
-    );
+    if (services.length > 0) {
+      const filterservices = services.map((str: string) =>
+        str.toLowerCase() === "FIBRE".toLocaleLowerCase()
+          ? "Fiber".toLowerCase()
+          : str.toLowerCase(),
+      );
 
-    response = response.filter(
-      (item: any) =>
-        !item?.name?.toLocaleLowerCase().includes("equipment") &&
-        filterservices.includes(item?.name?.toLocaleLowerCase()),
-    );
+      response = response.filter(
+        (item: any) =>
+          !item?.name?.toLocaleLowerCase().includes("equipment") &&
+          filterservices.includes(item?.name?.toLocaleLowerCase()),
+      );
+    }
 
     if (response) {
       const categoriesIds = response.map((category: any) => category.id);

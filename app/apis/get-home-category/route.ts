@@ -8,8 +8,7 @@ export async function GET() {
       {
         domain: [
           ["parent_id", "=", false], // 👈 filter added
-        ],
-        limit: 20,
+        ]
       },
     ).then((res) => res.data);
 

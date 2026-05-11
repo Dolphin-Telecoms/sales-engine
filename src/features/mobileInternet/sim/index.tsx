@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiMinus, FiPlus, FiInfo, FiUploadCloud, FiX } from "react-icons/fi";
 import Button from "@/src/components/Button";
+import { getSimCard } from "@/src/features/mobileInternet/apis/getSimCard";
+import { ProductTemplate } from "@/src/types";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 
 export default function SimCard() {
   const router = useRouter();
+  const search = useSearchParams();
   const [quantity, setQuantity] = useState(1);
   const [accountType, setAccountType] = useState<"existing" | "new">(
     "existing",
@@ -23,7 +26,7 @@ export default function SimCard() {
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pricePerSim = 2;
+  const pricePerSim = 0.1;
 
   /* ---------- FILE HANDLING ---------- */
 
@@ -53,7 +56,55 @@ export default function SimCard() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
-  const total = quantity * pricePerSim + (airtimeEnabled ? selectedAmount : 0);
+  const [selected, setSelected] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState({ name: "", id: "" });
+  const [loading, setLoading] = useState(true);
+  const [selectedAttribute, setSelectedAttribute] = useState<number[]>([]);
+  const [simcard, setSimCard] = useState<ProductTemplate | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
+
+  const params = new URLSearchParams(search);
+
+  const handleSelect = (attrIndex: number, valueId: number) => {
+    setSelectedAttribute((prev) => {
+      const updated = [...prev];
+      updated[attrIndex] = valueId; // 👈 store by index
+      return updated;
+    });
+    const updated = [...selectedAttribute];
+    updated[attrIndex] = valueId;
+    params.set("attribute", JSON.stringify([...updated]));
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${params.toString()}`,
+    );
+  };
+
+  console.log("simcard :", simcard);
+
+  const getSimCards = async () => {
+    try {
+      setLoading(true);
+      const res = await getSimCard(`${search.get("homeCategory")}`);
+      if (res.status && Array.isArray(res?.data)) {
+        setSimCard(res.data[0] as ProductTemplate);
+      } else {
+        setSimCard(null);
+      }
+    } catch (error) {
+      console.error("Error fetching simcard:", error);
+      setSimCard(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getSimCards();
+  }, []);
+
+    const total = quantity * (simcard?.list_price ? simcard?.list_price : pricePerSim) + (airtimeEnabled ? selectedAmount : 0);
 
   return (
     <div>
@@ -83,7 +134,7 @@ export default function SimCard() {
       </div>
 
       <p className="text-sm text-gray-500 mt-2">
-        Each SIM card – $2.00 (once-off)
+        Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
       </p>
 
       <Divider />
@@ -259,7 +310,7 @@ export default function SimCard() {
         <div>
           <p className="text-xs font-normal leading-[100%]">Order Summary</p>
           <p className="font-bold text-[16px] leading-[120%] tracking-normal mt-1">
-            {quantity}× SIM Card – ${quantity * pricePerSim}
+            {quantity}× SIM Card – ${quantity * (simcard?.list_price ? simcard?.list_price : pricePerSim)}
           </p>
         </div>
         <p className="text-xl font-semibold">${total.toFixed(2)}</p>
@@ -385,7 +436,9 @@ function OptionCard({ active, onClick, title, subtitle, children }: any) {
     <div
       onClick={onClick}
       className={`rounded-xl p-4 mb-3 cursor-pointer ${
-        active ? "border-2 border-[#2C6176] bg-[#E9F4F6]" : "border border-[#DCDCDC]"
+        active
+          ? "border-2 border-[#2C6176] bg-[#E9F4F6]"
+          : "border border-[#DCDCDC]"
       }`}
     >
       <div className="flex gap-3">

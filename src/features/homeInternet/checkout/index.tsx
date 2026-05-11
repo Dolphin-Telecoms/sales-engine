@@ -9,7 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import cn from "classnames";
 import { createCustomer } from "@/src/features/homeInternet/apis/createCustomer";
 import { RxPerson } from "react-icons/rx";
-import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration"; 
+import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
+import { getCustomerAccountNumber } from "@/src/features/homeInternet/apis/getCustomerAccount";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -47,6 +48,14 @@ export default function SecureCheckout() {
       params.set("customerName", `${name}`);
       params.set("customerEmail", `${email}`);
       params.set("customerPhone", `${phone}`);
+
+      const accountResponse = await getCustomerAccountNumber({
+        customer_id: `${response.data[0]}`,
+      });
+
+      if(accountResponse.status && accountResponse.data) {
+        params.set("accountNumber", `${accountResponse.data.account_numbers}`);
+      }
 
       const body = {
         companyId: 1,

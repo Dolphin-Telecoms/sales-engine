@@ -12,7 +12,7 @@ export default function ZimSwitch() {
   const InitiatePayment = async () => {
     const { status, data } = await zimswitchPaymentInitiate({
       customer_name: `${search.get("customerName")}`,
-      account_number: `108644`,
+      account_number: `${search.get("accountNumber")}`,
       phone: `${search.get("customerPhone")}`,
       customer_email: `${search.get("customerEmail")}`,
       currency: "USD",

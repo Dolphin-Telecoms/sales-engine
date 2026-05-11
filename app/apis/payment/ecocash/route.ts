@@ -10,22 +10,6 @@ export async function POST(req: NextRequest) {
 
     const paramsObject = Object.fromEntries(searchParams.entries());
 
-    console.log(
-      {
-        payment_method: "ecocash",
-        amount: body.amount,
-        customer_name: body.customer_name,
-        account_number: body.account_number,
-        phone: body.phone,
-        webhook_url: `https://dolphin-pay.vercel.app/apis/payment/webhook?${searchParams.toString()}`,
-      },
-      {
-        headers: {
-          "X-API-Key": `${process.env.ECOCASH_API_KEY}`,
-        },
-      },
-    );
-
     const res = await OddoAxios.post(
       `/api/payment/initiate`,
       {
@@ -34,7 +18,7 @@ export async function POST(req: NextRequest) {
         customer_name: body.customer_name,
         account_number: body.account_number,
         phone: body.phone,
-        webhook_url: `https://dolphin-pay.vercel.app/apis/payment/webhook?${searchParams.toString()}`,
+        webhook_url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/apis/payment/webhook?${searchParams.toString()}`,
       },
       {
         headers: {

@@ -46,7 +46,8 @@ const PaymentSuccess = () => {
         if (
           response.status &&
           response.data &&
-          response?.data?.status === "completed"
+          response?.data?.status !== "processing" &&
+          response?.data?.status !== "pending"
         ) {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);

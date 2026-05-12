@@ -251,7 +251,7 @@ export type Metadata = {
 export type TransactionResponse = {
   success: boolean;
   transaction_id: string;
-  status: "completed" | "pending" | "failed";
+  status: "completed" | "pending" | "failed" | "cancelled" | "processing";
   amount: number;
   currency: string;
   payment_method: string;

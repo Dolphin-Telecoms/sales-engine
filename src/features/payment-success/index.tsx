@@ -1,7 +1,8 @@
 "use client";
 
 import { FiCopy, FiInfo } from "react-icons/fi";
-import { IoCheckmark } from "react-icons/io5";
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import { FiClock } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 import { TransactionResponse } from "@/src/types";
@@ -140,8 +141,22 @@ const PaymentSuccess = () => {
       {/* Top Section: Success Tick and Text */}
       <div className="flex flex-col items-center text-center gap-5">
         {/* Main Success Circle with White Check - matches the image's simple style */}
-        <div className="w-14 h-14 lg:w-24 lg:h-24 p-2 bg-[#0CAB46] rounded-full flex items-center justify-center shadow-md">
-          <IoCheckmark className="text-white w-14 h-14" strokeWidth={5} />
+        <div
+          className={`w-14 h-14 lg:w-24 lg:h-24 p-2 rounded-full flex items-center justify-center shadow-md ${
+            paymentData?.status === "completed"
+              ? "bg-[#0CAB46]"
+              : paymentData?.status === "failed" || paymentData?.status === "cancelled"
+                ? "bg-red-500"
+                : "bg-yellow-400"
+          }`}
+        >
+          {paymentData?.status === "completed" ? (
+            <IoCheckmark className="text-white w-14 h-14" strokeWidth={5} />
+          ) : paymentData?.status === "failed" || paymentData?.status === "cancelled" ? (
+            <IoClose className="text-white w-12 h-12" strokeWidth={5} />
+          ) : (
+            <FiClock className="text-white w-10 h-10" />
+          )}
         </div>
         <h1 className="font-exo font-bold text-[18px] lg:text-[24px] leading-[120%] tracking-[0%] text-center">
           Processing Successful!

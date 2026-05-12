@@ -70,7 +70,7 @@ const PaymentSuccess = () => {
     pollPaymentStatus();
 
     // Start polling
-    intervalRef.current = setInterval(pollPaymentStatus, 4000);
+    intervalRef.current = setInterval(pollPaymentStatus, 10000);
 
     return () => {
       if (intervalRef.current) {

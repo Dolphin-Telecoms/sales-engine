@@ -247,3 +247,22 @@ export type Metadata = {
   description: string;
   delivery_hint: string | null;
 };
+
+export type TransactionResponse = {
+  success: boolean;
+  transaction_id: string;
+  status: "completed" | "pending" | "failed";
+  amount: number;
+  currency: string;
+  payment_method: string;
+  account_number: string;
+  customer_name: string;
+  reference: string;
+  created_at: string;
+  completed_at: string;
+  provider_reference: string;
+  payment_id: number;
+  payment_reference: string;
+  ecocash_reference: string;
+  phone: string;
+};

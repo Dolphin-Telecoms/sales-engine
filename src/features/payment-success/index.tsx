@@ -1,35 +1,138 @@
 "use client";
 
-import React from "react";
-// Import necessary icons from react-icons/fi (Feather Icons) and io5 (Ionicons 5)
 import { FiCopy, FiInfo } from "react-icons/fi";
 import { IoCheckmark } from "react-icons/io5";
+import { useState, useEffect, useRef } from "react";
+import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
+import { TransactionResponse } from "@/src/types";
+import { useSearchParams } from "next/navigation";
+
+// Add this helper component above return()
+const Skeleton = ({ className = "" }: { className?: string }) => (
+  <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
+);
 
 const PaymentSuccess = () => {
+  const [paymentData, setPaymentData] = useState<TransactionResponse | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+
+  const transactionID = searchParams.get("transactionID");
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!transactionID) return;
+
+    // ✅ Prevent multiple intervals
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    const pollPaymentStatus = async () => {
+      try {
+        setLoading(true);
+        const response = await getTransaction({
+          transaction_id: transactionID,
+        });
+
+        setPaymentData(response.data);
+        setLoading(false);
+
+        // ✅ Stop polling permanently
+        if (
+          response.status &&
+          response.data &&
+          response?.data?.status === "completed"
+        ) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+
+          console.log("STOPPED");
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+    };
+
+    // Initial call
+    pollPaymentStatus();
+
+    // Start polling
+    intervalRef.current = setInterval(pollPaymentStatus, 4000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [transactionID]);
+
   // The order details for easy data passing
   const orderDetails = {
-    reference: "DLT-885435",
-    product: "Dolphin Home Fibre - Plus",
-    plan: "Uncapped - 50Mbps",
-    amountPaid: "$69.00 USD",
-    paymentMethod: "EcoCash",
+    reference: paymentData?.reference || "DLT-885435",
+    product: `${searchParams.get("productName") || "Dolphin Home Fibre - Plus"}`,
+    plan: `${searchParams.get("plan") || "100Mbps"} Plan`,
+    amountPaid: paymentData
+      ? `${paymentData.amount} ${paymentData.currency}`
+      : "$69.00 USD",
+    paymentMethod: paymentData?.payment_method || "EcoCash",
   };
 
-  //   useEffect(() => {
-  //   const interval = setInterval(async () => {
-  //     const res = await fetch(`/api/payment/${tx}/status`);
-  //     const data = await res.json();
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(orderDetails.reference);
 
-  //     if (data.status === "completed") {
-  //       clearInterval(interval);
+      // Optional toast / alert
+      alert("Reference copied successfully!");
+    } catch (error) {
+      console.error("Copy failed:", error);
+    }
+  };
 
-  //       // ✅ This refreshes the page (re-fetch server data)
-  //       router.refresh();
-  //     }
-  //   }, 4000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
+  const statusStyles = {
+    completed: {
+      bg: "bg-green-50 border-green-200",
+      text: "text-green-700",
+      badge: "bg-green-100 text-green-700",
+      message: "Your payment has been completed successfully.",
+    },
+    pending: {
+      bg: "bg-yellow-50 border-yellow-200",
+      text: "text-yellow-700",
+      badge: "bg-yellow-100 text-yellow-700",
+      message: "Your payment is pending confirmation.",
+    },
+    processing: {
+      bg: "bg-yellow-50 border-yellow-200",
+      text: "text-yellow-700",
+      badge: "bg-yellow-100 text-yellow-700",
+      message: "Your order is now being processed.",
+    },
+    failed: {
+      bg: "bg-red-50 border-red-200",
+      text: "text-red-700",
+      badge: "bg-red-100 text-red-700",
+      message: "Your payment has failed.",
+    },
+    cancelled: {
+      bg: "bg-red-50 border-red-200",
+      text: "text-red-700",
+      badge: "bg-red-100 text-red-700",
+      message: "Your payment has been cancelled.",
+    },
+  };
 
   return (
     <div className="min-h-screen w-full md:max-w-xl rounded-xl p-4 xl:p-8 mx-auto">
@@ -55,18 +158,18 @@ const PaymentSuccess = () => {
             <span className="font-exo font-normal text-[12px] leading-[1] tracking-normal  text-[#2C6176] mb-1">
               Order Reference
             </span>
-            <span className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-[#2C6176]">
-              {orderDetails.reference}
-            </span>
+            {paymentData && !loading ? (
+              <span className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-[#2C6176]">
+                {orderDetails.reference}
+              </span>
+            ) : (
+              <Skeleton className="h-6 w-40" />
+            )}
           </div>
           <button
             title="Copy reference to clipboard"
             className="p-2.5 rounded-full text-cyan-800 hover:bg-sky-200 transition"
-            onClick={() => {
-              navigator.clipboard.writeText(orderDetails.reference);
-              // Simple feedback to user, you can improve this with a toast
-              alert("Order reference copied to clipboard!");
-            }}
+            onClick={handleCopy}
           >
             <FiCopy className="w-6 h-6" />
           </button>
@@ -82,6 +185,16 @@ const PaymentSuccess = () => {
             { label: "Plan", value: orderDetails.plan },
             { label: "Amount Paid", value: orderDetails.amountPaid },
             { label: "Payment Method", value: orderDetails.paymentMethod },
+            {
+              label: "Payment Status",
+              value: (
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusStyles[paymentData?.status ?? ("pending" as keyof typeof statusStyles)].badge}`}
+                >
+                  {paymentData?.status ?? "pending"}
+                </span>
+              ),
+            },
           ].map((item, index) => (
             <div
               key={item.label}
@@ -90,9 +203,13 @@ const PaymentSuccess = () => {
               <span className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176]">
                 {item.label}
               </span>
-              <span className="font-exo font-bold text-[14px] leading-[1] tracking-normal text-right text-gray-950 text-right">
-                {item.value}
-              </span>
+              {paymentData && !loading ? (
+                <div className="font-exo font-bold text-[14px] leading-[1] tracking-normal text-right text-gray-950">
+                  {item.value}
+                </div>
+              ) : (
+                <Skeleton className="h-5 w-24" />
+              )}
             </div>
           ))}
         </div>

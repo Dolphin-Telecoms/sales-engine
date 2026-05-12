@@ -39,7 +39,7 @@ export default function ReviewPlan() {
         setVouchers(vouchers);
       }
     };
-    
+
     useEffect(() => {
       getFinalVoucher();
     }, []);
@@ -69,9 +69,10 @@ export default function ReviewPlan() {
               ["Connection Type", `${search.get("childCategoryName")}`],
               ["Package", `${search.get("productName")}`],
               ...voucher
-                .filter((item) =>
-                  voucherSystem &&
-                  voucherSystem.find((v: any) => v.id === item.id),
+                .filter(
+                  (item) =>
+                    voucherSystem &&
+                    voucherSystem.find((v: any) => v.id === item.id),
                 )
                 .map((item) => [
                   "Extras",
@@ -121,7 +122,12 @@ export default function ReviewPlan() {
         {/* Conditional UI */}
         <div className="my-6 h-[1px] bg-[#E5E7EB]" />
         <div className="flex flex-col lg:flex-row gap-4 mt-6">
-          <button className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5">
+          <button
+            onClick={() => {
+              router.push(`/home-internet/plan?${params.toString()}`);
+            }}
+            className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5"
+          >
             Edit Plan
           </button>
           <button

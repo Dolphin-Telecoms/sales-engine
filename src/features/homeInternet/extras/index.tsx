@@ -177,11 +177,17 @@ export default function Extras() {
     const [isLoading, setIsLoading] = useState(false);
     const [security, setSecurity] = useState<Voucher[]>([]);
 
-    const toggleVoucher = (id: string, price: string, name: string) => {
+    const toggleVoucher = (
+      id: string,
+      price: string,
+      name: string,
+      image: string,
+      group: string,
+    ) => {
       setSelectedVouchers((prev) =>
         prev.some((v) => v.id === id)
           ? prev.filter((v) => v.id !== id)
-          : [...prev, { id, price, name }],
+          : [...prev, { id, price, name, image, group }],
       );
     };
 
@@ -301,6 +307,8 @@ export default function Extras() {
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                       item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -312,6 +320,8 @@ export default function Extras() {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                             name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);
@@ -345,6 +355,8 @@ export default function Extras() {
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                       item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -356,6 +368,8 @@ export default function Extras() {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                             name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);
@@ -389,6 +403,8 @@ export default function Extras() {
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                       item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -400,6 +416,8 @@ export default function Extras() {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                             name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);
@@ -433,6 +451,8 @@ export default function Extras() {
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                       item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -444,6 +464,8 @@ export default function Extras() {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
                             name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);

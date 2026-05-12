@@ -5,7 +5,6 @@ import getAttributeValues from "@/src/components/Layout/apis/getAttributeValue";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { AttributeValue } from "@/src/types";
-import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
 import AppBar from "@/src/components/AppBar";
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
@@ -182,19 +181,19 @@ export default function Layout({
       values.push(newItem);
 
       if (search.get("voucher")) {
-        const { status: voucherStatus, data: vouchers } = await getVouchers();
-        if (voucherStatus && vouchers) {
-          vouchers.map((item) => {
+        const voucher = JSON.parse(`${search.get("voucher")}`);
+        if (voucher) {
+          voucher.map((item: any) => {
             const voucher = JSON.parse(`${search.get("voucher")}`);
             const isSelected = voucher.find((v: any) => v.id === item.id);
             if (isSelected) {
               values.push({
                 id: `voucher-${item.id}`,
                 title: `${item.name}`,
-                subtitle: `${item.metadata.group.charAt(0).toUpperCase() + item.metadata.group.slice(1).toLowerCase()} Voucher`,
+                subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
                 icon: (
                   <Image
-                    src={item.metadata.logo_url}
+                    src={item.image}
                     alt={item.name}
                     height={40}
                     width={40}

@@ -172,7 +172,10 @@ export default function Extras() {
     const [mobilePlan, setMobilePlan] = useState<string>("standard");
     const [loading, setLoading] = useState(true);
     const [entertainment, setEntertainment] = useState<Voucher[]>([]);
+    const [shopping, setShopping] = useState<Voucher[]>([]);
+    const [gaming, setGaming] = useState<Voucher[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [security, setSecurity] = useState<Voucher[]>([]);
 
     const toggleVoucher = (id: string, price: string, name: string) => {
       setSelectedVouchers((prev) =>
@@ -194,16 +197,35 @@ export default function Extras() {
           const entertainmentSelected = res?.data?.filter((item) =>
             item.metadata.group.toLocaleLowerCase().includes("entertainment"),
           );
+          const shoppingVoucher = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("shopping"),
+          );
+          const gamingVoucher = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("gaming"),
+          );
           setEntertainment(entertainmentSelected as Voucher[]);
+          setShopping(shoppingVoucher as Voucher[]);
+          setGaming(gamingVoucher as Voucher[]);
+          setSecurity(
+            res?.data?.filter((item) =>
+              item.metadata.group.toLocaleLowerCase().includes("security"),
+            ) as Voucher[],
+          );
           if (search.get("voucher")) {
             setSelectedVouchers(JSON.parse(`${search.get("voucher")}` || "[]"));
           }
         } else {
           setEntertainment([]);
+          setSecurity([]);
+          setShopping([]);
+          setGaming([]);
         }
       } catch (error) {
         console.error("Error fetching vouchers:", error);
         setEntertainment([]);
+        setSecurity([]);
+        setShopping([]);
+        setGaming([]);
       } finally {
         setLoading(false);
       }
@@ -289,7 +311,7 @@ export default function Extras() {
                           {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
-                           name: item.name,
+                            name: item.name,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);
@@ -309,38 +331,137 @@ export default function Extras() {
               ))}
         </Section>
 
-        {/* <Section title="GAMING">
-        {gaming.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section>
+        <Section title="GAMING">
+          {loading
+            ? [1, 2, 3, 4].map((item, index) => <CardSkeleton key={index} />)
+            : gaming.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
-      <Section title="SHOPPING">
-        {shoping.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section>
+        <Section title="SHOPPING">
+          {loading
+            ? [1, 2].map((item, index) => <CardSkeleton key={index} />)
+            : shopping.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
-      <Section title="SECURITY">
-        {security.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section> */}
+        <Section title="SECURITY">
+          {loading
+            ? [1, 2, 3, 4].map((item, index) => <CardSkeleton key={index} />)
+            : security.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
         {/* Bundle */}
         {/* <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
@@ -548,7 +669,7 @@ function Card({ item, selected, onClick }: CardProps) {
           alt={item.metadata.description}
           height={80}
           width={80}
-          className={cn({ grayscale: isOutOfStock })}
+          className={cn("h-12 w-20", { grayscale: isOutOfStock })}
         />
       </div>
 

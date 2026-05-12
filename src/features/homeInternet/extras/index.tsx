@@ -166,7 +166,7 @@ export default function Extras() {
     const [streaming, setStreaming] = useState<boolean>(true);
     const [dataBoost, setDataBoost] = useState<boolean>(false);
     const [selectedVouchers, setSelectedVouchers] = useState<
-      { id: string; price: string }[]
+      { id: string; price: string; name: string }[]
     >([]);
     const [bundleActive, setBundleActive] = useState<boolean>(false);
     const [mobilePlan, setMobilePlan] = useState<string>("standard");
@@ -174,11 +174,11 @@ export default function Extras() {
     const [entertainment, setEntertainment] = useState<Voucher[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const toggleVoucher = (id: string, price: string) => {
+    const toggleVoucher = (id: string, price: string, name: string) => {
       setSelectedVouchers((prev) =>
         prev.some((v) => v.id === id)
           ? prev.filter((v) => v.id !== id)
-          : [...prev, { id, price }],
+          : [...prev, { id, price, name }],
       );
     };
 
@@ -278,6 +278,7 @@ export default function Extras() {
                     toggleVoucher(
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -288,6 +289,7 @@ export default function Extras() {
                           {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                           name: item.name,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);

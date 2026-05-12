@@ -11,6 +11,7 @@ import { createCustomer } from "@/src/features/homeInternet/apis/createCustomer"
 import { RxPerson } from "react-icons/rx";
 import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
 import { getCustomerAccountNumber } from "@/src/features/homeInternet/apis/getCustomerAccount";
+import { getVoucherProduct } from "@/src/features/homeInternet/apis/getVoucherProduct";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -53,38 +54,113 @@ export default function SecureCheckout() {
         customer_id: `${response.data[0]}`,
       });
 
-      if(accountResponse.status && accountResponse.data) {
+      if (accountResponse.status && accountResponse.data) {
         params.set("accountNumber", `${accountResponse.data.account_numbers}`);
       }
 
-      const body = {
-        companyId: 1,
-        partnerId: Number(`${response.data[0]}`),
-        partnerInvoiceId: Number(`${response.data[0]}`),
-        name: `${name}`,
-        partnerShippingId: Number(`${response.data[0]}`),
-        order_line: [
-          0,
-          0,
-          {
-            product_id: Number(`${search.get("product")}`),
-            product_uom_qty: 1,
-            price_unit: Number(`${search.get("price")}`),
-          },
-        ],
-      };
+      if (search.get("voucher")) {
+        const voucherResponse = await getVoucherProduct();
+        const voucher = JSON.parse(`${search.get("voucher")}`);
 
-      const orderResponse = await generateSaleOrder(body);
+        if (voucherResponse.status && voucherResponse.data) {
+          const body = {
+            companyId: 1,
+            partnerId: Number(`${response.data[0]}`),
+            partnerInvoiceId: Number(`${response.data[0]}`),
+            name: `${name}`,
+            partnerShippingId: Number(`${response.data[0]}`),
+            order_line: [
+              0,
+              0,
+              {
+                product_id: Number(`${search.get("product")}`),
+                product_uom_qty: 1,
+                price_unit: Number(`${search.get("price")}`),
+              },
+              ...voucher.map((items: any) => ({
+                product_id: Number(
+                  `${voucherResponse?.data ? voucherResponse?.data?.id : 0}`,
+                ),
+                product_uom_qty: 1,
+                price_unit: Number(`${items.price}`),
+                name: `${items.name}`,
+              })),
+            ],
+          };
 
-      if (orderResponse.status && orderResponse.data) {
-        params.set("salesOderId", `${orderResponse.data[0]}`);
-        window.history.replaceState(
-          null,
-          "",
-          `${window.location.pathname}?${params.toString()}`,
-        );
-        setShowModal(true);
-        setSubmitLoader(false);
+          const orderResponse = await generateSaleOrder(body);
+
+          if (orderResponse.status && orderResponse.data) {
+            params.set("salesOderId", `${orderResponse.data[0]}`);
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
+            setShowModal(true);
+            setSubmitLoader(false);
+          }
+        } else {
+          const body = {
+            companyId: 1,
+            partnerId: Number(`${response.data[0]}`),
+            partnerInvoiceId: Number(`${response.data[0]}`),
+            name: `${name}`,
+            partnerShippingId: Number(`${response.data[0]}`),
+            order_line: [
+              0,
+              0,
+              {
+                product_id: Number(`${search.get("product")}`),
+                product_uom_qty: 1,
+                price_unit: Number(`${search.get("price")}`),
+              },
+            ],
+          };
+
+          const orderResponse = await generateSaleOrder(body);
+
+          if (orderResponse.status && orderResponse.data) {
+            params.set("salesOderId", `${orderResponse.data[0]}`);
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
+            setShowModal(true);
+            setSubmitLoader(false);
+          }
+        }
+      } else {
+        const body = {
+          companyId: 1,
+          partnerId: Number(`${response.data[0]}`),
+          partnerInvoiceId: Number(`${response.data[0]}`),
+          name: `${name}`,
+          partnerShippingId: Number(`${response.data[0]}`),
+          order_line: [
+            0,
+            0,
+            {
+              product_id: Number(`${search.get("product")}`),
+              product_uom_qty: 1,
+              price_unit: Number(`${search.get("price")}`),
+            },
+          ],
+        };
+
+        const orderResponse = await generateSaleOrder(body);
+
+        if (orderResponse.status && orderResponse.data) {
+          params.set("salesOderId", `${orderResponse.data[0]}`);
+          window.history.replaceState(
+            null,
+            "",
+            `${window.location.pathname}?${params.toString()}`,
+          );
+          setShowModal(true);
+          setSubmitLoader(false);
+        }
       }
     }
   };

@@ -57,10 +57,10 @@ const PaymentSuccess = () => {
           console.log("STOPPED");
         }
       } catch (error: any) {
-        console.error("Polling error:", error); 
-        setLoading(false); 
-        // Start polling 
-        pollPaymentStatus(); 
+        console.error("Polling error:", error);
+        setLoading(false);
+        // Start polling
+        await pollPaymentStatus();
       }
     };
 

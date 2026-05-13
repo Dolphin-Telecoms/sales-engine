@@ -57,21 +57,10 @@ const PaymentSuccess = () => {
           console.log("STOPPED");
         }
       } catch (error: any) {
-        console.error("Polling error:", error);
-
-        setLoading(false);
-
-        // ✅ keep polling for internal server error
-        if (error?.response?.status === 500) {
-          console.log("Internal server error, retrying...");
-          return;
-        }
-
-        // ❌ stop polling for other errors
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
+        console.error("Polling error:", error); 
+        setLoading(false); 
+        // Start polling 
+        pollPaymentStatus(); 
       }
     };
 

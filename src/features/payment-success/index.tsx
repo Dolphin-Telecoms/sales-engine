@@ -36,6 +36,7 @@ const PaymentSuccess = () => {
     const pollPaymentStatus = async () => {
       try {
         setLoading(true);
+
         const response = await getTransaction({
           transaction_id: transactionID,
         });
@@ -43,10 +44,8 @@ const PaymentSuccess = () => {
         setPaymentData(response.data);
         setLoading(false);
 
-        // ✅ Stop polling permanently
+        // stop polling when completed
         if (
-          response.status &&
-          response.data &&
           response?.data?.status !== "processing" &&
           response?.data?.status !== "pending"
         ) {
@@ -57,9 +56,18 @@ const PaymentSuccess = () => {
 
           console.log("STOPPED");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Polling error:", error);
 
+        setLoading(false);
+
+        // ✅ keep polling for internal server error
+        if (error?.response?.status === 500) {
+          console.log("Internal server error, retrying...");
+          return;
+        }
+
+        // ❌ stop polling for other errors
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
@@ -71,7 +79,7 @@ const PaymentSuccess = () => {
     pollPaymentStatus();
 
     // Start polling
-    intervalRef.current = setInterval(pollPaymentStatus, 10000);
+    intervalRef.current = setInterval(pollPaymentStatus, 15000);
 
     return () => {
       if (intervalRef.current) {
@@ -145,14 +153,16 @@ const PaymentSuccess = () => {
           className={`w-14 h-14 lg:w-24 lg:h-24 p-2 rounded-full flex items-center justify-center shadow-md ${
             paymentData?.status === "completed"
               ? "bg-[#0CAB46]"
-              : paymentData?.status === "failed" || paymentData?.status === "cancelled"
+              : paymentData?.status === "failed" ||
+                  paymentData?.status === "cancelled"
                 ? "bg-red-500"
                 : "bg-yellow-400"
           }`}
         >
           {paymentData?.status === "completed" ? (
             <IoCheckmark className="text-white w-14 h-14" strokeWidth={5} />
-          ) : paymentData?.status === "failed" || paymentData?.status === "cancelled" ? (
+          ) : paymentData?.status === "failed" ||
+            paymentData?.status === "cancelled" ? (
             <IoClose className="text-white w-12 h-12" strokeWidth={5} />
           ) : (
             <FiClock className="text-white w-10 h-10" />

@@ -13,9 +13,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error("echocash API failed!", error);
-    return NextResponse.json(
-      { error: "Payment initiation failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Transaction status check failed" });
   }
 }

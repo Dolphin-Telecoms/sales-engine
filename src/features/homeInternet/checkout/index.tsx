@@ -70,22 +70,28 @@ export default function SecureCheckout() {
             name: `${name}`,
             partnerShippingId: Number(`${response.data[0]}`),
             order_line: [
-              0,
-              0,
-              ...variant.map((item: any) => ({
-                product_id: Number(`${item.variant_id}`),
-                product_uom_qty: 1,
-                price_unit: Number(`${search.get("price")}`),
-                name: `${item.variant_name}`,
-              })),
-              ...voucher.map((items: any) => ({
-                product_id: Number(
-                  `${voucherResponse?.data ? voucherResponse?.data?.id : 0}`,
-                ),
-                product_uom_qty: 1,
-                price_unit: Number(`${items.price}`),
-                name: `${items.name}`,
-              })),
+              ...variant.map((item: any) => [
+                0,
+                0,
+                {
+                  product_id: Number(`${item.variant_id}`),
+                  product_uom_qty: 1,
+                  price_unit: Number(`${search.get("price")}`),
+                  name: `${item.variant_name}`,
+                },
+              ]),
+              ...voucher.map((items: any) => [
+                0,
+                0,
+                {
+                  product_id: Number(
+                    `${voucherResponse?.data ? voucherResponse?.data?.id : 0}`,
+                  ),
+                  product_uom_qty: 1,
+                  price_unit: Number(`${items.price}`),
+                  name: `${items.name}`,
+                },
+              ]),
             ],
           };
 

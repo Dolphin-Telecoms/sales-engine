@@ -12,20 +12,6 @@ export async function POST(req: NextRequest) {
       order_line,
     } = await req.json();
 
-    console.log({
-      vals_list: [
-        {
-          name: name,
-          company_id: Number(companyId),
-          partner_id: Number(partnerId),
-          partner_invoice_id: Number(partnerInvoiceId),
-          partner_shipping_id: Number(partnerShippingId),
-          picking_policy: "direct",
-          order_line: [order_line],
-        },
-      ],
-    }, order_line);
-
     let response = await OddoAxios.post(`/json/2/sale.order/create`, {
       vals_list: [
         {
@@ -35,7 +21,7 @@ export async function POST(req: NextRequest) {
           partner_invoice_id: Number(partnerInvoiceId),
           partner_shipping_id: Number(partnerShippingId),
           picking_policy: "direct",
-          order_line: [order_line],
+          order_line: order_line,
         },
       ],
     }).then((res) => res.data);

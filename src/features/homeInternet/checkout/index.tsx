@@ -61,7 +61,7 @@ export default function SecureCheckout() {
       if (search.get("voucher")) {
         const voucherResponse = await getVoucherProduct();
         const voucher = JSON.parse(`${search.get("voucher")}`);
-
+        const variant = JSON.parse(`${search.get("variant")}`);
         if (voucherResponse.status && voucherResponse.data) {
           const body = {
             companyId: 1,
@@ -72,11 +72,12 @@ export default function SecureCheckout() {
             order_line: [
               0,
               0,
-              {
-                product_id: Number(`${search.get("product")}`),
+              ...variant.map((item: any) => ({
+                product_id: Number(`${item.variant_id}`),
                 product_uom_qty: 1,
                 price_unit: Number(`${search.get("price")}`),
-              },
+                name: `${item.variant_name}`,
+              })),
               ...voucher.map((items: any) => ({
                 product_id: Number(
                   `${voucherResponse?.data ? voucherResponse?.data?.id : 0}`,

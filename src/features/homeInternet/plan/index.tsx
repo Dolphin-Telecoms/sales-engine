@@ -37,6 +37,12 @@ export default function Plan() {
     const [categoryOpen, setCategoryOpen] = useState({ name: "", id: "" });
     const [loading, setLoading] = useState(true);
     const [selectedAttribute, setSelectedAttribute] = useState<number[]>([]);
+    const [selectedVariant, setSelectedVariant] = useState<
+      {
+        variant_id: number;
+        variant_name: string;
+      }[]
+    >([]);
     const [categories, setCategories] = useState<HomeInternetProductCategory[]>(
       [],
     );
@@ -45,15 +51,31 @@ export default function Plan() {
     const router = useRouter();
     const params = new URLSearchParams(search);
 
-    const handleSelect = (attrIndex: number, valueId: number) => {
+    const handleSelect = (
+      attrIndex: number,
+      attributeId: number,
+      valueId: number,
+      variant_name: string,
+    ) => {
       setSelectedAttribute((prev) => {
         const updated = [...prev];
-        updated[attrIndex] = valueId; // 👈 store by index
+        updated[attrIndex] = attributeId; // 👈 store by index
+        return updated;
+      });
+      setSelectedVariant((prev) => {
+        const updated = [...prev];
+        updated[attrIndex] = {
+          variant_id: valueId,
+          variant_name: variant_name,
+        };
         return updated;
       });
       const updated = [...selectedAttribute];
-      updated[attrIndex] = valueId;
+      updated[attrIndex] = attributeId;
+      const variant = [...selectedVariant];
+      variant[attrIndex] = { variant_id: valueId, variant_name: variant_name };
       params.set("attribute", JSON.stringify([...updated]));
+      params.set("variant", JSON.stringify([...variant]));
       window.history.replaceState(
         null,
         "",
@@ -107,8 +129,16 @@ export default function Plan() {
                 const attribute = product?.attributes.map(
                   (item) => item.values[0].id,
                 );
+
+                const variant = product?.attributes.map((item) => ({
+                  variant_id: item.values[0].variant_id,
+                  variant_name: item.values[0].variant_name,
+                }));
+
                 setSelectedAttribute(attribute);
+                setSelectedVariant(variant);
                 params.set("attribute", JSON.stringify([...attribute]));
+                params.set("variant", JSON.stringify([...variant]));
               }
             }
             window.history.replaceState(
@@ -218,10 +248,22 @@ export default function Plan() {
                               const attribute = product?.attributes.map(
                                 (item) => item.values[0].id,
                               );
+                              const variant = product?.attributes.map(
+                                (item) => ({
+                                  variant_id: item.values[0].variant_id,
+                                  variant_name: item.values[0].variant_name,
+                                }),
+                              );
+
+                              setSelectedVariant(variant);
                               setSelectedAttribute(attribute);
                               params.set(
                                 "attribute",
                                 JSON.stringify([...attribute]),
+                              );
+                              params.set(
+                                "variant",
+                                JSON.stringify([...variant]),
                               );
                             }
                             window.history.replaceState(
@@ -290,10 +332,24 @@ export default function Plan() {
                                       const attribute = plan?.attributes.map(
                                         (item) => item.values[0].id,
                                       );
+
+                                      const variant = plan?.attributes.map(
+                                        (item) => ({
+                                          variant_id: item.values[0].variant_id,
+                                          variant_name:
+                                            item.values[0].variant_name,
+                                        }),
+                                      );
+
                                       setSelectedAttribute(attribute);
+                                      setSelectedVariant(variant);
                                       params.set(
                                         "attribute",
                                         JSON.stringify([...attribute]),
+                                      );
+                                      params.set(
+                                        "variant",
+                                        JSON.stringify([...variant]),
                                       );
                                     }
                                     window.history.replaceState(
@@ -330,9 +386,8 @@ export default function Plan() {
                                   <ul className="space-y-2 text-sm text-[#374151]">
                                     {attr.values.map((value, i) => {
                                       const isSelected =
-                                        selectedAttribute[
-                                          attrIndex
-                                        ]?.toString() === value.id.toString();
+                                        selectedVariant[attrIndex]
+                                          ?.variant_id === value.variant_id;
                                       return (
                                         <li
                                           key={i}
@@ -343,7 +398,12 @@ export default function Plan() {
                                                 plan.list_price +
                                                   value.price_extra,
                                               );
-                                              handleSelect(attrIndex, value.id);
+                                              handleSelect(
+                                                attrIndex,
+                                                value.id,
+                                                value.variant_id,
+                                                value.variant_name,
+                                              );
                                               const finalPrice =
                                                 plan.list_price +
                                                 value.price_extra;

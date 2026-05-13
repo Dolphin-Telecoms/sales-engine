@@ -76,12 +76,45 @@ export async function POST(req: NextRequest) {
                     return { ...attr, values: [] };
                   }
 
-                  const values = await OddoAxios.post(
+                  let values = await OddoAxios.post(
                     `/json/2/product.template.attribute.value/search_read`,
                     {
                       domain: [["id", "in", attr.product_template_value_ids]],
                     },
                   ).then((res) => res.data);
+
+                  const variant = await OddoAxios.post(
+                    `/json/2/product.product/search_read`,
+                    {
+                      domain: [
+                        "|",
+                        [
+                          "product_template_attribute_value_ids",
+                          "in",
+                          values.map((v: any) => v.id),
+                        ],
+                        [
+                          "product_template_variant_value_ids",
+                          "in",
+                          values.map((v: any) => v.id),
+                        ],
+                      ],
+                    },
+                  ).then((res) => res.data);
+
+                  values = values.map((item: any) => {
+                    const matchedVariant = variant.find((v: any) =>
+                      v?.product_template_variant_value_ids?.includes(item.id),
+                    );
+
+                    return {
+                      ...item,
+                      ...(matchedVariant && {
+                        variant_id: matchedVariant.id,
+                        variant_name: matchedVariant.display_name,
+                      }),
+                    };
+                  });
 
                   return {
                     ...attr,

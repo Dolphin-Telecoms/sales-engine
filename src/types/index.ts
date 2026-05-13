@@ -21,6 +21,9 @@ export interface AttributeValue {
 
   ptav_product_variant_ids: number[];
 
+  variant_id: number;
+  variant_name: string;
+
   html_color: string | false;
   is_custom: boolean;
 

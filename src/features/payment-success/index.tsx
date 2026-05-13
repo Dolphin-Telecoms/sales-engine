@@ -46,6 +46,8 @@ const PaymentSuccess = () => {
 
         // stop polling when completed
         if (
+          response?.data &&
+          response?.data?.status &&
           response?.data?.status !== "processing" &&
           response?.data?.status !== "pending"
         ) {

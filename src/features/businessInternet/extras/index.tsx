@@ -5,16 +5,12 @@ import { useState, ReactNode, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
-import { Voucher } from "@/src/types";
+import { Voucher } from "@/src/features/businessInternet/types/type";
 import { getVouchers } from "@/src/features/businessInternet/apis/getVouchers";
 import { reserveVoucher } from "@/src/features/businessInternet/apis/reserveVoucher";
-
-interface Item {
-  id: string;
-  name: string;
-  price: string;
-  icon: ReactNode;
-}
+import { getBusinessProducts } from "@/src/features/businessInternet/apis/getBusinessProduct";
+import { ProductCategory } from "@/src/types";
+import PlanCard, { PlanCardSkeleton } from "@/src/components/PlanCard";
 
 interface SectionProps {
   title: string;
@@ -27,119 +23,6 @@ interface CardProps {
   onClick: (id: string, price: string) => void;
 }
 
-const gaming: Item[] = [
-  {
-    id: "ps",
-    name: "PlayStation",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/PlayStation.png"
-        alt="PlayStation"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "xbox",
-    name: "Xbox",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Xbox.png"
-        alt="Xbox"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "steam",
-    name: "Steam",
-    price: "$25/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Steam.png"
-        alt="Steam"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "roblox",
-    name: "Roblox",
-    price: "$10/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Roblox_Corporation.png"
-        alt="Roblox"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "mc",
-    name: "Minecraft",
-    price: "$30/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/minecraft.png"
-        alt="Minecraft"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
-
-const shoping: Item[] = [
-  {
-    id: "amazon",
-    name: "Amazon",
-    price: "$50/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/amazon.png"
-        alt="Amazon"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
-
-const security: Item[] = [
-  {
-    id: "norton",
-    name: "Norton Security",
-    price: "$40/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/norton.png"
-        alt="Norton"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "mcafee",
-    name: "McAfee",
-    price: "$35/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/mcafee-antivirus.png"
-        alt="McAfee"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
-
 export default function Extras() {
   const search = useSearchParams();
 
@@ -151,7 +34,7 @@ export default function Extras() {
     !search.get("coordinates") ||
     !search.get("city")
   ) {
-    redirect(`/business-internet/location?homeCategory=${search.get("homeCategory")}`);
+    redirect(`/business-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
@@ -163,22 +46,39 @@ export default function Extras() {
       `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
     );
   } else {
-    const [streaming, setStreaming] = useState<boolean>(true);
-    const [dataBoost, setDataBoost] = useState<boolean>(false);
     const [selectedVouchers, setSelectedVouchers] = useState<
-      { id: string; price: string }[]
+      { id: string; price: string; name: string }[]
     >([]);
     const [bundleActive, setBundleActive] = useState<boolean>(false);
     const [mobilePlan, setMobilePlan] = useState<string>("standard");
     const [loading, setLoading] = useState(true);
     const [entertainment, setEntertainment] = useState<Voucher[]>([]);
+    const [shopping, setShopping] = useState<Voucher[]>([]);
+    const [gaming, setGaming] = useState<Voucher[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [businessLoading, setBusinessLoading] = useState(false);
+    const [security, setSecurity] = useState<Voucher[]>([]);
+    const [businessProducts, setBusinessProducts] =
+      useState<ProductCategory | null>(null);
+    const [selectedVariant, setSelectedVariant] = useState<
+      {
+        variant_id: number;
+        variant_name: string;
+        variant_price: number;
+      }[]
+    >([]);
 
-    const toggleVoucher = (id: string, price: string) => {
+    const toggleVoucher = (
+      id: string,
+      price: string,
+      name: string,
+      image: string,
+      group: string,
+    ) => {
       setSelectedVouchers((prev) =>
         prev.some((v) => v.id === id)
           ? prev.filter((v) => v.id !== id)
-          : [...prev, { id, price }],
+          : [...prev, { id, price, name, image, group }],
       );
     };
 
@@ -194,23 +94,60 @@ export default function Extras() {
           const entertainmentSelected = res?.data?.filter((item) =>
             item.metadata.group.toLocaleLowerCase().includes("entertainment"),
           );
+          const shoppingVoucher = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("shopping"),
+          );
+          const gamingVoucher = res?.data?.filter((item) =>
+            item.metadata.group.toLocaleLowerCase().includes("gaming"),
+          );
           setEntertainment(entertainmentSelected as Voucher[]);
+          setShopping(shoppingVoucher as Voucher[]);
+          setGaming(gamingVoucher as Voucher[]);
+          setSecurity(
+            res?.data?.filter((item) =>
+              item.metadata.group.toLocaleLowerCase().includes("security"),
+            ) as Voucher[],
+          );
           if (search.get("voucher")) {
             setSelectedVouchers(JSON.parse(`${search.get("voucher")}` || "[]"));
           }
         } else {
           setEntertainment([]);
+          setSecurity([]);
+          setShopping([]);
+          setGaming([]);
         }
       } catch (error) {
         console.error("Error fetching vouchers:", error);
         setEntertainment([]);
+        setSecurity([]);
+        setShopping([]);
+        setGaming([]);
       } finally {
         setLoading(false);
       }
     };
 
+    const getProducts = async () => {
+      setBusinessLoading(true);
+      try {
+        const product = await getBusinessProducts(
+          search.get("homeCategory") || "",
+        );
+        if (product.status && product.data) {
+          setBusinessProducts(product.data[0] || null);
+        }
+      } catch (error) {
+        console.error("Error fetching business products:", error);
+        setBusinessProducts(null);
+      } finally {
+        setBusinessLoading(false);
+      }
+    };
+
     useEffect(() => {
       getCategories();
+      getProducts();
     }, []);
 
     const onSubmit = async () => {
@@ -235,6 +172,43 @@ export default function Extras() {
       setIsLoading(false);
     };
 
+    const handleSelect = (
+      attrIndex: number,
+      valueId: number,
+      variant_name: string,
+      variant_price: number,
+    ) => {
+      setSelectedVariant((prev) => {
+        let updated;
+
+        const exists = prev.find((item) => item?.variant_id === valueId);
+        // ✅ If same item clicked again → remove it
+
+        if (exists) {
+          updated = prev.filter((item) => item?.variant_id !== valueId);
+        } else {
+          updated = [
+            ...prev,
+            {
+              variant_id: valueId,
+              variant_name,
+              variant_price,
+            },
+          ];
+        }
+
+        params.set("businessvariant", JSON.stringify(updated));
+
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?${params.toString()}`,
+        );
+
+        return updated;
+      });
+    };
+
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         <h1 className="font-exo font-bold  text-[24px] lg:text-[34px] leading-[1.2] tracking-normal mb-2">
@@ -246,24 +220,53 @@ export default function Extras() {
         </p>
 
         {/* Top Addons */}
-        {/* <div className="space-y-4 mb-6">
-          <PlanCard
-            image="/extra/Voucher.png"
-            title="Streaming Voucher"
-            description="Enjoy your favourite content with a monthly streaming credit."
-            selected={streaming}
-            onClick={() => setStreaming(!streaming)}
-            price="$9/mo"
-          />
-          <PlanCard
-            image="/extra/Failover.png"
-            title="Extra Data Boost"
-            description="Increase your monthly data allowance by 50GB."
-            selected={dataBoost}
-            onClick={() => setDataBoost(!dataBoost)}
-            price="$15/mo"
-          />
-        </div> */}
+        <div className="space-y-4 mb-6">
+          {businessLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((item) => (
+                <PlanCardSkeleton key={item} />
+              ))}
+            </div>
+          ) : (
+            businessProducts?.products.map((product, index) => (
+              <PlanCard
+                key={product.id}
+                image={
+                  product.display_name.toLocaleLowerCase() ===
+                  "backup lte failover"
+                    ? "/extra/Address.png"
+                    : product.display_name.toLocaleLowerCase() ===
+                        "extra data boost"
+                      ? "/extra/Boost.png"
+                      : product.display_name.toLocaleLowerCase() ===
+                          "lan extension (range extender)"
+                        ? "/extra/Voucher.png"
+                        : product.display_name.toLocaleLowerCase() ===
+                            "priority business support"
+                          ? "/extra/Support.png"
+                          : product.display_name.toLocaleLowerCase() ===
+                              "static lte failover"
+                            ? "/extra/Failover.png"
+                            : "/extra/Voucher.png"
+                }
+                title={product.display_name}
+                description={product.description}
+                selected={selectedVariant.some(
+                  (item) => item?.variant_id === product.product_variant_id[0],
+                )}
+                onClick={() => {
+                  handleSelect(
+                    index,
+                    product.product_variant_id[0],
+                    product.product_variant_id[1],
+                    product.list_price,
+                  );
+                }}
+                price="$9/mo"
+              />
+            ))
+          )}
+        </div>
 
         <Section title="ENTERTAINMENT">
           {loading
@@ -278,6 +281,9 @@ export default function Extras() {
                     toggleVoucher(
                       item.id,
                       `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
                     );
                     const voucher = selectedVouchers.some(
                       (v) => v.id === item.id,
@@ -288,6 +294,9 @@ export default function Extras() {
                           {
                             id: item.id,
                             price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
                           },
                         ];
                     const params = new URLSearchParams(searchParams);
@@ -307,38 +316,149 @@ export default function Extras() {
               ))}
         </Section>
 
-        {/* <Section title="GAMING">
-        {gaming.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section>
+        <Section title="GAMING">
+          {loading
+            ? [1, 2, 3, 4].map((item, index) => <CardSkeleton key={index} />)
+            : gaming.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
-      <Section title="SHOPPING">
-        {shoping.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section>
+        <Section title="SHOPPING">
+          {loading
+            ? [1, 2].map((item, index) => <CardSkeleton key={index} />)
+            : shopping.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
-      <Section title="SECURITY">
-        {security.map((item) => (
-          <Card
-            key={item.id}
-            item={item}
-            selected={selectedVouchers}
-            toggle={toggleVoucher}
-          />
-        ))}
-      </Section> */}
+        <Section title="SECURITY">
+          {loading
+            ? [1, 2, 3, 4].map((item, index) => <CardSkeleton key={index} />)
+            : security.map((item) => (
+                <Card
+                  key={item.id}
+                  item={item}
+                  selected={selectedVouchers}
+                  onClick={() => {
+                    const searchParams = Object.fromEntries(search.entries());
+                    toggleVoucher(
+                      item.id,
+                      `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                      item.name,
+                      item.metadata.logo_url,
+                      item.metadata.group,
+                    );
+                    const voucher = selectedVouchers.some(
+                      (v) => v.id === item.id,
+                    )
+                      ? selectedVouchers.filter((v) => v.id !== item.id)
+                      : [
+                          ...selectedVouchers,
+                          {
+                            id: item.id,
+                            price: `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
+                            name: item.name,
+                            image: item.metadata.logo_url,
+                            group: item.metadata.group,
+                          },
+                        ];
+                    const params = new URLSearchParams(searchParams);
+                    params.set("voucher", JSON.stringify(voucher));
+                    const totalPrice = voucher.reduce(
+                      (sum, v) => sum + parseInt(v.price),
+                      0,
+                    );
+                    params.set("voucherPrice", `${totalPrice}`);
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                />
+              ))}
+        </Section>
 
         {/* Bundle */}
         {/* <div className="border-2 border-dashed border-[#f59e0b] rounded-xl p-5 mt-6 bg-[#fff7ed]">
@@ -546,7 +666,7 @@ function Card({ item, selected, onClick }: CardProps) {
           alt={item.metadata.description}
           height={80}
           width={80}
-          className={cn({ grayscale: isOutOfStock })}
+          className={cn("h-12 w-20", { grayscale: isOutOfStock })}
         />
       </div>
 

@@ -1,10 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { FaCalendarAlt, FaCheckCircle } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
-import { getVouchers } from "@/src/features/businessInternet/apis/getVouchers";
-import { Voucher } from "@/src/types";
 
 export default function ReviewPlan() {
   const search = useSearchParams();
@@ -18,7 +15,7 @@ export default function ReviewPlan() {
     !search.get("coordinates") ||
     !search.get("city")
   ) {
-    redirect(`/business-internet/location?homeCategory=${search.get("homeCategory")}`);
+    redirect(`/business-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
@@ -31,21 +28,25 @@ export default function ReviewPlan() {
     );
   } else {
     const router = useRouter();
-    const [isConfirmed, setIsConfirmed] = useState(false);
-
-    const [voucher, setVouchers] = useState<Voucher[]>([]);
-
-    const getFinalVoucher = async () => {
-      const { status: voucherStatus, data: vouchers } = await getVouchers();
-      if (voucherStatus && Array.isArray(vouchers) && vouchers.length) {
-        setVouchers(vouchers);
-      }
-    };
-    useEffect(() => {
-      getFinalVoucher();
-    }, []);
 
     const voucherSystem = JSON.parse(`${search.get("voucher")}`);
+
+    const finalVoucher = voucherSystem ? voucherSystem : [];
+
+    const businessVariant = JSON.parse(`${search.get("businessvariant")}`);
+
+    const finalBusiness = businessVariant ? businessVariant : [];
+
+    const totalVariantPrice = finalBusiness.reduce(
+      (total: number, item: any) => total + Number(item?.variant_price || 0),
+      0,
+    );
+
+    const totalPrice =
+      Number(search.get("price") || 0) +
+      Number(search.get("voucherPrice") || 0) +
+      totalVariantPrice;
+
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         {/* Header */}
@@ -68,14 +69,14 @@ export default function ReviewPlan() {
               ["Service", "Home Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
               ["Package", `${search.get("productName")}`],
-              ...voucher
-                .filter((item) =>
-                  voucherSystem.find((v: any) => v.id === item.id),
-                )
-                .map((item) => [
-                  "Extras",
-                  ` ${item.name} Voucher $${Number(voucherSystem.find((v: any) => v.id === item.id)?.price).toFixed(2)} / mo`,
-                ]),
+              ...finalVoucher.map((item: any) => [
+                "Extras",
+                ` ${item.name} Voucher $${item.price} / mo`,
+              ]),
+              ...finalBusiness.map((item: any) => [
+                "Business Extras",
+                `${item.variant_name} - $${item.variant_price}/mo`,
+              ]),
               ["Equipment", `${search.get("equipmentName")} (Included)`],
             ].map(([label, value], index) => (
               <div key={index} className="flex justify-between">
@@ -100,8 +101,7 @@ export default function ReviewPlan() {
           </div>
           <div className="text-right">
             <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
-              $
-              {Number(search.get("price")) + Number(search.get("voucherPrice"))}
+              ${totalPrice}
               /mo
             </p>
             <p className="font-exo text-[12px] text-[#6B7280]">Free</p>
@@ -118,57 +118,25 @@ export default function ReviewPlan() {
         </div>
 
         {/* Conditional UI */}
-        {isConfirmed ? (
-          <div className="mt-8 text-center">
-            <div className="text-8xl">🎉</div>
-
-            <h3 className="mt-3 font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-center text-[#111827]">
-              You're almost connected!
-            </h3>
-
-            <p className="mt-2 font-exo font-normal text-[16px] leading-[1.5] tracking-normal text-center mx-auto text-[#2C6176]">
-              We've received your order. Our team will contact you within 24
-              hours to schedule installation.
-            </p>
-
-            <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#DCE7EB] px-5 py-3">
-              <FaCheckCircle className="text-[#2F5D6C]" />
-              <span className="font-exo font-bold text-[16px] text-[#2F5D6C]">
-                DTL-2025-00847
-              </span>
-            </div>
-
-            <p className="mt-3 font-exo text-[12px] text-[#2C6176]">
-              A confirmation has been sent to your email.
-            </p>
-
-            <button
-              className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4"
-              onClick={() => {
-                router.push(`/checkout?${params.toString()}`);
-              }}
-            >
-              Checkout →
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="my-6 h-[1px] bg-[#E5E7EB]" />
-
-            <div className="flex flex-col lg:flex-row gap-4 mt-6">
-              <button className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5">
-                Edit Plan
-              </button>
-
-              <button
-                onClick={() => setIsConfirmed(true)}
-                className="rounded-lg bg-[#F59E0B] px-6 py-4 font-exo font-bold text-[14px] text-white hover:bg-[#D97706]"
-              >
-                Get Connected →
-              </button>
-            </div>
-          </>
-        )}
+        <div className="my-6 h-[1px] bg-[#E5E7EB]" />
+        <div className="flex flex-col lg:flex-row gap-4 mt-6">
+          <button
+            onClick={() => {
+              router.push(`/business-internet/plan?${params.toString()}`);
+            }}
+            className="rounded-lg border border-[#2F5D6C] px-6 py-4 font-exo text-[14px] text-[#2F5D6C] hover:bg-[#2F5D6C]/5"
+          >
+            Edit Plan
+          </button>
+          <button
+            onClick={() => {
+              router.push(`/business-internet/checkout?${params.toString()}`);
+            }}
+            className="rounded-lg bg-[#F59E0B] px-6 py-4 font-exo font-bold text-[14px] text-white hover:bg-[#D97706] flex items-center justify-center"
+          >
+            Get Connected →
+          </button>
+        </div>
       </div>
     );
   }

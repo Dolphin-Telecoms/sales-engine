@@ -1,14 +1,12 @@
 import Axios from "@/src/libs/Axios";
 import { ProductCategory } from "@/src/types";
 
-export const getProductCategories = async (
+export const getBusinessProducts = async (
   homeCategory: string,
-  services: string[],
 ): Promise<{ status: boolean; data: ProductCategory[] | null }> => {
   try {
-    const response = await Axios.post(`/apis/get-product-categories`, {
+    const response = await Axios.post(`/apis/get-business-product`, {
       homeCategory,
-      services,
     }).then((res) => res.data);
 
     if (response) {
@@ -17,7 +15,7 @@ export const getProductCategories = async (
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error fetching product categories:", error);
+    console.error("Error fetching business products:", error);
     return { status: false, data: null };
   }
 };

@@ -9,13 +9,6 @@ import { Voucher } from "@/src/features/homeInternet/types/type";
 import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
 import { reserveVoucher } from "@/src/features/homeInternet/apis/reserveVoucher";
 
-interface Item {
-  id: string;
-  name: string;
-  price: string;
-  icon: ReactNode;
-}
-
 interface SectionProps {
   title: string;
   children: ReactNode;
@@ -26,119 +19,6 @@ interface CardProps {
   selected: { id: string; price: string }[];
   onClick: (id: string, price: string) => void;
 }
-
-const gaming: Item[] = [
-  {
-    id: "ps",
-    name: "PlayStation",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/PlayStation.png"
-        alt="PlayStation"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "xbox",
-    name: "Xbox",
-    price: "$20/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Xbox.png"
-        alt="Xbox"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "steam",
-    name: "Steam",
-    price: "$25/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Steam.png"
-        alt="Steam"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "roblox",
-    name: "Roblox",
-    price: "$10/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/Roblox_Corporation.png"
-        alt="Roblox"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "mc",
-    name: "Minecraft",
-    price: "$30/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/minecraft.png"
-        alt="Minecraft"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
-
-const shoping: Item[] = [
-  {
-    id: "amazon",
-    name: "Amazon",
-    price: "$50/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/amazon.png"
-        alt="Amazon"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
-
-const security: Item[] = [
-  {
-    id: "norton",
-    name: "Norton Security",
-    price: "$40/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/norton.png"
-        alt="Norton"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-  {
-    id: "mcafee",
-    name: "McAfee",
-    price: "$35/mo",
-    icon: (
-      <Image
-        src="/social-media-icon/mcafee-antivirus.png"
-        alt="McAfee"
-        width={40}
-        height={40}
-      />
-    ),
-  },
-];
 
 export default function Extras() {
   const search = useSearchParams();

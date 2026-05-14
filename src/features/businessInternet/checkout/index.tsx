@@ -5,13 +5,13 @@ import { useState, useEffect } from "react";
 import { FaTimes, FaCheckCircle } from "react-icons/fa";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { IoLockClosedOutline } from "react-icons/io5";
+import { RxPerson } from "react-icons/rx";
 import { useRouter, useSearchParams } from "next/navigation";
 import cn from "classnames";
-import { createCustomer } from "@/src/features/homeInternet/apis/createCustomer";
-import { RxPerson } from "react-icons/rx";
-import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
-import { getCustomerAccountNumber } from "@/src/features/homeInternet/apis/getCustomerAccount";
-import { getVoucherProduct } from "@/src/features/homeInternet/apis/getVoucherProduct";
+import { createCustomer } from "@/src/features/businessInternet/apis/createCustomer";
+import { generateSaleOrder } from "@/src/features/businessInternet/apis/salesOrderGeneration";
+import { getCustomerAccountNumber } from "@/src/features/businessInternet/apis/getCustomerAccount";
+import { getVoucherProduct } from "@/src/features/businessInternet/apis/getVoucherProduct";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -63,13 +63,12 @@ export default function SecureCheckout() {
       const voucherResponse = await getVoucherProduct();
 
       if (
-        search.get("voucher") &&
         voucherResponse.status &&
-        voucherResponse.data
+        voucherResponse.data &&
+        search.get("voucher")
       ) {
         const voucher = JSON.parse(`${search.get("voucher")}`);
         const finalVoucher = voucher ? voucher : [];
-
         finalVoucher.map((items: any) =>
           orderLines.push([
             0,
@@ -85,10 +84,10 @@ export default function SecureCheckout() {
           ]),
         );
       }
+
       if (search.get("variant")) {
         const variant = JSON.parse(`${search.get("variant")}`);
         const finalVariant = variant ? variant : [];
-
         finalVariant.map((item: any) =>
           orderLines.push([
             0,
@@ -97,6 +96,23 @@ export default function SecureCheckout() {
               product_id: Number(`${item.variant_id}`),
               product_uom_qty: 1,
               price_unit: Number(`${search.get("price")}`),
+              name: `${item.variant_name}`,
+            },
+          ]),
+        );
+      }
+
+      if (search.get("businessvariant")) {
+        const businessVariant = JSON.parse(`${search.get("businessvariant")}`);
+        const finalBusinessVariant = businessVariant ? businessVariant : [];
+        finalBusinessVariant.map((item: any) =>
+          orderLines.push([
+            0,
+            0,
+            {
+              product_id: Number(`${item.variant_id}`),
+              product_uom_qty: 1,
+              price_unit: Number(`${item.variant_price}`),
               name: `${item.variant_name}`,
             },
           ]),
@@ -112,17 +128,19 @@ export default function SecureCheckout() {
         order_line: orderLines,
       };
 
-      const orderResponse = await generateSaleOrder(body);
+      if (orderLines.length > 0) {
+        const orderResponse = await generateSaleOrder(body);
 
-      if (orderResponse.status && orderResponse.data) {
-        params.set("salesOderId", `${orderResponse.data[0]}`);
-        window.history.replaceState(
-          null,
-          "",
-          `${window.location.pathname}?${params.toString()}`,
-        );
-        setShowModal(true);
-        setSubmitLoader(false);
+        if (orderResponse.status && orderResponse.data) {
+          params.set("salesOderId", `${orderResponse.data[0]}`);
+          window.history.replaceState(
+            null,
+            "",
+            `${window.location.pathname}?${params.toString()}`,
+          );
+          setShowModal(true);
+          setSubmitLoader(false);
+        }
       }
     }
   };

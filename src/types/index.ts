@@ -66,8 +66,253 @@ export type Many2One = [number, string];
 export type One2Many = number[];
 export type OdooDateTime = string;
 
-export interface ProductCategory {
+export interface Product {
   id: number;
+  display_name: string;
+  image_1920: boolean | string;
+  image_1024: boolean | string;
+  image_512: boolean | string;
+  image_256: boolean | string;
+  image_128: boolean | string;
+
+  activity_ids: number[];
+  activity_state: boolean | string;
+  activity_user_id: boolean | [number, string];
+  activity_type_id: boolean | [number, string];
+  activity_type_icon: boolean | string;
+  activity_date_deadline: boolean | string;
+  my_activity_date_deadline: boolean | string;
+  activity_summary: boolean | string;
+  activity_exception_decoration: boolean | string;
+  activity_exception_icon: boolean | string;
+  activity_calendar_event_id: boolean | number;
+
+  message_is_follower: boolean;
+  message_follower_ids: number[];
+  message_partner_ids: number[];
+  message_ids: number[];
+
+  has_message: boolean;
+  message_needaction: boolean;
+  message_needaction_counter: number;
+  message_has_error: boolean;
+  message_has_error_counter: number;
+  message_attachment_count: number;
+
+  rating_ids: number[];
+  website_message_ids: number[];
+
+  message_has_sms_error: boolean;
+
+  name: string;
+  sequence: number;
+
+  description: string;
+  description_purchase: boolean | string;
+  description_sale: boolean | string;
+
+  type: string;
+
+  combo_ids: number[];
+
+  service_tracking: string;
+
+  categ_id: [number, string];
+  currency_id: [number, string];
+  cost_currency_id: [number, string];
+
+  list_price: number;
+  standard_price: number;
+
+  volume: number;
+  volume_uom_name: string;
+
+  weight: number;
+  weight_uom_name: string;
+
+  sale_ok: boolean;
+  purchase_ok: boolean;
+
+  uom_id: [number, string];
+  uom_ids: number[];
+  uom_name: string;
+
+  company_id: boolean | number;
+
+  seller_ids: number[];
+  variant_seller_ids: number[];
+
+  active: boolean;
+  color: number;
+
+  is_product_variant: boolean;
+
+  attribute_line_ids: number[];
+  valid_product_template_attribute_line_ids: number[];
+
+  product_variant_ids: number[];
+  product_variant_id: [number, string];
+
+  product_variant_count: number;
+
+  barcode: boolean | string;
+  default_code: boolean | string;
+
+  pricelist_rule_ids: number[];
+
+  product_document_ids: number[];
+  product_document_count: number;
+
+  can_image_1024_be_zoomed: boolean;
+  has_configurable_attributes: boolean;
+  is_dynamically_created: boolean;
+
+  product_tooltip: string;
+
+  is_favorite: boolean;
+
+  product_tag_ids: number[];
+  product_properties: unknown[];
+
+  create_uid: [number, string];
+  create_date: string;
+
+  write_uid: [number, string];
+  write_date: string;
+
+  taxes_id: number[];
+  tax_string: string;
+
+  supplier_taxes_id: number[];
+
+  property_account_income_id: boolean | number;
+  property_account_expense_id: boolean | number;
+
+  account_tag_ids: number[];
+
+  fiscal_country_codes: string;
+
+  is_storable: boolean;
+
+  responsible_id: [number, string];
+
+  property_stock_production: [number, string];
+  property_stock_inventory: [number, string];
+
+  sale_delay: number;
+
+  tracking: string;
+
+  lot_sequence_id: [number, string];
+
+  serial_prefix_format: string;
+  next_serial: string;
+
+  description_picking: boolean | string;
+  description_pickingout: boolean | string;
+  description_pickingin: boolean | string;
+
+  qty_available: number;
+  virtual_available: number;
+  incoming_qty: number;
+  outgoing_qty: number;
+
+  location_id: boolean | number;
+  warehouse_id: boolean | number;
+
+  has_available_route_ids: boolean;
+
+  route_ids: number[];
+
+  nbr_moves_in: number;
+  nbr_moves_out: number;
+
+  nbr_reordering_rules: number;
+
+  reordering_min_qty: number;
+  reordering_max_qty: number;
+
+  route_from_categ_ids: number[];
+
+  show_on_hand_qty_status_button: boolean;
+  show_forecasted_qty_status_button: boolean;
+  show_qty_update_button: boolean;
+
+  hs_code: boolean | string;
+
+  can_be_expensed: boolean;
+
+  bom_line_ids: number[];
+  bom_ids: number[];
+
+  bom_count: number;
+  used_in_bom_count: number;
+
+  mrp_product_qty: number;
+
+  is_kits: boolean;
+
+  purchased_product_qty: number;
+
+  purchase_method: string;
+
+  purchase_line_warn_msg: boolean | string;
+
+  cost_method: string;
+  valuation: string;
+
+  lot_valuated: boolean;
+
+  property_price_difference_account_id: boolean | number;
+
+  version: number;
+
+  eco_count: number;
+  eco_ids: number[];
+
+  service_type: string;
+
+  sale_line_warn_msg: boolean | string;
+
+  expense_policy: string;
+  visible_expense_policy: boolean;
+
+  sales_count: number;
+
+  invoice_policy: string;
+
+  optional_product_ids: number[];
+
+  service_to_purchase: boolean;
+
+  expense_policy_tooltip: boolean | string;
+
+  recurring_invoice: boolean;
+  allow_one_time_sale: boolean;
+  allow_prorated_price: boolean;
+
+  subscription_rule_ids: number[];
+  subscription_rule_ids_fixed: number[];
+
+  display_subscription_pricing: boolean;
+
+  project_id: boolean | number;
+  project_template_id: boolean | number;
+  task_template_id: boolean | number;
+
+  service_policy: boolean | string;
+
+  service_upsell_threshold: number;
+  service_upsell_threshold_ratio: boolean | number;
+
+  allow_worksheets: boolean;
+
+  worksheet_template_id: boolean | number;
+
+  attributes: unknown[];
+}
+export interface ProductCategory {
+   id: number;
   display_name: string;
 
   // Message fields
@@ -75,54 +320,76 @@ export interface ProductCategory {
   message_follower_ids: number[];
   message_partner_ids: number[];
   message_ids: number[];
+
   has_message: boolean;
   message_needaction: boolean;
   message_needaction_counter: number;
+
   message_has_error: boolean;
   message_has_error_counter: number;
+
   message_attachment_count: number;
+
   rating_ids: number[];
   website_message_ids: number[];
+
   message_has_sms_error: boolean;
 
   // Core fields
   name: string;
+
   complete_name: string;
+
   parent_id: Many2One | false;
+
   parent_path: string;
+
   child_id: One2Many;
+
   product_count: number;
 
-  product_properties_definition: any[];
+  product_properties_definition: unknown[];
 
-  // Audit fields
+  // Audit
   create_uid: Many2One;
   create_date: string;
+
   write_uid: Many2One;
   write_date: string;
 
   // Accounting
-  property_account_income_categ_id: Many2One;
-  property_account_expense_categ_id: Many2One;
+  property_account_income_categ_id: Many2One | false;
+
+  property_account_expense_categ_id: Many2One | false;
   products: ProductTemplate[];
 
   // Inventory / logistics
   route_ids: number[];
+
   removal_strategy_id: Many2One | false;
+
   parent_route_ids: number[];
+
   total_route_ids: number[];
+
   putaway_rule_ids: number[];
 
   packaging_reserve_method: string;
+
   filter_for_stock_putaway_rule: boolean;
+
   anglo_saxon_accounting: boolean;
 
   property_valuation: string;
+
   property_cost_method: string;
 
   property_stock_journal: Many2One;
+
   property_stock_valuation_account_id: Many2One;
+
   property_price_difference_account_id: Many2One | false;
+
   property_stock_account_production_cost_id: Many2One | false;
 }
 

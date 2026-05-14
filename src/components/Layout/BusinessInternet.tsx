@@ -54,6 +54,9 @@ export default function Layout({
       if (search.get("attribute")) {
         param.set("attribute", `${search.get("attribute")}`);
       }
+      if (search.get("variant")) {
+        param.set("variant", `${search.get("variant")}`);
+      }
       return param;
     } else if (type === "Extras") {
       param.set("homeCategory", `${search.get("homeCategory")}`);
@@ -70,6 +73,12 @@ export default function Layout({
       }
       param.set("voucher", `${search.get("voucher")}`);
       param.set("voucherPrice", `${search.get("voucherPrice")}`);
+      if (search.get("variant")) {
+        param.set("variant", `${search.get("variant")}`);
+      }
+      if (search.get("businessvariant")) {
+        param.set("businessvariant", `${search.get("businessvariant")}`);
+      }
       return param;
     } else if (type === "Equipment") {
       param.set("homeCategory", `${search.get("homeCategory")}`);
@@ -83,6 +92,12 @@ export default function Layout({
       param.set("productName", `${search.get("productName")}`);
       if (search.get("attribute")) {
         param.set("attribute", `${search.get("attribute")}`);
+      }
+      if (search.get("variant")) {
+        param.set("variant", `${search.get("variant")}`);
+      }
+      if (search.get("businessvariant")) {
+        param.set("businessvariant", `${search.get("businessvariant")}`);
       }
       param.set("voucher", `${search.get("voucher")}`);
       param.set("voucherPrice", `${search.get("voucherPrice")}`);
@@ -105,6 +120,12 @@ export default function Layout({
       param.set("productName", `${search.get("productName")}`);
       if (search.get("attribute")) {
         param.set("attribute", `${search.get("attribute")}`);
+      }
+      if (search.get("variant")) {
+        param.set("variant", `${search.get("variant")}`);
+      }
+      if (search.get("businessvariant")) {
+        param.set("businessvariant", `${search.get("businessvariant")}`);
       }
       param.set("voucher", `${search.get("voucher")}`);
       param.set("voucherPrice", `${search.get("voucherPrice")}`);

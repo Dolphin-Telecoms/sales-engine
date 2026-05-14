@@ -84,10 +84,9 @@ export default function AvailabilityChecker() {
       },
       (predictions: any, status: string) => {
         if (status === "OK" && predictions) {
-    
           const sugession = predictions.map((items: any) => ({
             ...items,
-            city: `${getCity(items)}`, 
+            city: `${getCity(items)}`,
           }));
 
           setSuggestions([...sugession]);
@@ -199,7 +198,7 @@ export default function AvailabilityChecker() {
                 setQuery("");
                 setSelected(null);
                 setShowDropdown(false);
-                router.back();
+                router.push(`/business-internet?homeCategory=${search.get("homeCategory")}`);
               }}
               className="px-6 py-2.5 rounded-lg border border-[#2F5D67] text-[#2F5D67] font-medium hover:bg-gray-50"
             >
@@ -210,7 +209,7 @@ export default function AvailabilityChecker() {
               className="flex items-center justify-center px-6 py-2.5 rounded-lg bg-[#2F5D67] text-white font-medium hover:bg-[#254c54]"
               disabled={!selected}
               onClick={() => {
-                if (isChecking) {
+                 if (isChecking) {
                   if (selected) {
                     router.push(
                       `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${selected?.city}`,
@@ -218,7 +217,7 @@ export default function AvailabilityChecker() {
                   }
                 } else {
                   checkAddress();
-                }
+                } 
               }}
             >
               {isChecking ? "Continue →" : `Check Availability`}&nbsp;&nbsp;

@@ -536,3 +536,15 @@ export type TransactionResponse = {
   ecocash_reference: string;
   phone: string;
 };
+
+
+export interface AirtimeBundle {
+  BundleId: number;
+  BrandId: number;
+  Network: string;
+  ProductCode: string;
+  Amount: number;
+  Name: string;
+  Description: string;
+  ValidityPeriod: number;
+}

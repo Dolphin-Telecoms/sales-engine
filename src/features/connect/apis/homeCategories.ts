@@ -13,7 +13,7 @@ export const getHomeCategories = async (): Promise<{ status: boolean; data: Home
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error checking coverage:", error);
+    console.error("Error fetching home categories:", error);
     return { status: false, data: null };
   }
 };

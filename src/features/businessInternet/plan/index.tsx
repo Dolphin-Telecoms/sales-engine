@@ -237,6 +237,7 @@ export default function Plan() {
                             params.delete("product");
                             params.delete("price");
                             params.delete("attribute");
+                            params.delete("variant");
                             params.delete("productName");
                             const product = category.products[0];
                             setSelected(`${product?.id}`);

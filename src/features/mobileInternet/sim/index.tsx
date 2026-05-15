@@ -320,7 +320,7 @@ export default function SimCard() {
         variant="filld"
         className="mt-6"
         onClick={() => {
-          router.push(`/checkout`);
+          // router.push(`/checkout`);
         }}
       >
         Proceed to Checkout →

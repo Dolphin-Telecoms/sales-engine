@@ -6,7 +6,8 @@ import cn from "classnames";
 import Button from "@/src/components/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAirtime } from "@/src/features/mobileInternet/apis/getAirTime";
-import { ProductCategory } from "@/src/types";
+import { ProductCategory, AirtimeBundle, AttributeValue } from "@/src/types";
+import { getAirtimeBundle } from "@/src/features/mobileInternet/apis/getAirtimeBundle";
 
 const NetworkCardSkeleton = () => {
   return (
@@ -29,14 +30,24 @@ const NetworkCardSkeleton = () => {
 export default function Airtime() {
   const router = useRouter();
   const search = useSearchParams();
+  const params = new URLSearchParams(search);
+
   const [network, setNetwork] = useState({
     variant_id: 0,
     variant_name: "",
     variant_price: 0,
   });
-  const [amount, setAmount] = useState(5);
+  const [phoneNumber, setPhoneNumber] = useState<number | null>(null);
   const [airtimeProducts, setAirtimeProducts] = useState<ProductCategory[]>([]);
+  const [airtimeBundles, setAirtimeBundles] = useState<AirtimeBundle[]>([]);
+  const [bundleLoading, setBundleLoading] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [selectedBundle, setSelectedBundle] = useState<AttributeValue[]>([]);
+  const [variantProduct, setVariantProduct] = useState({
+    variant_id: 0,
+    variant_name: "",
+    variant_price: 0,
+  });
 
   const getAitimeProducts = async () => {
     setLoading(true);
@@ -44,8 +55,14 @@ export default function Airtime() {
       const { status, data } = await getAirtime(
         `${search.get("homeCategory")}`,
       );
-      if (status && data) {
+      if (status && data && Array.isArray(data) && data.length > 0) {
         setAirtimeProducts(data);
+        setNetwork({
+          variant_id: data[0].products[0].product_variant_id[0],
+          variant_name: data[0].products[0].product_variant_id[1],
+          variant_price: data[0].products[0].list_price,
+        });
+        setSelectedBundle(data[0].products[0].attributes[0].values);
       } else {
         setAirtimeProducts([]);
       }
@@ -53,6 +70,21 @@ export default function Airtime() {
       console.error("Error fetching airtime products:", error);
     } finally {
       setLoading(false);
+      try {
+        setBundleLoading(true);
+
+        const { status, data } = await getAirtimeBundle();
+
+        if (status && data) {
+          setAirtimeBundles(data);
+        } else {
+          setAirtimeBundles([]);
+        }
+      } catch (error) {
+        console.error("Error fetching airtime bundles:", error);
+      } finally {
+        setBundleLoading(false);
+      }
     }
   };
 
@@ -82,13 +114,28 @@ export default function Airtime() {
                 item.products.map((product, index) => (
                   <div
                     key={index}
-                    onClick={() =>
+                    onClick={() => {
                       setNetwork({
                         variant_id: product.product_variant_id[0],
                         variant_name: product.product_variant_id[1],
                         variant_price: product.list_price,
-                      })
-                    }
+                      });
+                      setSelectedBundle(product.attributes[0].values);
+                      params.set(
+                        "selectedproduct",
+                        JSON.stringify({
+                          variant_id: product.product_variant_id[0],
+                          variant_name: product.product_variant_id[1],
+                          variant_price: product.list_price,
+                        }),
+                      );
+
+                      window.history.replaceState(
+                        null,
+                        "",
+                        `${window.location.pathname}?${params.toString()}`,
+                      );
+                    }}
                     className={`relative border rounded-xl p-4 cursor-pointer transition ${
                       network.variant_id === product.product_variant_id[0]
                         ? "border-[#F59E0B] bg-[#FFF7ED]"
@@ -148,7 +195,7 @@ export default function Airtime() {
                     )}
                   </div>
                 )),
-              )} 
+              )}
         </div>
       </div>
 
@@ -176,6 +223,11 @@ export default function Airtime() {
             type="text"
             placeholder="7X XXX XXXX"
             className="w-full outline-none text-sm"
+            value={phoneNumber ?? ""}
+            onChange={(e) => {
+              const input = e.target.value.replace(/\D/g, "");
+              setPhoneNumber(input ? parseInt(input) : null);
+            }}
           />
         </div>
 
@@ -199,19 +251,46 @@ export default function Airtime() {
         <h2 className="text-base font-bold mb-3">How much airtime?</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          {[1, 2, 5, 10].map((val) => (
-            <button
-              key={val}
-              onClick={() => setAmount(val)}
-              className={`rounded-lg py-2 text-sm font-semibold transition ${
-                amount === val
-                  ? "border-2 border-[#F59E0B] bg-[#FFF7ED]"
-                  : "border border-gray-200"
-              }`}
-            >
-              ${val}
-            </button>
-          ))}
+          {bundleLoading
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-10 animate-pulse rounded-lg bg-gray-200"
+                />
+              ))
+            : selectedBundle.map((val) => (
+                <button
+                  key={val.id}
+                  onClick={() => {
+                    setVariantProduct({
+                      variant_id: val.variant_id,
+                      variant_name: val.variant_name,
+                      variant_price: val.price_extra,
+                    });
+                    params.set(
+                      "selectedVariant",
+                      JSON.stringify({
+                        variant_id: val.variant_id,
+                        variant_name: val.variant_name,
+                        variant_price: val.price_extra,
+                      }),
+                    );
+
+                    window.history.replaceState(
+                      null,
+                      "",
+                      `${window.location.pathname}?${params.toString()}`,
+                    );
+                  }}
+                  className={`rounded-lg py-2 text-sm font-semibold transition ${
+                    variantProduct.variant_id === val.variant_id
+                      ? "border-2 border-[#F59E0B] bg-[#FFF7ED]"
+                      : "border border-gray-200"
+                  }`}
+                >
+                  {val.name}
+                </button>
+              ))}
         </div>
 
         <label className="font-bold text-[14px] leading-[100%] tracking-normal text-gray-800">
@@ -242,15 +321,23 @@ export default function Airtime() {
         <div className="flex justify-between items-center border border-[#DCDCDC] rounded-lg p-3 mb-4 bg-gray-50">
           <div>
             <p className="text-[10px] text-gray-500">Sending to</p>
-            <p className="text-sm font-semibold">+263 ---</p>
+            <p className="text-sm font-semibold">
+              +263 {phoneNumber?.toString()}
+            </p>
           </div>
-          <p className="text-[#2F5D62] font-bold">${amount.toFixed(2)}</p>
+          <p className="text-[#2F5D62] font-bold">
+            ${Number(network.variant_price + variantProduct.variant_price) ?? 0}
+          </p>
         </div>
         <Button
           variant="filld"
           className="mt-2"
+          disabled={
+            !phoneNumber ||
+            (network.variant_price === 0 && variantProduct.variant_price === 0)
+          }
           onClick={() => {
-            router.push(`/checkout`);
+            // router.push(`/checkout`);
           }}
         >
           Buy Airtime →

@@ -15,7 +15,7 @@ export const getSimCard = async (
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error checking coverage:", error);
+    console.error("Error fetching SIM cards:", error);
     return { status: false, data: null };
   }
 };

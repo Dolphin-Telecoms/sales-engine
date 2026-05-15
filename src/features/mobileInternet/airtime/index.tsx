@@ -1,15 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiSmartphone, FiWifi, FiCheck } from "react-icons/fi";
 import cn from "classnames";
 import Button from "@/src/components/Button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getAirtime } from "@/src/features/mobileInternet/apis/getAirTime";
+import { ProductCategory } from "@/src/types";
+
+const NetworkCardSkeleton = () => {
+  return (
+    <div className="relative border border-gray-200 rounded-xl p-4 animate-pulse">
+      {/* Icon */}
+      <div className="w-12 h-12 flex items-center justify-center rounded-lg mb-3 bg-gray-200" />
+
+      {/* Title */}
+      <div className="h-4 w-32 bg-gray-200 rounded-md mb-2" />
+
+      {/* Description */}
+      <div className="h-3 w-40 bg-gray-200 rounded-md" />
+
+      {/* Check Icon */}
+      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-gray-200" />
+    </div>
+  );
+};
 
 export default function Airtime() {
   const router = useRouter();
-  const [network, setNetwork] = useState("dolphin");
+  const search = useSearchParams();
+  const [network, setNetwork] = useState({
+    variant_id: 0,
+    variant_name: "",
+    variant_price: 0,
+  });
   const [amount, setAmount] = useState(5);
+  const [airtimeProducts, setAirtimeProducts] = useState<ProductCategory[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const getAitimeProducts = async () => {
+    setLoading(true);
+    try {
+      const { status, data } = await getAirtime(
+        `${search.get("homeCategory")}`,
+      );
+      if (status && data) {
+        setAirtimeProducts(data);
+      } else {
+        setAirtimeProducts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching airtime products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAitimeProducts();
+  }, []);
 
   return (
     <div className="w-full">
@@ -25,77 +74,81 @@ export default function Airtime() {
         <h2 className="text-base font-bold mb-4">Select your mobile network</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Dolphin */}
-          <div
-            onClick={() => setNetwork("dolphin")}
-            className={`relative border rounded-xl p-4 cursor-pointer transition ${
-              network === "dolphin"
-                ? "border-[#F59E0B] bg-[#FFF7ED]"
-                : "border-gray-200"
-            }`}
-          >
-            <div
-              className={cn(
-                "w-12 h-12 flex items-center justify-center rounded-lg mb-3",
-                {
-                  "bg-[#FDE68A]": network === "dolphin",
-                  "bg-[#C9DFE4]": network !== "dolphin",
-                },
-              )}
-            >
-              <FiSmartphone
-                className={cn({
-                  "text-[#F59E0B]": network === "dolphin",
-                  "text-[#2C6176]": network !== "dolphin",
-                })}
-              />
-            </div>
+          {loading
+            ? Array.from({ length: 2 }).map((_, index) => (
+                <NetworkCardSkeleton key={index} />
+              ))
+            : airtimeProducts.map((item) =>
+                item.products.map((product, index) => (
+                  <div
+                    key={index}
+                    onClick={() =>
+                      setNetwork({
+                        variant_id: product.product_variant_id[0],
+                        variant_name: product.product_variant_id[1],
+                        variant_price: product.list_price,
+                      })
+                    }
+                    className={`relative border rounded-xl p-4 cursor-pointer transition ${
+                      network.variant_id === product.product_variant_id[0]
+                        ? "border-[#F59E0B] bg-[#FFF7ED]"
+                        : "border-gray-200"
+                    }`}
+                  >
+                    <div
+                      className={cn(
+                        "w-12 h-12 flex items-center justify-center rounded-lg mb-3",
+                        {
+                          "bg-[#FDE68A]":
+                            network.variant_id ===
+                            product.product_variant_id[0],
+                          "bg-[#C9DFE4]":
+                            network.variant_id !==
+                            product.product_variant_id[0],
+                        },
+                      )}
+                    >
+                      {product.display_name.toLocaleLowerCase() ===
+                      "dolphin airtime" ? (
+                        <FiSmartphone
+                          className={cn({
+                            "text-[#F59E0B]":
+                              network.variant_id ===
+                              product.product_variant_id[0],
+                            "text-[#2C6176]":
+                              network.variant_id !==
+                              product.product_variant_id[0],
+                          })}
+                        />
+                      ) : (
+                        <FiWifi
+                          className={cn({
+                            "text-[#F59E0B]":
+                              network.variant_id ===
+                              product.product_variant_id[0],
+                            "text-[#2C6176]":
+                              network.variant_id !==
+                              product.product_variant_id[0],
+                          })}
+                        />
+                      )}
+                    </div>
 
-            <p className="font-semibold text-sm">Dolphin Mobile ZW</p>
-            <p className="text-xs text-gray-500">Nationwide LTE coverage</p>
+                    <p className="font-semibold text-sm">
+                      {product.display_name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {product.description || ""}
+                    </p>
 
-            {network === "dolphin" && (
-              <div className="absolute top-3 right-3 bg-[#F59E0B] text-white p-1 rounded-full">
-                <FiCheck size={12} />
-              </div>
-            )}
-          </div>
-
-          {/* NetOne */}
-          <div
-            onClick={() => setNetwork("netone")}
-            className={`relative border rounded-xl p-4 cursor-pointer transition ${
-              network === "netone"
-                ? "border-[#F59E0B] bg-[#FFF7ED]"
-                : "border-gray-200"
-            }`}
-          >
-            <div
-              className={cn(
-                "w-12 h-12 flex items-center justify-center rounded-lg mb-3",
-                {
-                  "bg-[#FDE68A]": network === "netone",
-                  "bg-[#C9DFE4]": network !== "netone",
-                },
-              )}
-            >
-              <FiWifi
-                className={cn({
-                  "text-[#F59E0B]": network === "netone",
-                  "text-[#2C6176]": network !== "netone",
-                })}
-              />
-            </div>
-
-            <p className="font-semibold text-sm">NetOne Zimbabwe</p>
-            <p className="text-xs text-gray-500">National mobile network</p>
-
-            {network === "netone" && (
-              <div className="absolute top-3 right-3 bg-[#F59E0B] text-white p-1 rounded-full">
-                <FiCheck size={12} />
-              </div>
-            )}
-          </div>
+                    {network.variant_id === product.product_variant_id[0] && (
+                      <div className="absolute top-3 right-3 bg-[#F59E0B] text-white p-1 rounded-full">
+                        <FiCheck size={12} />
+                      </div>
+                    )}
+                  </div>
+                )),
+              )} 
         </div>
       </div>
 

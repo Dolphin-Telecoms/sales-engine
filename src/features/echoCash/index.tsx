@@ -25,7 +25,13 @@ export default function EchoCash() {
         "",
         `${window.location.pathname}?${params.toString()}`,
       );
-      router.push(`/payment-success/echocash?${params.toString()}`);
+      if (search.get("orderType") === "home") {
+        router.push(`/payment-success/echocash?${params.toString()}`);
+      } else {
+        router.push(
+          `/business-internet/payment-success/echocash?${params.toString()}`,
+        );
+      }
     }
   };
 

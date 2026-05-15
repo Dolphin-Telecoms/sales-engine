@@ -116,6 +116,7 @@ export default function SecureCheckout() {
 
       if (orderResponse.status && orderResponse.data) {
         params.set("salesOderId", `${orderResponse.data[0]}`);
+        params.set("orderType", `home`);
         window.history.replaceState(
           null,
           "",

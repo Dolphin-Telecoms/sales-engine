@@ -1,9 +1,7 @@
 "use client";
 
-import AppBar from "@/src/components/AppBar";
-import Container from "@/src/components/Container";
-import PlanSummary from "@/src/components/SummaryPlan";
 import { useState, Suspense } from "react";
+import Layout from "@/src/components/BusinessPaymentLayout";
 
 interface ItemType {
   id: string;
@@ -28,9 +26,7 @@ export default function HomeInternetLayout({
 
   return (
     <Suspense>
-      <AppBar />
-      <div className="text-center pt-[70px] lg:pt-[93px] min-h-0" />
-      <div className="bg-gray-100 pt-6 min-h-[100vh]">{children}</div>
+      <Layout>{children}</Layout>
     </Suspense>
   );
 }

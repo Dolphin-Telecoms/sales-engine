@@ -42,14 +42,12 @@ const PaymentSuccess = () => {
         });
 
         setPaymentData(response.data);
-        setLoading(false);
 
         // stop polling when completed
         if (
-          response?.data &&
           response?.data?.status &&
-          response?.data?.status !== "processing" &&
-          response?.data?.status !== "pending"
+          response.data.status !== "processing" &&
+          response.data.status !== "pending"
         ) {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -58,11 +56,15 @@ const PaymentSuccess = () => {
 
           console.log("STOPPED");
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error("Polling error:", error);
+
+        // ❌ DON'T stop polling
+        // ❌ DON'T call pollPaymentStatus again here
+
+        // polling will continue automatically from setInterval
+      } finally {
         setLoading(false);
-        // Start polling
-        await pollPaymentStatus();
       }
     };
 

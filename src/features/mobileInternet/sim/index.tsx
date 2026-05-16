@@ -58,7 +58,7 @@ export default function SimCard() {
 
     reader.onloadend = () => {
       const base64 = reader.result as string;
-      const pureBase64 = base64.split(";")[1];
+      const pureBase64 = base64.split(",")[1];
       setBase64(pureBase64);
       setFile(selected);
     };

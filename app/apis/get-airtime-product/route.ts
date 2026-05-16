@@ -36,7 +36,9 @@ export async function POST(req: NextRequest) {
       response = await Promise.all(
         response.map(async (category: any) => {
           const products = productsResponse.filter(
-            (product: any) => product?.categ_id?.[0] === category.id,
+            (product: any) =>
+              product?.categ_id?.[0] === category.id &&
+              product?.name?.toLocaleLowerCase().includes("airtime zw"),
           );
 
           const productAttributes = await Promise.all(

@@ -1,13 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { FiSmartphone, FiWifi, FiCheck } from "react-icons/fi";
+import { FaTimes, FaCheckCircle } from "react-icons/fa";
 import cn from "classnames";
 import Button from "@/src/components/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAirtime } from "@/src/features/mobileInternet/apis/getAirTime";
-import { ProductCategory, AirtimeBundle, AttributeValue } from "@/src/types";
+import { ProductCategory, AirtimeBundle } from "@/src/types";
 import { getAirtimeBundle } from "@/src/features/mobileInternet/apis/getAirtimeBundle";
+import { generateSaleOrder } from "@/src/features/mobileInternet/apis/salesOrderGeneration";
+import { getCustomerAccountNumber } from "@/src/features/mobileInternet/apis/getCustomerAccount";
+import { createCustomer } from "@/src/features/mobileInternet/apis/createCustomer";
+import { getAirtimeBundleProduct } from "@/src/features/mobileInternet/apis/getAirtimeBundleProduct";
 
 const NetworkCardSkeleton = () => {
   return (
@@ -27,27 +33,50 @@ const NetworkCardSkeleton = () => {
   );
 };
 
+type FormErrors = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+};
+
+type FormData = {
+  fullName: string;
+  email: string;
+  phone: string;
+};
+
 export default function Airtime() {
   const router = useRouter();
   const search = useSearchParams();
   const params = new URLSearchParams(search);
-
+  const [showModal, setShowModal] = useState(false);
   const [network, setNetwork] = useState({
     variant_id: 0,
     variant_name: "",
     variant_price: 0,
   });
-  const [phoneNumber, setPhoneNumber] = useState<number | null>(null);
+  const [currency, setCurrency] = useState("USD");
   const [airtimeProducts, setAirtimeProducts] = useState<ProductCategory[]>([]);
   const [airtimeBundles, setAirtimeBundles] = useState<AirtimeBundle[]>([]);
   const [bundleLoading, setBundleLoading] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [selectedBundle, setSelectedBundle] = useState<AttributeValue[]>([]);
+  const [bundleProduct, setBundleProduct] = useState<ProductCategory | null>(
+    null,
+  );
   const [variantProduct, setVariantProduct] = useState({
     variant_id: 0,
     variant_name: "",
     variant_price: 0,
   });
+  const [form, setForm] = useState<FormData>({
+    fullName: ``,
+    email: ``,
+    phone: ``,
+  });
+  const [submitLoader, setSubmitLoader] = useState<boolean>(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState("");
 
   const getAitimeProducts = async () => {
     setLoading(true);
@@ -62,9 +91,6 @@ export default function Airtime() {
           variant_name: data[0].products[0].product_variant_id[1],
           variant_price: data[0].products[0].list_price,
         });
-
-        console.log("First product attributes:", data[0].products[0]);
-        setSelectedBundle(data[0].products[0].attributes[0].values);
       } else {
         setAirtimeProducts([]);
       }
@@ -94,257 +120,576 @@ export default function Airtime() {
     getAitimeProducts();
   }, []);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // clear error on typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  const generateCustomer = async (
+    email: string,
+    name: string,
+    phone: string,
+  ) => {
+    setSubmitLoader(true);
+    const body = {
+      email: email,
+      country_code: "ZW",
+      name: name,
+      phone: phone,
+    };
+
+    const response = await createCustomer(body);
+
+    if (response.status && response.data) {
+      params.set("customerId", `${response.data[0]}`);
+      params.set("customerName", `${name}`);
+      params.set("customerEmail", `${email}`);
+      params.set("customerPhone", `${phone}`);
+
+      const accountResponse = await getCustomerAccountNumber({
+        customer_id: `${response.data[0]}`,
+      });
+
+      if (accountResponse.status && accountResponse.data) {
+        params.set("accountNumber", `${accountResponse.data.account_numbers}`);
+      }
+
+      const orderLines: any[] = [];
+
+      const airtimeBundle = await getAirtimeBundleProduct();
+
+      if (
+        search.get("selectedVariant") &&
+        airtimeBundle.status &&
+        airtimeBundle.data
+      ) {
+        const varaint = JSON.parse(`${search.get("selectedVariant")}`);
+        const finalBundle = varaint ? varaint : [];
+
+        finalBundle.map((items: any) =>
+          orderLines.push([
+            0,
+            0,
+            {
+              product_id: Number(
+                `${airtimeBundle?.data ? airtimeBundle?.data?.id : 0}`,
+              ),
+              product_uom_qty: 1,
+              price_unit: Number(`${items.variant_price}`),
+              name: `${items.variant_name}`,
+            },
+          ]),
+        );
+      }
+      if (search.get("selectedproduct")) {
+        const product = JSON.parse(`${search.get("selectedproduct")}`);
+        const finalProduct = product ? product : [];
+
+        finalProduct.map((item: any) =>
+          orderLines.push([
+            0,
+            0,
+            {
+              product_id: Number(`${item.variant_id}`),
+              product_uom_qty: 1,
+              price_unit: Number(`${item.variant_price}`),
+              name: `${item.variant_name}`,
+            },
+          ]),
+        );
+      }
+
+      const body = {
+        companyId: 1,
+        partnerId: Number(`${response.data[0]}`),
+        partnerInvoiceId: Number(`${response.data[0]}`),
+        name: `${name}`,
+        partnerShippingId: Number(`${response.data[0]}`),
+        order_line: orderLines,
+      };
+
+      const orderResponse = await generateSaleOrder(body);
+
+      if (orderResponse.status && orderResponse.data) {
+        params.set("salesOderId", `${orderResponse.data[0]}`);
+        params.set("orderType", `airtime`);
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?${params.toString()}`,
+        );
+        setShowModal(true);
+        setSubmitLoader(false);
+      }
+    }
+  };
+
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {};
+
+    if (!form.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      newErrors.email = "Invalid email";
+    }
+
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\+?\d{7,15}$/.test(form.phone.replace(/\s/g, ""))) {
+      newErrors.phone = "Invalid phone number";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const validationErrors = validate();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    await generateCustomer(form.email, form.fullName, form.phone); // your API call
+    setIsLoading(false);
+  };
+
+  const paymentMethods = [
+    {
+      name: "EcoCash",
+      desc: "Mobile wallet payment",
+      icon: (
+        <Image
+          src="/payment-gateway-icon/EcoCash-Zimbabwe.png"
+          alt="EcoCash"
+          height={25}
+          width={71}
+        />
+      ),
+    },
+    // {
+    //   name: "InnBucks",
+    //   desc: "Pay with InnBucks wallet",
+    //   icon: (
+    //     <Image
+    //       src="/payment-gateway-icon/innbucks.png"
+    //       alt="InnBucks"
+    //       height={25}
+    //       width={90}
+    //     />
+    //   ),
+    // },
+    {
+      name: "ZimSwitch",
+      desc: "Pay with local bank card",
+      icon: (
+        <Image
+          src="/payment-gateway-icon/Zimswitchlo.png"
+          alt="ZimSwitch"
+          height={28}
+          width={54}
+        />
+      ),
+    },
+  ];
+
   return (
-    <div className="w-full">
-      {/* STEP 1 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
-          <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
-            1
-          </span>
-          CHOOSE NETWORK
-        </div>
+    <>
+      <div className="w-full">
+        {/* STEP 1 */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
+            <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
+              1
+            </span>
+            CHOOSE NETWORK
+          </div>
 
-        <h2 className="text-base font-bold mb-4">Select your mobile network</h2>
+          <h2 className="text-base font-bold mb-4">
+            Select your mobile network
+          </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {loading
-            ? Array.from({ length: 2 }).map((_, index) => (
-                <NetworkCardSkeleton key={index} />
-              ))
-            : airtimeProducts.map((item) =>
-                item.products.map((product, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      setNetwork({
-                        variant_id: product.product_variant_id[0],
-                        variant_name: product.product_variant_id[1],
-                        variant_price: product.list_price,
-                      });
-                      setSelectedBundle(product.attributes[0].values);
-                      params.set(
-                        "selectedproduct",
-                        JSON.stringify({
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {loading
+              ? Array.from({ length: 2 }).map((_, index) => (
+                  <NetworkCardSkeleton key={index} />
+                ))
+              : airtimeProducts.map((item) =>
+                  item.products.map((product, index) => (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        setNetwork({
                           variant_id: product.product_variant_id[0],
                           variant_name: product.product_variant_id[1],
                           variant_price: product.list_price,
-                        }),
-                      );
+                        });
+                        params.set(
+                          "selectedproduct",
+                          JSON.stringify([{
+                            variant_id: product.product_variant_id[0],
+                            variant_name: product.product_variant_id[1],
+                            variant_price: product.list_price,
+                          }]),
+                        );
 
+                        params.set(
+                          "productName",
+                          product.product_variant_id[1],
+                        );
+
+                        window.history.replaceState(
+                          null,
+                          "",
+                          `${window.location.pathname}?${params.toString()}`,
+                        );
+                      }}
+                      className={`relative border rounded-xl p-4 cursor-pointer transition ${
+                        network.variant_id === product.product_variant_id[0]
+                          ? "border-[#F59E0B] bg-[#FFF7ED]"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <div
+                        className={cn(
+                          "w-12 h-12 flex items-center justify-center rounded-lg mb-3",
+                          {
+                            "bg-[#FDE68A]":
+                              network.variant_id ===
+                              product.product_variant_id[0],
+                            "bg-[#C9DFE4]":
+                              network.variant_id !==
+                              product.product_variant_id[0],
+                          },
+                        )}
+                      >
+                        {product.display_name.toLocaleLowerCase() ===
+                        "dolphin airtime" ? (
+                          <FiSmartphone
+                            className={cn({
+                              "text-[#F59E0B]":
+                                network.variant_id ===
+                                product.product_variant_id[0],
+                              "text-[#2C6176]":
+                                network.variant_id !==
+                                product.product_variant_id[0],
+                            })}
+                          />
+                        ) : (
+                          <FiWifi
+                            className={cn({
+                              "text-[#F59E0B]":
+                                network.variant_id ===
+                                product.product_variant_id[0],
+                              "text-[#2C6176]":
+                                network.variant_id !==
+                                product.product_variant_id[0],
+                            })}
+                          />
+                        )}
+                      </div>
+
+                      <p className="font-semibold text-sm">
+                        {product.display_name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {product.description || ""}
+                      </p>
+
+                      {network.variant_id === product.product_variant_id[0] && (
+                        <div className="absolute top-3 right-3 bg-[#F59E0B] text-white p-1 rounded-full">
+                          <FiCheck size={12} />
+                        </div>
+                      )}
+                    </div>
+                  )),
+                )}
+          </div>
+        </div>
+
+        {/* DIVIDER */}
+        <div className="border-t border-[#DCDCDC] my-6" />
+
+        {/* STEP 2 */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
+            <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
+              2
+            </span>
+            ENTER MOBILE NUMBER
+          </div>
+
+          <h2 className="text-base font-bold mb-3">
+            Which number should receive airtime?
+          </h2>
+
+          <label className="text-xs font-semibold">Mobile Number</label>
+
+          <div className="flex items-center border border-[#2F5D6C] rounded-lg px-3 py-2 mt-1">
+            <span className="text-sm font-medium mr-2">+263</span>
+            <input
+              type="text"
+              placeholder="7X XXX XXXX"
+              className="w-full outline-none text-sm"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
+          </div>
+
+          <p className="text-[10px] text-gray-500 mt-1">
+            Enter number without country code. e.g. 77 123 4567
+          </p>
+
+          <label className="text-xs font-semibold">Full Name</label>
+          <input
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+            placeholder="e.g. John Makumuri"
+            className="mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+          />
+          {errors.fullName && (
+            <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+          )}
+
+          <label className="text-xs font-semibold">Email Address</label>
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="e.g. john@email.com"
+            className="mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs">{errors.email}</p>
+          )}
+        </div>
+
+        {/* DIVIDER */}
+        <div className="border-t  border-[#DCDCDC] my-6" />
+
+        {/* STEP 3 */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
+            <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
+              3
+            </span>
+            SELECT AMOUNT
+          </div>
+
+          <h2 className="text-base font-bold mb-3">How much airtime?</h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            {bundleLoading
+              ? Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-10 animate-pulse rounded-lg bg-gray-200"
+                  />
+                ))
+              : airtimeBundles.map((val) => (
+                  <button
+                    key={val.BundleId}
+                    onClick={() => {
+                      setVariantProduct({
+                        variant_id: val.BundleId,
+                        variant_name: val.Name,
+                        variant_price: val.Amount,
+                      });
+                      params.set(
+                        "selectedVariant",
+                        JSON.stringify([{
+                          variant_id: val.BundleId,
+                          variant_name: val.Name,
+                          variant_price: val.Amount,
+                        }]),
+                      );
+                      params.set("plan", val.Name);
                       window.history.replaceState(
                         null,
                         "",
                         `${window.location.pathname}?${params.toString()}`,
                       );
                     }}
-                    className={`relative border rounded-xl p-4 cursor-pointer transition ${
-                      network.variant_id === product.product_variant_id[0]
-                        ? "border-[#F59E0B] bg-[#FFF7ED]"
-                        : "border-gray-200"
+                    className={`rounded-lg py-2 text-sm font-semibold transition ${
+                      variantProduct.variant_id === val.BundleId
+                        ? "border-2 border-[#F59E0B] bg-[#FFF7ED]"
+                        : "border border-gray-200"
+                    }`}
+                  >
+                    {val.Name}
+                  </button>
+                ))}
+          </div>
+
+          <label className="font-bold text-[14px] leading-[100%] tracking-normal text-gray-800">
+            Custom Amount
+          </label>
+          <div className="flex items-center border  border-[#DCDCDC] rounded-lg px-3 py-2 mt-1">
+            <span className="mr-2">$</span>
+            <input
+              type="number"
+              placeholder="0.00"
+              className="w-full outline-none text-sm"
+              disabled
+            />
+          </div>
+        </div>
+
+        {/* DIVIDER */}
+        <div className="border-t border-[#DCDCDC] my-6" />
+
+        {/* STEP 4 */}
+        <div>
+          <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
+            <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
+              4
+            </span>
+            CHECKOUT
+          </div>
+
+          <div className="flex justify-between items-center border border-[#DCDCDC] rounded-lg p-3 mb-4 bg-gray-50">
+            <div>
+              <p className="text-[10px] text-gray-500">Sending to</p>
+              <p className="text-sm font-semibold">
+                +263 {form.phone?.toString()}
+              </p>
+            </div>
+            <p className="text-[#2F5D62] font-bold">
+              $
+              {Number(network.variant_price + variantProduct.variant_price) ??
+                0}
+            </p>
+          </div>
+          <Button
+            variant="filld"
+            className="mt-2 flex items-center justify-center"
+            disabled={
+              (network.variant_price === 0 &&
+                variantProduct.variant_price === 0) ||
+              submitLoader
+            }
+            onClick={handleSubmit}
+          >
+            Buy Airtime →&nbsp;&nbsp;
+            {isLoading ? (
+              <div className="flex items-center justify-center w-fit h-fit rounded-full">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#C7DFE6] border-t-[#2F5D6C]"></div>
+              </div>
+            ) : null}
+          </Button>
+        </div>
+      </div>
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40">
+          <div className="w-full max-w-[420px] rounded-t-xl md:rounded-xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center bg-[#2F5D6C] text-white p-4">
+              <div>
+                <h3 className="font-exo font-bold text-[16px]">
+                  Select Payment Method
+                </h3>
+                <p className="text-[12px] opacity-80">
+                  {currency === "USD" ? "USD - Zimbabwe" : "ZAR - South Africa"}
+                </p>
+              </div>
+              <button onClick={() => setShowModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 space-y-3">
+              <p className="text-[14px] text-[#6B7280]">
+                Choose how you want to pay
+              </p>
+
+              {paymentMethods.map((item) => {
+                const isActive = selectedMethod === item.name;
+
+                return (
+                  <div
+                    key={item.name}
+                    onClick={() => setSelectedMethod(item.name)}
+                    className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 gap-2 transition ${
+                      isActive
+                        ? "border-2 border-[#2F5D6C] bg-[#E6F0F3]"
+                        : "border-[#E5E7EB] hover:border-[#2F5D6C]/50"
                     }`}
                   >
                     <div
                       className={cn(
-                        "w-12 h-12 flex items-center justify-center rounded-lg mb-3",
+                        "py-2 w-[35%] rounded-lg flex items-center justify-center",
                         {
-                          "bg-[#FDE68A]":
-                            network.variant_id ===
-                            product.product_variant_id[0],
-                          "bg-[#C9DFE4]":
-                            network.variant_id !==
-                            product.product_variant_id[0],
+                          "bg-[#f3f4f6]": !isActive,
+                          "bg-[#FFFFFF]": isActive,
                         },
                       )}
                     >
-                      {product.display_name.toLocaleLowerCase() ===
-                      "dolphin airtime" ? (
-                        <FiSmartphone
-                          className={cn({
-                            "text-[#F59E0B]":
-                              network.variant_id ===
-                              product.product_variant_id[0],
-                            "text-[#2C6176]":
-                              network.variant_id !==
-                              product.product_variant_id[0],
-                          })}
-                        />
-                      ) : (
-                        <FiWifi
-                          className={cn({
-                            "text-[#F59E0B]":
-                              network.variant_id ===
-                              product.product_variant_id[0],
-                            "text-[#2C6176]":
-                              network.variant_id !==
-                              product.product_variant_id[0],
-                          })}
-                        />
-                      )}
+                      {item.icon}
+                    </div>
+                    <div className="w-[55%]">
+                      <p className="font-exo font-bold text-[14px] text-[#111827]">
+                        {item.name}
+                      </p>
+                      <p className="text-[12px] text-[#6B7280]">{item.desc}</p>
                     </div>
 
-                    <p className="font-semibold text-sm">
-                      {product.display_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {product.description || ""}
-                    </p>
-
-                    {network.variant_id === product.product_variant_id[0] && (
-                      <div className="absolute top-3 right-3 bg-[#F59E0B] text-white p-1 rounded-full">
-                        <FiCheck size={12} />
-                      </div>
+                    {isActive ? (
+                      <FaCheckCircle className="text-[#2F5D6C] w-[10%]" />
+                    ) : (
+                      <div className="w-[10%]" />
                     )}
                   </div>
-                )),
-              )}
-        </div>
-      </div>
+                );
+              })}
 
-      {/* DIVIDER */}
-      <div className="border-t border-[#DCDCDC] my-6" />
-
-      {/* STEP 2 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
-          <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
-            2
-          </span>
-          ENTER MOBILE NUMBER
-        </div>
-
-        <h2 className="text-base font-bold mb-3">
-          Which number should receive airtime?
-        </h2>
-
-        <label className="text-xs font-semibold">Mobile Number</label>
-
-        <div className="flex items-center border border-[#DCDCDC] rounded-lg px-3 py-2 mt-1">
-          <span className="text-sm font-medium mr-2">+263</span>
-          <input
-            type="text"
-            placeholder="7X XXX XXXX"
-            className="w-full outline-none text-sm"
-            value={phoneNumber ?? ""}
-            onChange={(e) => {
-              const input = e.target.value.replace(/\D/g, "");
-              setPhoneNumber(input ? parseInt(input) : null);
-            }}
-          />
-        </div>
-
-        <p className="text-[10px] text-gray-500 mt-1">
-          Enter number without country code. e.g. 77 123 4567
-        </p>
-      </div>
-
-      {/* DIVIDER */}
-      <div className="border-t  border-[#DCDCDC] my-6" />
-
-      {/* STEP 3 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
-          <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
-            3
-          </span>
-          SELECT AMOUNT
-        </div>
-
-        <h2 className="text-base font-bold mb-3">How much airtime?</h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          {bundleLoading
-            ? Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-10 animate-pulse rounded-lg bg-gray-200"
-                />
-              ))
-            : selectedBundle.map((val) => (
+              {/* Cancel */}
+              {selectedMethod ? (
                 <button
-                  key={val.id}
+                  className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4 w-full flex items-center justify-center"
                   onClick={() => {
-                    setVariantProduct({
-                      variant_id: val.variant_id,
-                      variant_name: val.variant_name,
-                      variant_price: val.price_extra,
-                    });
-                    params.set(
-                      "selectedVariant",
-                      JSON.stringify({
-                        variant_id: val.variant_id,
-                        variant_name: val.variant_name,
-                        variant_price: val.price_extra,
-                      }),
-                    );
-
-                    window.history.replaceState(
-                      null,
-                      "",
-                      `${window.location.pathname}?${params.toString()}`,
-                    );
+                    if (selectedMethod === "EcoCash") {
+                      router.push(
+                        `/redirect-checkout/echocash?${params.toString()}`,
+                      );
+                    } else if (selectedMethod === "ZimSwitch") {
+                      router.push(
+                        `/redirect-checkout/zimswitch?${params.toString()}`,
+                      );
+                    }
                   }}
-                  className={`rounded-lg py-2 text-sm font-semibold transition ${
-                    variantProduct.variant_id === val.variant_id
-                      ? "border-2 border-[#F59E0B] bg-[#FFF7ED]"
-                      : "border border-gray-200"
-                  }`}
                 >
-                  {val.name}
+                  Make a payment →
                 </button>
-              ))}
-        </div>
-
-        <label className="font-bold text-[14px] leading-[100%] tracking-normal text-gray-800">
-          Custom Amount
-        </label>
-        <div className="flex items-center border  border-[#DCDCDC] rounded-lg px-3 py-2 mt-1">
-          <span className="mr-2">$</span>
-          <input
-            type="number"
-            placeholder="0.00"
-            className="w-full outline-none text-sm"
-          />
-        </div>
-      </div>
-
-      {/* DIVIDER */}
-      <div className="border-t border-[#DCDCDC] my-6" />
-
-      {/* STEP 4 */}
-      <div>
-        <div className="flex items-center gap-2 text-xs tracking-widest text-gray-500 mb-2">
-          <span className="w-6 h-6 flex items-center justify-center bg-[#2F5D62] text-white rounded-full text-xs">
-            4
-          </span>
-          CHECKOUT
-        </div>
-
-        <div className="flex justify-between items-center border border-[#DCDCDC] rounded-lg p-3 mb-4 bg-gray-50">
-          <div>
-            <p className="text-[10px] text-gray-500">Sending to</p>
-            <p className="text-sm font-semibold">
-              +263 {phoneNumber?.toString()}
-            </p>
+              ) : (
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="mt-2 w-full rounded-xl border border-[#2F5D6C] py-3 text-[#2F5D6C]"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </div>
-          <p className="text-[#2F5D62] font-bold">
-            ${Number(network.variant_price + variantProduct.variant_price) ?? 0}
-          </p>
         </div>
-        <Button
-          variant="filld"
-          className="mt-2"
-          disabled={
-            !phoneNumber ||
-            (network.variant_price === 0 && variantProduct.variant_price === 0)
-          }
-          onClick={() => {
-            // router.push(`/checkout`);
-          }}
-        >
-          Buy Airtime →
-        </Button>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

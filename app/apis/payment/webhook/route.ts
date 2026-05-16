@@ -86,7 +86,13 @@ export async function POST(req: NextRequest) {
                         ).then((res) => res.data);
 
                         if (reconcile === null) {
-                          return NextResponse.json({ received: true, reconcile: true });
+                          console.log(
+                            "Payment sucess invoice generation completed!",
+                          );
+                          return NextResponse.json({
+                            received: true,
+                            reconcile: true,
+                          });
                         }
                       } catch (error) {
                         console.error(

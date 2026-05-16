@@ -3,39 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const {
-      partner_latitude,
-      partner_longitude,
-      email,
-      street,
-      city,
-      country_code,
-      name,
-      phone,
-    }: {
-      partner_latitude: string;
-      partner_longitude: string;
-      email: string;
-      street: string;
-      city: string;
-      country_code: string;
-      name: string;
-      phone: string;
-    } = await req.json();
+    const body = await req.json();
 
     let response = await OddoAxios.post(`/json/2/res.partner/create`, {
-      vals_list: [
-        {
-          partner_latitude,
-          partner_longitude,
-          email,
-          street,
-          city,
-          country_code,
-          name,
-          phone,
-        },
-      ],
+      vals_list: [{ ...body }],
     }).then((res) => res.data);
 
     if (response) {

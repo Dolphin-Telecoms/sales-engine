@@ -16,7 +16,7 @@ export const getVoucherProduct = async (): Promise<{
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error checking coverage:", error);
+    console.error("Error in fetching voucher product:", error);
     return { status: false, data: null };
   }
 };

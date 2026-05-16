@@ -25,7 +25,7 @@ export default function EchoCash() {
         "",
         `${window.location.pathname}?${params.toString()}`,
       );
-      if (search.get("orderType") === "home") {
+      if (search.get("orderType") === "home" || search.get("orderType") === "airtime") {
         router.push(`/payment-success/echocash?${params.toString()}`);
       } else {
         router.push(

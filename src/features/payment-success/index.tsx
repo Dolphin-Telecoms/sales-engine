@@ -160,7 +160,7 @@ const PaymentSuccess = () => {
           )}
         </div>
         <h1 className="font-exo font-bold text-[18px] lg:text-[24px] leading-[120%] tracking-[0%] text-center">
-          Processing Successful!
+          Processing {paymentData?.status ?? "Successful"}!
         </h1>
         <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-center">
           Thank you for choosing Dolphin Telecoms. Your order is confirmed.
@@ -236,8 +236,9 @@ const PaymentSuccess = () => {
       <div className="w-full bg-yellow-50 p-5 rounded-lg flex items-center gap-3 border border-yellow-200 my-4">
         <FiInfo className="text-amber-400 w-8 h-8 flex-shrink-0" />
         <p className="text-sm text-gray-700 leading-relaxed pt-0.5">
-          Your order is now being processed. Our team will contact you shortly
-          to schedule installation.
+          {paymentData?.status !== "completed"
+            ? `Your order is ${paymentData?.status}`
+            : "Your order is now being processed. Our team will contact you shortly to schedule installation."}
         </p>
       </div>
 

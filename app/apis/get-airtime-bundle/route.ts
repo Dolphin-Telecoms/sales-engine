@@ -1,6 +1,8 @@
 import NetOneAxios from "@/src/libs/NetOne";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     let response = await NetOneAxios.get(`/agents/get-data-bundles-usd`).then(

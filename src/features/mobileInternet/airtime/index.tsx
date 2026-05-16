@@ -60,9 +60,6 @@ export default function Airtime() {
   const [airtimeBundles, setAirtimeBundles] = useState<AirtimeBundle[]>([]);
   const [bundleLoading, setBundleLoading] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [bundleProduct, setBundleProduct] = useState<ProductCategory | null>(
-    null,
-  );
   const [variantProduct, setVariantProduct] = useState({
     variant_id: 0,
     variant_name: "",

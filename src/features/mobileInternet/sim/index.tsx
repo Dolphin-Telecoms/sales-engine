@@ -13,6 +13,8 @@ import { generateSaleOrder } from "@/src/features/mobileInternet/apis/salesOrder
 import { getCustomerAccountNumber } from "@/src/features/mobileInternet/apis/getCustomerAccount";
 import { createCustomer } from "@/src/features/mobileInternet/apis/createCustomer";
 import { getAirtimeBundleProduct } from "@/src/features/mobileInternet/apis/getAirtimeBundleProduct";
+import { uploadDocument } from "@/src/features/mobileInternet/apis/uploadDocument";
+
 import cn from "classnames";
 
 const MAX_SIZE = 5 * 1024 * 1024;
@@ -29,6 +31,7 @@ export default function SimCard() {
   const [airtimeEnabled, setAirtimeEnabled] = useState(false);
   // FILE STATE
   const [file, setFile] = useState<File | null>(null);
+  const [base64, setBase64] = useState<string | null>(null);
   const [preview, setPreview] = useState<string>("");
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +53,17 @@ export default function SimCard() {
       return;
     }
 
-    setFile(selected);
+    // Convert file to Base64
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      const pureBase64 = base64.split(",")[0];
+      setBase64(pureBase64);
+      setFile(selected);
+    };
+
+    reader.readAsDataURL(selected);
   };
 
   // create preview URL safely
@@ -62,6 +75,7 @@ export default function SimCard() {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
+
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [simcard, setSimCard] = useState<ProductTemplate | null>(null);
@@ -78,7 +92,30 @@ export default function SimCard() {
     variant_name: "",
     variant_price: 0,
   });
+  type FormData = {
+    fullName: string;
+    passport: string;
+  };
+  const [form, setForm] = useState<FormData>({
+    fullName: ``,
+    passport: ``,
+  });
   const params = new URLSearchParams(search);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // clear error on typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
 
   const getSimCards = async () => {
     try {
@@ -244,115 +281,139 @@ export default function SimCard() {
         setSubmitLoader(false);
       }
     } else {
-      // const body = {
-      //   email: email,
-      //   country_code: "ZW",
-      //   name: name,
-      //   phone: phone,
-      // };
-      // const response = await createCustomer(body);
-      // if (response.status && response.data) {
-      //   params.set("customerId", `${response.data[0]}`);
-      //   params.set("customerName", `${name}`);
-      //   params.set("customerEmail", `${email}`);
-      //   params.set("customerPhone", `${phone}`);
-      //   const accountResponse = await getCustomerAccountNumber({
-      //     customer_id: `${response.data[0]}`,
-      //   });
-      //   if (accountResponse.status && accountResponse.data) {
-      //     params.set(
-      //       "accountNumber",
-      //       `${accountResponse.data.account_numbers}`,
-      //     );
-      //   }
-      //   const orderLines: any[] = [];
-      //   const airtimeBundle = await getAirtimeBundleProduct();
-      //   if (
-      //     search.get("selectedVariant") &&
-      //     airtimeBundle.status &&
-      //     airtimeBundle.data
-      //   ) {
-      //     const varaint = JSON.parse(`${search.get("selectedVariant")}`);
-      //     const finalBundle = varaint ? varaint : [];
-      //     finalBundle.map((items: any) =>
-      //       orderLines.push([
-      //         0,
-      //         0,
-      //         {
-      //           product_id: Number(
-      //             `${airtimeBundle?.data ? airtimeBundle?.data?.id : 0}`,
-      //           ),
-      //           product_uom_qty: 1,
-      //           price_unit: Number(`${items.variant_price}`),
-      //           name: `${items.variant_name}`,
-      //         },
-      //       ]),
-      //     );
-      //   }
-      //   if (search.get("selectedproduct")) {
-      //     const product = JSON.parse(`${search.get("selectedproduct")}`);
-      //     const finalProduct = product ? product : [];
-      //     finalProduct.map((item: any) =>
-      //       orderLines.push([
-      //         0,
-      //         0,
-      //         {
-      //           product_id: Number(`${item.variant_id}`),
-      //           product_uom_qty: 1,
-      //           price_unit: Number(`${item.variant_price}`),
-      //           name: `${item.variant_name}`,
-      //         },
-      //       ]),
-      //     );
-      //   }
-      //   const body = {
-      //     companyId: 1,
-      //     partnerId: Number(`${response.data[0]}`),
-      //     partnerInvoiceId: Number(`${response.data[0]}`),
-      //     name: `${name}`,
-      //     partnerShippingId: Number(`${response.data[0]}`),
-      //     order_line: orderLines,
-      //   };
-      //   const orderResponse = await generateSaleOrder(body);
-      //   if (orderResponse.status && orderResponse.data) {
-      //     params.set("salesOderId", `${orderResponse.data[0]}`);
-      //     params.set("orderType", `airtime`);
-      //     window.history.replaceState(
-      //       null,
-      //       "",
-      //       `${window.location.pathname}?${params.toString()}`,
-      //     );
-      //     setShowModal(true);
-      //     setSubmitLoader(false);
-      //   }
-      // }
+      const body = {
+        country_code: "ZW",
+        name: form.fullName,
+        national_id_number: form.passport,
+      };
+      const response = await createCustomer(body);
+      if (response.status && response.data) {
+        params.set("customerId", `${response.data[0]}`);
+
+        const upload = await uploadDocument([
+          {
+            name: file?.name,
+            datas: base64,
+            res_model: "res.partner",
+            res_id: Number(`${response.data[0]}`),
+            mimetype: file?.type,
+            description: "Signed service contract",
+          },
+        ]);
+
+        if (upload.data && upload.status) {
+          const accountResponse = await getCustomerAccountNumber({
+            customer_id: `${response.data[0]}`,
+          });
+
+          if (accountResponse.status && accountResponse.data) {
+            params.set(
+              "accountNumber",
+              `${accountResponse.data.account_numbers}`,
+            );
+            params.set("customerName", `${accountResponse.data.name}`);
+            params.set("customerEmail", `${accountResponse.data.email}`);
+            params.set("customerPhone", `${accountResponse.data.phone}`);
+          }
+          const orderLines: any[] = [];
+          const airtimeBundle = await getAirtimeBundleProduct();
+          if (
+            search.get("selectedVariant") &&
+            airtimeBundle.status &&
+            airtimeBundle.data
+          ) {
+            const varaint = JSON.parse(`${search.get("selectedVariant")}`);
+            const finalBundle = varaint ? varaint : [];
+            finalBundle.map((items: any) =>
+              orderLines.push([
+                0,
+                0,
+                {
+                  product_id: Number(
+                    `${airtimeBundle?.data ? airtimeBundle?.data?.id : 0}`,
+                  ),
+                  product_uom_qty: 1,
+                  price_unit: Number(`${items.variant_price}`),
+                  name: `${items.variant_name}`,
+                },
+              ]),
+            );
+          }
+          if (search.get("selectedproduct")) {
+            const product = JSON.parse(`${search.get("selectedproduct")}`);
+            const finalProduct = product ? product : [];
+            finalProduct.map((item: any) =>
+              orderLines.push([
+                0,
+                0,
+                {
+                  product_id: Number(`${item.variant_id}`),
+                  product_uom_qty: 1,
+                  price_unit: Number(`${item.variant_price}`),
+                  name: `${item.variant_name}`,
+                },
+              ]),
+            );
+          }
+          const body = {
+            companyId: 1,
+            partnerId: Number(`${response.data[0]}`),
+            partnerInvoiceId: Number(`${response.data[0]}`),
+            name: `${name}`,
+            partnerShippingId: Number(`${response.data[0]}`),
+            order_line: orderLines,
+          };
+          const orderResponse = await generateSaleOrder(body);
+          if (orderResponse.status && orderResponse.data) {
+            params.set("salesOderId", `${orderResponse.data[0]}`);
+            params.set("orderType", `airtime`);
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}?${params.toString()}`,
+            );
+            setShowModal(true);
+            setSubmitLoader(false);
+          }
+        } else {
+          alert("Your document is not uploaded please try again later!");
+        }
+      } else {
+        alert("Unable to create customer please try again after sometime!");
+      }
     }
   };
 
   type FormErrors = {
     fullName?: string;
-    email?: string;
+    passport?: string;
     customerId?: string;
+    file?: string;
   };
 
   const validate = () => {
     const newErrors: FormErrors = {};
+    if (accountType === "existing") {
+      if (!customerId.trim()) {
+        newErrors.customerId = "Existing account number is required";
+      }
+    } else {
+      if (!form.fullName.trim()) {
+        newErrors.fullName = "Full name is required";
+      }
 
-    if (!customerId.trim()) {
-      newErrors.customerId = "Existing account number is required";
+      if (!form.passport.trim()) {
+        newErrors.passport = "Passport is required";
+      }
+
+      if (!file) {
+        newErrors.file = "Passport document required";
+      } else if (!ACCEPTED_TYPES.includes(file?.type)) {
+        newErrors.file = "Only PNG, JPG or PDF allowed";
+      } else if (file?.size > MAX_SIZE) {
+        newErrors.file = "File must be less than 5MB";
+      }
     }
-
-    // if (!form.email.trim()) {
-    //   newErrors.email = "Email is required";
-    // } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-    //   newErrors.email = "Invalid email";
-    // }
-
-    // if (!form.phone.trim()) {
-    //   newErrors.phone = "Phone number is required";
-    // } else if (!/^\+?\d{7,15}$/.test(form.phone.replace(/\s/g, ""))) {
-    //   newErrors.phone = "Invalid phone number";
-    // }
 
     return newErrors;
   };
@@ -493,6 +554,9 @@ export default function SimCard() {
                 onChange={(event) => setCustomerId(event.target.value)}
                 value={customerId}
               />
+              {errors.customerId && (
+                <p className="text-red-500 text-xs mt-1">{errors.customerId}</p>
+              )}
             </>
           )}
         </OptionCard>
@@ -525,9 +589,17 @@ export default function SimCard() {
                     </label>
                     <input
                       type="text"
+                      name="fullName"
+                      value={form.fullName}
+                      onChange={handleChange}
                       placeholder="As on ID document"
                       className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.fullName}
+                      </p>
+                    )}
                   </div>
 
                   {/* ID Number */}
@@ -537,9 +609,15 @@ export default function SimCard() {
                     </label>
                     <input
                       type="text"
+                      name="passport"
+                      value={form.passport}
+                      onChange={handleChange}
                       placeholder="ID number"
                       className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    {errors.passport && (
+                      <p className="text-red-500 text-xs">{errors.passport}</p>
+                    )}
                   </div>
                 </div>
                 <UploadBox
@@ -551,6 +629,9 @@ export default function SimCard() {
                   inputRef={inputRef}
                   handleFile={handleFile}
                 />
+                {errors.file && (
+                  <p className="text-red-500 text-xs mt-1">{errors.file}</p>
+                )}
               </div>
             </>
           )}

@@ -162,7 +162,7 @@ const PaymentSuccess = () => {
         <h1 className="font-exo font-bold text-[18px] lg:text-[24px] leading-[120%] tracking-[0%] text-center">
           {paymentData?.status === "processing"
             ? `Processing`
-            : `Processing ${paymentData?.status}`}
+            : `Processing ${paymentData?.status ?? ""}`}
           !
         </h1>
         <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-center">

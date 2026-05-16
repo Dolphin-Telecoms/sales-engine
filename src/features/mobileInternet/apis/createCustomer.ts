@@ -1,22 +1,9 @@
 import Axios from "@/src/libs/Axios";
 
-export const createCustomer = async ({
-  email,
-  country_code,
-  name,
-  phone,
-}: {
-  email: string;
-  country_code: string;
-  name: string;
-  phone: string;
-}) => {
+export const createCustomer = async (body: any) => {
   try {
     const response = await Axios.post(`/apis/create-customer`, {
-      email,
-      country_code,
-      name,
-      phone,
+      ...body,
     }).then((res) => res.data);
 
     if (response) {

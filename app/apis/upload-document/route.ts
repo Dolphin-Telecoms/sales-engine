@@ -9,6 +9,8 @@ export async function POST(req: NextRequest) {
       vals_list: any[];
     } = await req.json();
 
+    console.log("vals_list :: ", vals_list);
+
     let response = await OddoAxios.post(`/json/2/ir.attachment/create`, {
       vals_list: vals_list,
     }).then((res) => res.data);

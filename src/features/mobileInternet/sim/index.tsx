@@ -348,7 +348,7 @@ export default function SimCard() {
                 0,
                 {
                   product_id: Number(`${item.variant_id}`),
-                  product_uom_qty: 1,
+                  product_uom_qty: quantity,
                   price_unit: Number(`${item.variant_price}`),
                   name: `${item.variant_name}`,
                 },
@@ -359,7 +359,7 @@ export default function SimCard() {
             companyId: 1,
             partnerId: Number(`${response.data[0]}`),
             partnerInvoiceId: Number(`${response.data[0]}`),
-            name: `${name}`,
+            name: `${accountResponse.data?.name}`,
             partnerShippingId: Number(`${response.data[0]}`),
             order_line: orderLines,
           };

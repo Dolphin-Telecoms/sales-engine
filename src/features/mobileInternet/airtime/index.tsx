@@ -62,6 +62,8 @@ export default function Airtime() {
           variant_name: data[0].products[0].product_variant_id[1],
           variant_price: data[0].products[0].list_price,
         });
+
+        console.log("First product attributes:", data[0].products[0]);
         setSelectedBundle(data[0].products[0].attributes[0].values);
       } else {
         setAirtimeProducts([]);

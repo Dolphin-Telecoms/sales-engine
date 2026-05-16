@@ -93,8 +93,14 @@ export async function POST(req: NextRequest) {
                   ).then((res) => res.data);
 
                   values = values.map((item: any) => {
-                    const matchedVariant = variant.find((v: any) =>
-                      v?.product_template_variant_value_ids?.includes(item.id),
+                    const matchedVariant = variant.find(
+                      (v: any) =>
+                        v?.product_template_variant_value_ids?.includes(
+                          item.id,
+                        ) ||
+                        v?.product_template_attribute_value_ids?.includes(
+                          item.id,
+                        ),
                     );
 
                     return {

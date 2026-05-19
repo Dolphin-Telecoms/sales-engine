@@ -59,6 +59,8 @@ const PaymentSuccess = () => {
       } catch (error) {
         console.error("Polling error:", error);
 
+        window.location.reload();
+
         // ❌ DON'T stop polling
         // ❌ DON'T call pollPaymentStatus again here
 

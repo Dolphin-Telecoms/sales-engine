@@ -13,7 +13,7 @@ export default function EchoCash() {
     const { status, data } = await echoCashPaymentInitiate({
       customer_name: `${search.get("customerName")}`,
       account_number: `${search.get("accountNumber")}`,
-      phone: `${search.get("customerPhone")}`,
+      phone: `${search.get("echocashNumber")}`,
       amount: 0.1,
       param: `${params.toString()}`,
     });

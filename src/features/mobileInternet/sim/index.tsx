@@ -196,6 +196,7 @@ export default function SimCard() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState("");
+  const [echocashNumber, setEchoCashNumber] = useState<string>("");
 
   const generateCustomer = async () => {
     setSubmitLoader(true);
@@ -389,10 +390,16 @@ export default function SimCard() {
     passport?: string;
     customerId?: string;
     file?: string;
+    echoCashNumber?: string;
   };
 
   const validate = () => {
     const newErrors: FormErrors = {};
+    if (selectedMethod === "EcoCash") {
+      if (!echocashNumber.trim()) {
+        newErrors.echoCashNumber = "Echocash Number is required!";
+      }
+    }
     if (accountType === "existing") {
       if (!customerId.trim()) {
         newErrors.customerId = "Existing account number is required";
@@ -806,37 +813,62 @@ export default function SimCard() {
                 const isActive = selectedMethod === item.name;
 
                 return (
-                  <div
-                    key={item.name}
-                    onClick={() => setSelectedMethod(item.name)}
-                    className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 gap-2 transition ${
-                      isActive
-                        ? "border-2 border-[#2F5D6C] bg-[#E6F0F3]"
-                        : "border-[#E5E7EB] hover:border-[#2F5D6C]/50"
-                    }`}
-                  >
+                  <div key={item.name} className="mb-3">
                     <div
-                      className={cn(
-                        "py-2 w-[35%] rounded-lg flex items-center justify-center",
-                        {
-                          "bg-[#f3f4f6]": !isActive,
-                          "bg-[#FFFFFF]": isActive,
-                        },
-                      )}
+                      onClick={() => setSelectedMethod(item.name)}
+                      className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 gap-2 transition ${
+                        isActive
+                          ? "border-2 border-[#2F5D6C] bg-[#E6F0F3]"
+                          : "border-[#E5E7EB] hover:border-[#2F5D6C]/50"
+                      }`}
                     >
-                      {item.icon}
-                    </div>
-                    <div className="w-[55%]">
-                      <p className="font-exo font-bold text-[14px] text-[#111827]">
-                        {item.name}
-                      </p>
-                      <p className="text-[12px] text-[#6B7280]">{item.desc}</p>
+                      <div
+                        className={cn(
+                          "py-2 w-[35%] rounded-lg flex items-center justify-center",
+                          {
+                            "bg-[#f3f4f6]": !isActive,
+                            "bg-[#FFFFFF]": isActive,
+                          },
+                        )}
+                      >
+                        {item.icon}
+                      </div>
+
+                      <div className="w-[55%]">
+                        <p className="font-exo font-bold text-[14px] text-[#111827]">
+                          {item.name}
+                        </p>
+                        <p className="text-[12px] text-[#6B7280]">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      {isActive ? (
+                        <FaCheckCircle className="text-[#2F5D6C] w-[10%]" />
+                      ) : (
+                        <div className="w-[10%]" />
+                      )}
                     </div>
 
-                    {isActive ? (
-                      <FaCheckCircle className="text-[#2F5D6C] w-[10%]" />
-                    ) : (
-                      <div className="w-[10%]" />
+                    {/* Show input only for EcoCash */}
+                    {isActive && item.name === "EcoCash" && (
+                      <div className="mt-3">
+                        <input
+                          type="text"
+                          onChange={(event) => {
+                            setEchoCashNumber(event.target.value);
+                            setErrors({});
+                          }}
+                          value={echocashNumber}
+                          placeholder="Enter EcoCash number"
+                          className="w-full rounded-lg border border-[#D1D5DB] px-4 py-3 outline-none focus:border-[#2F5D6C]"
+                        />
+                        {errors.echoCashNumber && (
+                          <p className="text-red-500 text-xs mt-1 mb-3">
+                            {errors.echoCashNumber}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 );
@@ -848,9 +880,22 @@ export default function SimCard() {
                   className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg mt-4 w-full flex items-center justify-center"
                   onClick={() => {
                     if (selectedMethod === "EcoCash") {
-                      router.push(
-                        `/redirect-checkout/echocash?${params.toString()}`,
-                      );
+                      const validationErrors = validate();
+
+                      if (Object.keys(validationErrors).length > 0) {
+                        setErrors(validationErrors);
+                        return;
+                      } else {
+                        params.set("echocashNumber", echocashNumber);
+                        window.history.replaceState(
+                          null,
+                          "",
+                          `${window.location.pathname}?${params.toString()}`,
+                        );
+                        router.push(
+                          `/redirect-checkout/echocash?${params.toString()}`,
+                        );
+                      }
                     } else if (selectedMethod === "ZimSwitch") {
                       router.push(
                         `/redirect-checkout/zimswitch?${params.toString()}`,

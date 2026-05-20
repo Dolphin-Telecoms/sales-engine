@@ -200,7 +200,7 @@ export default function SimCard() {
 
   const generateCustomer = async () => {
     setSubmitLoader(true);
-    if (customerId) {
+    if (customerId && accountType === "existing") {
       params.set("customerId", `${customerId}`);
 
       const accountResponse = await getCustomerAccountNumber({

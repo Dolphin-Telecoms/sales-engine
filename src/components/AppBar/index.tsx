@@ -15,7 +15,7 @@ export default function AppBar() {
       <Container className="py-4 lg:py-[27px] flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/connect" className="flex items-center">
+        <Link href="https://dolphin-store-20230509.myshopify.com/?_cd=e62accfc22a4791367774baacdf531be103dd5b0bed196e54abeb5dbcdaa0fce&_uid=95417401526&preview_theme_id=147884736694&preview_token=c5fuij4dnxz4zhgd9gxtvubnkcwkuxih" className="flex items-center">
           <Image
             src="/app-logo.png"
             alt="DTEL Logo"

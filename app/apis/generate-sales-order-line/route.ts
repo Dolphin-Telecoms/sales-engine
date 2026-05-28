@@ -12,15 +12,6 @@ export async function POST(req: NextRequest) {
       product_id,
     } = await req.json();
 
-    console.log(
-      order_id,
-      name,
-      product_uom_qty,
-      price_unit,
-      customer_lead,
-      product_id,
-    );
-
     const response = await OddoAxios.post(`/json/2/sale.order.line/create`, {
       vals_list: [
         {

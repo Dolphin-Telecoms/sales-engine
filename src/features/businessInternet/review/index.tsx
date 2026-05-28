@@ -66,7 +66,7 @@ export default function ReviewPlan() {
 
           <div className="mt-3 border-t border-[#E5E7EB] pt-4 space-y-3">
             {[
-              ["Service", "Home Internet"],
+              ["Service", "Business Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
               ["Package", `${search.get("productName")}`],
               ...finalVoucher.map((item: any) => [
@@ -77,7 +77,12 @@ export default function ReviewPlan() {
                 "Business Extras",
                 `${item.variant_name} - $${item.variant_price}/mo`,
               ]),
-              ["Equipment", `${search.get("equipmentName")} (Included)`],
+               [
+                "Equipment",
+                search.get("productNameEquipment")
+                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - $${search.get("priceEquipment")} /mo`
+                  : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
+              ],
             ].map(([label, value], index) => (
               <div key={index} className="flex justify-between">
                 <span className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176]">

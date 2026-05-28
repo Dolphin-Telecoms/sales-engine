@@ -6,10 +6,7 @@ export async function POST(req: NextRequest) {
     const { homeCategory, services } = await req.json();
     let response = await OddoAxios.post(
       `/json/2/product.category/search_read`,
-      {
-        domain: [["parent_id.id", "=", parseInt(homeCategory)]],
-        limit: 20,
-      },
+      { domain: [["parent_id.id", "=", parseInt(homeCategory)]] },
     ).then((res) => res.data);
 
     if (services.length > 0) {

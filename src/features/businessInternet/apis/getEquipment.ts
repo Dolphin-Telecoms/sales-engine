@@ -1,14 +1,16 @@
 import Axios from "@/src/libs/Axios";
-import { ProductCategory } from "@/src/types";
+import { EquipmentCategory } from "@/src/types";
 
 export const getEquipment = async (
   parentCategory: string,
   equipmentType: string,
-): Promise<{ status: boolean; data: ProductCategory | null }> => {
+  productId: string,
+): Promise<{ status: boolean; data: EquipmentCategory | null }> => {
   try {
     const response = await Axios.post(`/apis/get-product-equipment`, {
       parentCategory,
       equipmentType,
+      productId,
     }).then((res) => res.data);
 
     if (response) {

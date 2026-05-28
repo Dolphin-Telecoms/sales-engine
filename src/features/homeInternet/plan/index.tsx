@@ -120,11 +120,11 @@ export default function Plan() {
             params.set("childCategoryName", `${data?.name}`);
             if (data?.products?.length) {
               const product = data.products[0];
-              setSelected(`${product?.id}`);
+              setSelected(`${product?.product_variant_id[0]}`);
               setPrice(parseInt(`${product?.list_price}`));
-              params.set("product", `${product?.id}`);
+              params.set("product", `${product?.product_variant_id[0]}`);
               params.set("price", `${product?.list_price}`);
-              params.set("productName", `${product?.name}`);
+              params.set("productName", `${product?.product_variant_id[1]}`);
               if (product?.attributes?.length) {
                 const attribute = product?.attributes.map(
                   (item) => item.values[0].id,
@@ -239,10 +239,10 @@ export default function Plan() {
                             params.delete("attribute");
                             params.delete("productName");
                             const product = category.products[0];
-                            setSelected(`${product?.id}`);
+                            setSelected(`${product?.product_variant_id[0]}`);
                             setPrice(parseInt(`${product?.list_price}`));
-                            params.set("product", `${product?.id}`);
-                            params.set("productName", `${product?.name}`);
+                            params.set("product", `${product?.product_variant_id[0]}`);
+                            params.set("productName", `${product?.product_variant_id[1]}`);
                             params.set("price", `${product?.list_price}`);
                             if (product?.attributes?.length) {
                               const attribute = product?.attributes.map(
@@ -318,15 +318,15 @@ export default function Plan() {
                                 : "border-[#d1d5db]"
                             }`}
                                   onClick={() => {
-                                    setSelected(plan.id.toString());
+                                    setSelected(plan.product_variant_id[0].toString());
                                     setPrice(plan.list_price);
                                     setSelectedAttribute([]); // reset attribute selection when switching categories
-                                    params.set("product", plan.id.toString());
+                                    params.set("product", plan.product_variant_id[0].toString());
                                     params.set(
                                       "price",
                                       plan.list_price.toString(),
                                     );
-                                    params.set("productName", `${plan?.name}`);
+                                    params.set("productName", `${plan?.product_variant_id[1]}`);
                                     params.delete("attribute");
                                     if (plan?.attributes?.length) {
                                       const attribute = plan?.attributes.map(

@@ -2,8 +2,9 @@
 
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { HomeInternetProductCategory } from "@/src/features/businessInternet/types/type";
+import { EquipmentCategory } from "@/src/types";
 import { getEquipment } from "@/src/features/businessInternet/apis/getEquipment";
+import EquipmentVariant from "@/src/features/businessInternet/equipment/equipmentVariant";
 
 export default function EquipmentSetup() {
   const search = useSearchParams();
@@ -31,8 +32,7 @@ export default function EquipmentSetup() {
     const searchParams = Object.fromEntries(search.entries());
     const params = new URLSearchParams(searchParams);
     const [loading, setLoading] = useState(true);
-    const [equipment, setEquipment] =
-      useState<HomeInternetProductCategory | null>(null);
+    const [equipment, setEquipment] = useState<EquipmentCategory | null>(null);
 
     const getProductEquipments = async () => {
       try {
@@ -40,9 +40,10 @@ export default function EquipmentSetup() {
         const res = await getEquipment(
           search.get("homeCategory") || "",
           search.get("childCategoryName") ?? "",
+          search.get("product") ?? "",
         );
         if (res.status) {
-          setEquipment(res.data as HomeInternetProductCategory);
+          setEquipment(res.data as EquipmentCategory);
         } else {
           setEquipment(null);
         }
@@ -109,6 +110,9 @@ export default function EquipmentSetup() {
               </div>
             </div>
           </div>
+        ) : Array.isArray(equipment?.products) &&
+          equipment?.products.length > 0 ? (
+          <EquipmentVariant categories={[equipment]} />
         ) : (
           <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] p-5">
             <div className="flex items-start lg:items-center gap-4">

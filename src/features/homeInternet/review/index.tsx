@@ -78,7 +78,12 @@ export default function ReviewPlan() {
                   "Extras",
                   ` ${item.name} Voucher $${Number(voucherSystem.find((v: any) => v.id === item.id)?.price).toFixed(2)} / mo`,
                 ]),
-              ["Equipment", `${search.get("equipmentName")} (Included)`],
+              [
+                "Equipment",
+                search.get("productNameEquipment")
+                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} (${search.get("priceEquipment")})`
+                  : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
+              ],
             ].map(([label, value], index) => (
               <div key={index} className="flex justify-between">
                 <span className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176]">

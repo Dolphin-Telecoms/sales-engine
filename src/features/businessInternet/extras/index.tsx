@@ -622,7 +622,7 @@ const CardSkeleton = () => {
 };
 
 function Card({ item, selected, onClick }: CardProps) {
-  const active = selected.some((v) => v.id === item.id);
+  const active = selected && selected.some((v) => v.id === item.id);
 
   const isOutOfStock =
     item.available_count === 0 ||

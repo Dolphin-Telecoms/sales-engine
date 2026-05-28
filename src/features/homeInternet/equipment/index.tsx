@@ -2,8 +2,9 @@
 
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { HomeInternetProductCategory } from "@/src/features/homeInternet/types/type";
-import { getEquipment } from "@/src/features/homeInternet/apis/getEquipment";
+import { EquipmentCategory } from "@/src/types";
+import { getEquipment } from "@/src/features/businessInternet/apis/getEquipment";
+import EquipmentVariant from "@/src/features/businessInternet/equipment/equipmentVariant";
 
 export default function EquipmentSetup() {
   const search = useSearchParams();
@@ -16,7 +17,7 @@ export default function EquipmentSetup() {
     !search.get("coordinates") ||
     !search.get("city")
   ) {
-    redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
+    redirect(`/business-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
@@ -24,15 +25,14 @@ export default function EquipmentSetup() {
     !search.get("price")
   ) {
     redirect(
-      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
+      `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
     );
   } else {
     const router = useRouter();
     const searchParams = Object.fromEntries(search.entries());
     const params = new URLSearchParams(searchParams);
     const [loading, setLoading] = useState(true);
-    const [equipment, setEquipment] =
-      useState<HomeInternetProductCategory | null>(null);
+    const [equipment, setEquipment] = useState<EquipmentCategory | null>(null);
 
     const getProductEquipments = async () => {
       try {
@@ -40,9 +40,10 @@ export default function EquipmentSetup() {
         const res = await getEquipment(
           search.get("homeCategory") || "",
           search.get("childCategoryName") ?? "",
+          search.get("product") ?? "",
         );
         if (res.status) {
-          setEquipment(res.data as HomeInternetProductCategory);
+          setEquipment(res.data as EquipmentCategory);
         } else {
           setEquipment(null);
         }
@@ -61,7 +62,7 @@ export default function EquipmentSetup() {
     const handleSubmit = async () => {
       params.set("equipmentName", `${equipment?.name}`);
       params.set("equipmentId", `${equipment?.id}`);
-      router.push(`/home-internet/review?${params.toString()}`);
+      router.push(`/business-internet/review?${params.toString()}`);
     };
 
     return (
@@ -109,6 +110,9 @@ export default function EquipmentSetup() {
               </div>
             </div>
           </div>
+        ) : Array.isArray(equipment?.products) &&
+          equipment?.products.length > 0 ? (
+          <EquipmentVariant categories={[equipment]} />
         ) : (
           <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] p-5">
             <div className="flex items-start lg:items-center gap-4">
@@ -144,7 +148,7 @@ export default function EquipmentSetup() {
           <button
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
             onClick={() => {
-              router.push(`/home-internet/extras?${params.toString()}`);
+              router.push(`/business-internet/extras?${params.toString()}`);
             }}
           >
             Back

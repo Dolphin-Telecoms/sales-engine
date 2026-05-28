@@ -120,6 +120,57 @@ export default function SecureCheckout() {
         );
       }
 
+      if (
+        search.get("productEquipment") &&
+        search.get("priceEquipment") &&
+        search.get("productNameEquipment")
+      ) {
+        orderLines.push([
+          0,
+          0,
+          {
+            product_id: Number(`${search.get("productEquipment")}`),
+            product_uom_qty: 1,
+            price_unit: Number(`${search.get("priceEquipment")}`),
+            name: `${search.get("productNameEquipment")}`,
+          },
+        ]);
+      }
+
+      if (
+        search.get("productName") &&
+        search.get("price") &&
+        search.get("productName")
+      ) {
+        orderLines.push([
+          0,
+          0,
+          {
+            product_id: Number(`${search.get("productName")}`),
+            product_uom_qty: 1,
+            price_unit: Number(`${search.get("price")}`),
+            name: `${search.get("productName")}`,
+          },
+        ]);
+      }
+
+      if (search.get("variantEquipment")) {
+        const variant = JSON.parse(`${search.get("variantEquipment")}`);
+        const finalVariant = variant ? variant : [];
+        finalVariant.map((item: any) =>
+          orderLines.push([
+            0,
+            0,
+            {
+              product_id: Number(`${item.variant_id}`),
+              product_uom_qty: 1,
+              price_unit: Number(`${search.get("price")}`),
+              name: `${item.variant_name}`,
+            },
+          ]),
+        );
+      }
+
       const body = {
         companyId: 1,
         partnerId: Number(`${response.data[0]}`),

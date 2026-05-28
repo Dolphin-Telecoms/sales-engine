@@ -61,7 +61,7 @@ const PaymentSuccess = () => {
         console.error("Polling error:", error);
         setLoading(false);
         // Start polling
-        await pollPaymentStatus();
+        window.location.reload();
       }
     };
 
@@ -280,8 +280,8 @@ const PaymentStatusSkeleton = () => {
       <div className="mt-3 space-y-2 flex flex-col items-center">
         <div className="h-4 w-80 bg-gray-200 rounded-md" />
         <div className="h-4 w-64 bg-gray-200 rounded-md" />
-      </div>  
-      
+      </div>
+
       {/* Button */}
       <div className="flex justify-center mt-6">
         <div className="h-12 w-40 bg-gray-200 rounded-lg" />

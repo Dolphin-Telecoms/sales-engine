@@ -174,7 +174,7 @@ export default function Layout({
 
       values.push({
         id: "service",
-        title: "Home Internet",
+        title: "Business Internet",
         subtitle: "Selected service",
         icon: "🏠",
       });
@@ -234,10 +234,78 @@ export default function Layout({
       if (search.get("equipmentName") && search.get("equipmentId")) {
         values.push({
           id: `equipment`,
-          title: `${search.get("equipmentName")}`,
+          title: `${search.get("equipmentName")} ${search.get("productNameEquipment")}`,
           subtitle: `Equipment`,
           icon: `🛜`,
-          value: `Included`,
+          value: search.get("priceEquipment")
+            ? `$${search.get("priceEquipment")}/mo`
+            : `Included`,
+        });
+      }
+
+      setItems(values);
+    } else {
+      const values = [];
+
+      values.push({
+        id: "service",
+        title: "Business Internet",
+        subtitle: "Selected service",
+        icon: "🏠",
+      });
+
+      if (search.get("location")) {
+        values.push({
+          id: "address",
+          title: `${search.get("location")}`,
+          subtitle: "Service address",
+          icon: "📍",
+        });
+      }
+      if (search.get("childCategoryName")) {
+        values.push({
+          id: `${search.get("childCategory")}`,
+          title: `${search.get("childCategoryName")}`,
+          subtitle: "Connection type",
+          icon: "📡",
+        });
+      }
+
+      if (search.get("voucher")) {
+        const { status: voucherStatus, data: vouchers } = await getVouchers();
+        if (voucherStatus && vouchers) {
+          vouchers.map((item) => {
+            const voucher = JSON.parse(`${search.get("voucher")}`);
+            const isSelected = voucher.find((v: any) => v.id === item.id);
+            if (isSelected) {
+              values.push({
+                id: `voucher-${item.id}`,
+                title: `${item.name}`,
+                subtitle: `${item.metadata.group.charAt(0).toUpperCase() + item.metadata.group.slice(1).toLowerCase()} Voucher`,
+                icon: (
+                  <Image
+                    src={item.metadata.logo_url}
+                    alt={item.name}
+                    height={40}
+                    width={40}
+                  />
+                ),
+                value: `$${Number(isSelected.price).toFixed(2)}/mo`,
+              });
+            }
+          });
+        }
+      }
+
+      if (search.get("equipmentName") && search.get("equipmentId")) {
+        values.push({
+          id: `equipment`,
+          title: `${search.get("equipmentName")} ${search.get("productNameEquipment")}`,
+          subtitle: `Equipment`,
+          icon: `🛜`,
+          value: search.get("priceEquipment")
+            ? `$${search.get("priceEquipment")}/mo`
+            : `Included`,
         });
       }
 
@@ -307,14 +375,8 @@ export default function Layout({
           icon: "📦",
         });
       }
-      if (
-        search.get("productName") &&
-        search.get("product") &&
-        search.get("price") &&
-        search.get("attribute")
-      ) {
-        getProductAttribute(JSON.parse(`${search.get("attribute")}`));
-      }
+
+      getProductAttribute(JSON.parse(`${search.get("attribute")}`));
 
       setItems([...data]);
     } else if (pathname === "/business-internet") {

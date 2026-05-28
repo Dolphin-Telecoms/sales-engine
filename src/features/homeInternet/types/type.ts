@@ -63,7 +63,7 @@ export interface HomeInternetProductCategory {
   property_price_difference_account_id: Many2One | false;
   property_stock_account_production_cost_id: Many2One | false;
 }
- 
+
 export interface ProductAttributeLine {
   id: number;
   display_name: string;
@@ -161,6 +161,7 @@ export interface ProductTemplate {
 
   // Custom enriched field 👇
   attributes: ProductAttributeLine[];
+  x_equipment_ids: number[];
 }
 
 export type Voucher = {
@@ -176,8 +177,8 @@ export type Voucher = {
 };
 
 export type Price = {
-  value: string;        // API gives string (e.g. "10.0000")
-  currency: string;     // "USD" | "EUR" | "GBP" (can union if fixed)
+  value: string; // API gives string (e.g. "10.0000")
+  currency: string; // "USD" | "EUR" | "GBP" (can union if fixed)
   available: number;
 };
 

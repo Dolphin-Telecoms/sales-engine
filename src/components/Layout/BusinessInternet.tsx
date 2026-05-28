@@ -342,7 +342,7 @@ export default function Layout({
       const data: ItemType[] = [];
       data.push({
         id: "service",
-        title: "Home Internet",
+        title: "Business Internet",
         subtitle: "Selected service",
         icon: "🏠",
       });

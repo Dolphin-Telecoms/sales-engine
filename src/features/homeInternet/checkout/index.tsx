@@ -423,6 +423,7 @@ export default function SecureCheckout() {
 
               <button
                 onClick={() => setCurrency("ZAR")}
+                disabled
                 className={`flex-1 rounded-lg px-4 py-3 font-exo text-[14px] ${
                   currency === "ZAR"
                     ? "bg-[#2F5D6C] border text-white border-[#2F5D6C]"

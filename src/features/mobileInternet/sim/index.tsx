@@ -538,7 +538,8 @@ export default function SimCard() {
           <div className="flex border border-[#DCDCDC] rounded-lg w-fit overflow-hidden">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="p-3 bg-gray-100"
+              disabled={quantity <= 1}
+              className={`p-3 ${quantity <= 1 ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-gray-100"}`}
             >
               <FiMinus />
             </button>
@@ -546,8 +547,9 @@ export default function SimCard() {
             <span className="px-6 flex items-center">{quantity}</span>
 
             <button
-              onClick={() => setQuantity((q) => q + 1)}
-              className="p-3 bg-gray-100"
+              onClick={() => setQuantity((q) => Math.min(50, q + 1))}
+              disabled={quantity >= 50}
+              className={`p-3 ${quantity >= 50 ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-gray-100"}`}
             >
               <FiPlus />
             </button>
@@ -559,9 +561,14 @@ export default function SimCard() {
             <div className="h-4 w-64 bg-gray-200 rounded" />
           </div>
         ) : (
-          <p className="text-sm text-gray-500 mt-2">
-            Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
-          </p>
+          <>
+            <p className="text-sm text-gray-500 mt-2">
+              Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Min 1, Max 50 SIMs
+            </p>
+          </>
         )}
 
         <Divider />

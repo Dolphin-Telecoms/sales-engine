@@ -157,7 +157,7 @@ export default function AvailabilityChecker() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-green-800">
-                  Great news — we&lsquo;re available in your area.
+                  Great news! We are available in your area.
                 </p>
                 <p className="text-sm text-green-700 mt-1">
                   {formatList(
@@ -166,7 +166,7 @@ export default function AvailabilityChecker() {
                       ? coverage?.available_service_types
                       : ["Fibre", "LTE", "FWA"],
                   )}{" "}
-                  are available at your address.
+                  is available at your address.
                 </p>
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function AvailabilityChecker() {
 
               <div>
                 <p className="text-sm font-semibold text-red-800">
-                  Sorry — we’re not available in your area.
+                  Sorry we’re not available in your area.
                 </p>
 
                 <p className="text-sm text-red-700 mt-1">

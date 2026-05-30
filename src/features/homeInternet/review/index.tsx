@@ -57,15 +57,18 @@ export default function ReviewPlan() {
             {[
               ["Service", "Home Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
-              ["Package", `${search.get("productName")} $${Number(search.get("price"))}/mo`],
+              [
+                "Package",
+                `${search.get("productName")} $${Number(search.get("price"))}/mo`,
+              ],
               ...finalVoucher.map((item: any) => [
                 "Extras",
-                ` ${item.name} Voucher $${Number(item.price).toFixed(2)}`,
+                ` ${item.name} Voucher - $${Number(item.price).toFixed(2)}`,
               ]),
               [
                 "Equipment",
                 search.get("productNameEquipment")
-                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - ${search.get("priceEquipment")}`
+                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - $${search.get("priceEquipment")}`
                   : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
               ],
             ].map(([label, value], index) => (
@@ -92,7 +95,9 @@ export default function ReviewPlan() {
           <div className="text-right">
             <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
               $
-              {Number(search.get("price")) + Number(search.get("voucherPrice"))}
+              {Number(search.get("price")) +
+                Number(search.get("voucherPrice")) +
+                Number(`${search.get("priceEquipment")}`)}
               /mo
             </p>
             <p className="font-exo text-[12px] text-[#6B7280]">Free</p>

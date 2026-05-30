@@ -17,7 +17,7 @@ export default function EquipmentSetup() {
     !search.get("coordinates") ||
     !search.get("city")
   ) {
-    redirect(`/business-internet?homeCategory=${search.get("homeCategory")}`);
+    redirect(`/home-internet?homeCategory=${search.get("homeCategory")}`);
   } else if (
     !search.get("childCategory") ||
     !search.get("childCategoryName") ||
@@ -25,7 +25,7 @@ export default function EquipmentSetup() {
     !search.get("price")
   ) {
     redirect(
-      `/business-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
+      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${search.get("location")}&services=${search.get("services")}&coordinates=${search.get("coordinates")}&city=${search.get("city")}`,
     );
   } else {
     const router = useRouter();
@@ -62,7 +62,7 @@ export default function EquipmentSetup() {
     const handleSubmit = async () => {
       params.set("equipmentName", `${equipment?.name}`);
       params.set("equipmentId", `${equipment?.id}`);
-      router.push(`/business-internet/review?${params.toString()}`);
+      router.push(`/home-internet/review?${params.toString()}`);
     };
 
     return (
@@ -148,7 +148,7 @@ export default function EquipmentSetup() {
           <button
             className="px-6 py-3 border-3 border-[#1f4d5a] rounded-lg"
             onClick={() => {
-              router.push(`/business-internet/extras?${params.toString()}`);
+              router.push(`/home-internet/extras?${params.toString()}`);
             }}
           >
             Back

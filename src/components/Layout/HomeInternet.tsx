@@ -213,7 +213,7 @@ export default function Layout({
                     width={40}
                   />
                 ),
-                value: `$${Number(isSelected.price).toFixed(2)}/mo`,
+                value: `$${Number(isSelected.price).toFixed(2)}`,
               });
             }
           });
@@ -227,7 +227,7 @@ export default function Layout({
           subtitle: `Equipment`,
           icon: `🛜`,
           value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}/mo`
+            ? `$${search.get("priceEquipment")}`
             : `Included`,
         });
       }
@@ -325,7 +325,8 @@ export default function Layout({
       pathname === "/home-internet/plan" ||
       pathname === "/home-internet/extras" ||
       pathname === "/home-internet/equipment" ||
-      pathname === "/home-internet/review"
+      pathname === "/home-internet/review" ||
+      pathname === "/home-internet/checkout"
     ) {
       const data: ItemType[] = [];
       data.push({

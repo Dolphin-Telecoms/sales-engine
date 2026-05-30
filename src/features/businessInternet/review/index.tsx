@@ -45,6 +45,7 @@ export default function ReviewPlan() {
     const totalPrice =
       Number(search.get("price") || 0) +
       Number(search.get("voucherPrice") || 0) +
+      Number(search.get("priceEquipment") || 0) +
       totalVariantPrice;
 
     return (
@@ -68,7 +69,10 @@ export default function ReviewPlan() {
             {[
               ["Service", "Business Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
-              ["Package", `${search.get("productName")} $${Number(search.get("price"))}/mo`],
+              [
+                "Package",
+                `${search.get("productName")} $${Number(search.get("price"))}/mo`,
+              ],
               ...finalVoucher.map((item: any) => [
                 "Extras",
                 ` ${item.name} Voucher $${Number(item.price).toFixed(2)}`,

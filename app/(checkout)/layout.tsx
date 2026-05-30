@@ -1,8 +1,6 @@
 "use client";
 
-import AppBar from "@/src/components/AppBar";
-import Container from "@/src/components/Container";
-import PlanSummary from "@/src/components/SummaryPlan";
+import AppBar from "@/src/components/AppBar"; 
 import { useState, Suspense } from "react";
 
 interface ItemType {

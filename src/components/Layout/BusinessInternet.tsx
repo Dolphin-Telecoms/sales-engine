@@ -226,7 +226,7 @@ export default function Layout({
                     width={40}
                   />
                 ),
-                value: `$${Number(isSelected.price).toFixed(2)}/mo`,
+                value: `$${Number(isSelected.price).toFixed(2)}`,
               });
             }
           });
@@ -240,7 +240,7 @@ export default function Layout({
           subtitle: `Equipment`,
           icon: `🛜`,
           value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}/mo`
+            ? `$${search.get("priceEquipment")}`
             : `Included`,
         });
       }

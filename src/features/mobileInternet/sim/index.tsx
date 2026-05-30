@@ -432,9 +432,10 @@ export default function SimCard() {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
+    } else {
+      await generateCustomer(); // your API call
     }
 
-    await generateCustomer(); // your API call
     setIsLoading(false);
   };
 
@@ -771,9 +772,15 @@ export default function SimCard() {
           variant="filld"
           className="mt-2 flex items-center justify-center"
           disabled={
-            (simcardVariant.variant_price === 0 &&
-              variantProduct.variant_price === 0) ||
-            submitLoader
+            (accountType === "existing"
+              ? customerId == ""
+                ? true
+                : false
+              : form.fullName === "" || form.passport === ""
+                ? true
+                : false) ||
+            submitLoader ||
+            isLoading
           }
           onClick={handleSubmit}
         >

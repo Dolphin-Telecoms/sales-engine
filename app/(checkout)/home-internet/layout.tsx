@@ -1,6 +1,6 @@
 "use client";
 
-import Layout from "@/src/components/Layout/HomeInternet";
+import Layout from "@/src/components/HomePaymentLayout";
 
 export default function HomeInternetLayout({
   children,

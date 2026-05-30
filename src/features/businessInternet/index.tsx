@@ -19,6 +19,7 @@ function BusinessInternet() {
         description: "Enterprise-grade connectivity for your business.",
         icon: <CiWifiOn />,
         link: `/business-internet/location`,
+        disabled: false,
       },
       {
         id: "Mobile",
@@ -26,6 +27,7 @@ function BusinessInternet() {
         description: "Mobile plans for your team on the go.",
         icon: <CiMobile2 />,
         link: "/business-internet/location?businesstype=mobile",
+        disabled: true,
       },
       {
         id: "Bundle",
@@ -33,6 +35,7 @@ function BusinessInternet() {
         description: "Internet + Mobile together. Save more.",
         icon: <BsBoxSeam />,
         link: "/business-internet/location?businesstype=bundle",
+        disabled: true,
       },
     ];
 

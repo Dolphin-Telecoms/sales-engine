@@ -1,4 +1,3 @@
-// components/ServiceCard.tsx
 "use client";
 
 import React from "react";
@@ -9,6 +8,7 @@ type Props = {
   description: string;
   icon: React.JSX.Element;
   selected: boolean;
+  disabled?: boolean;
   onSelect: (id: string) => void;
 };
 
@@ -18,13 +18,19 @@ const ServiceCard: React.FC<Props> = ({
   description,
   icon,
   selected,
+  disabled = false,
   onSelect,
 }) => {
   return (
     <div
-      onClick={() => onSelect(id)}
+      onClick={() => !disabled && onSelect(id)}
       className={`
-        relative cursor-pointer rounded-xl border p-5 transition-all
+        relative rounded-xl border p-5 transition-all
+        ${
+          disabled
+            ? "cursor-not-allowed opacity-50 bg-gray-100 border-gray-200"
+            : "cursor-pointer"
+        }
         ${
           selected
             ? "border-2 border-[#F59E0B] bg-[#F59E0B]/10 shadow-sm"
@@ -46,7 +52,11 @@ const ServiceCard: React.FC<Props> = ({
       <div
         className={`
           mb-4 flex h-12 w-12 items-center justify-center rounded-lg text-xl
-          ${selected ? "bg-[#FDECCC] text-[#F2A413]" : "bg-[#C9DFE4] text-[#2C6176]"}
+          ${
+            selected
+              ? "bg-[#FDECCC] text-[#F2A413]"
+              : "bg-[#C9DFE4] text-[#2C6176]"
+          }
         `}
       >
         {icon}
@@ -56,9 +66,16 @@ const ServiceCard: React.FC<Props> = ({
       <h3 className="font-exo font-bold text-[18px] lg:text-[20px] leading-[120%] tracking-normal">
         {title}
       </h3>
+
       <p className="mt-2 text-sm text-gray-500 leading-relaxed">
         {description}
       </p>
+
+      {disabled && (
+        <span className="mt-3 inline-block rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-600">
+          Coming Soon
+        </span>
+      )}
     </div>
   );
 };

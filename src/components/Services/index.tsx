@@ -10,6 +10,7 @@ type ServiceCard = {
   description: string;
   link: string;
   icon: JSX.Element; // can be emoji OR icon component later
+  disabled?: boolean;
 };
 
 interface ServiceType {
@@ -26,7 +27,7 @@ export default function Service({
   loading,
 }: ServiceType) {
   const [selected, setSelected] = useState<string>(
-   loading ? "" : services.length > 0 ? services[0].id : "",
+    loading ? "" : services.length > 0 ? services[0].id : "",
   );
 
   const router = useRouter();
@@ -49,7 +50,10 @@ export default function Service({
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {loading
           ? [1, 2, 3].map((_, i) => (
-              <div key={i} className="relative rounded-xl border-2 border-gray-200 bg-white p-5 animate-pulse">
+              <div
+                key={i}
+                className="relative rounded-xl border-2 border-gray-200 bg-white p-5 animate-pulse"
+              >
                 {/* Top Right Circle */}
                 <div className="absolute right-4 top-4 h-5 w-5 rounded-full border border-gray-300"></div>
 

@@ -134,6 +134,65 @@ export default function Airtime() {
     }));
   };
 
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) return undefined; // don't show error for empty on blur
+    if (email.length > 254) return "Please enter a valid email address";
+    if (/\s/.test(email)) return "Please enter a valid email address";
+    // Must contain @, valid local part, and a domain with at least one dot
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const handleEmailBlur = () => {
+    const error = validateEmail(form.email);
+    setErrors((prev) => ({
+      ...prev,
+      email: error || "",
+    }));
+  };
+
+  const validatePhone = (phone: string): string | undefined => {
+    if (!phone.trim()) return undefined;
+    // Strip all spaces for validation
+    const stripped = phone.replace(/\s/g, "");
+    // Numbers only — no letters or unsupported symbols
+    if (!/^\d+$/.test(stripped)) return "Please enter a valid phone number";
+    // Must start with 07 (ZW format, entered without country code)
+    if (!/^07/.test(stripped)) return "Please enter a valid phone number";
+    // Length between 10 and 13 digits
+    if (stripped.length < 10 || stripped.length > 13)
+      return "Please enter a valid phone number";
+    return undefined;
+  };
+
+  const handlePhoneBlur = () => {
+    const error = validatePhone(form.phone);
+    setErrors((prev) => ({
+      ...prev,
+      phone: error || "",
+    }));
+  };
+
+  const validateName = (name: string): string | undefined => {
+    if (!name.trim()) return undefined;
+    const trimmed = name.trim();
+    if (trimmed.length < 2 || trimmed.length > 70)
+      return "Please enter a valid name";
+    // Only letters (unicode), spaces, hyphens, and apostrophes
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
+      return "Please enter a valid name";
+    return undefined;
+  };
+
+  const handleNameBlur = () => {
+    const error = validateName(form.fullName);
+    setErrors((prev) => ({
+      ...prev,
+      fullName: error || "",
+    }));
+  };
+
   const generateCustomer = async (
     email: string,
     name: string,
@@ -244,18 +303,39 @@ export default function Airtime() {
 
     if (!form.fullName.trim()) {
       newErrors.fullName = "Full name is required";
+    } else {
+      const trimmed = form.fullName.trim();
+      if (
+        trimmed.length < 2 ||
+        trimmed.length > 70 ||
+        !/^[\p{L}\s'\-]+$/u.test(trimmed)
+      ) {
+        newErrors.fullName = "Please enter a valid name";
+      }
     }
 
     if (!form.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-      newErrors.email = "Invalid email";
+    } else if (
+      form.email.length > 254 ||
+      /\s/.test(form.email) ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)
+    ) {
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!form.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!/^\+?\d{7,15}$/.test(form.phone.replace(/\s/g, ""))) {
-      newErrors.phone = "Invalid phone number";
+    } else {
+      const stripped = form.phone.replace(/\s/g, "");
+      if (
+        !/^\d+$/.test(stripped) ||
+        !/^07/.test(stripped) ||
+        stripped.length < 10 ||
+        stripped.length > 13
+      ) {
+        newErrors.phone = "Please enter a valid phone number";
+      }
     }
 
     return newErrors;
@@ -267,6 +347,7 @@ export default function Airtime() {
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      setIsLoading(false);
       return;
     }
 
@@ -447,17 +528,24 @@ export default function Airtime() {
 
           <label className="text-xs font-semibold">Mobile Number</label>
 
-          <div className="flex items-center border border-[#2F5D6C] rounded-lg px-3 py-2 mt-1">
+          <div className={`flex items-center border rounded-lg px-3 py-2 mt-1 ${
+            errors.phone ? "border-red-400" : "border-[#2F5D6C]"
+          }`}>
             <span className="text-sm font-medium mr-2">+263</span>
             <input
-              type="text"
+              type="tel"
               placeholder="7X XXX XXXX"
               className="w-full outline-none text-sm"
               name="phone"
               value={form.phone}
               onChange={handleChange}
+              onBlur={handlePhoneBlur}
             />
           </div>
+
+          {errors.phone && (
+            <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+          )}
 
           <p className="text-[10px] text-gray-500 mt-1">
             Enter number without country code. e.g. 77 123 4567
@@ -468,8 +556,12 @@ export default function Airtime() {
             name="fullName"
             value={form.fullName}
             onChange={handleChange}
+            onBlur={handleNameBlur}
+            maxLength={70}
             placeholder="e.g. John Makumuri"
-            className="mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+            className={`mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
+              errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
+            }`}
           />
           {errors.fullName && (
             <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
@@ -478,10 +570,15 @@ export default function Airtime() {
           <label className="text-xs font-semibold">Email Address</label>
           <input
             name="email"
+            type="email"
             value={form.email}
             onChange={handleChange}
+            onBlur={handleEmailBlur}
+            maxLength={254}
             placeholder="e.g. john@email.com"
-            className="mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+            className={`mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
+              errors.email ? "border-red-400 focus:ring-red-300/30" : ""
+            }`}
           />
           {errors.email && (
             <p className="text-red-500 text-xs">{errors.email}</p>

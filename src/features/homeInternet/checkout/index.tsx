@@ -231,6 +231,64 @@ export default function SecureCheckout() {
     }));
   };
 
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) return undefined;
+    if (email.length > 254) return "Please enter a valid email address";
+    if (/\s/.test(email)) return "Please enter a valid email address";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const handleEmailBlur = () => {
+    const error = validateEmail(form.email);
+    setErrors((prev) => ({
+      ...prev,
+      email: error || "",
+    }));
+  };
+
+  const validatePhone = (phone: string): string | undefined => {
+    if (!phone.trim()) return undefined;
+    // Strip spaces and optional leading +
+    const stripped = phone.replace(/\s/g, "").replace(/^\+/, "");
+    // Numbers only — no letters or unsupported symbols
+    if (!/^\d+$/.test(stripped)) return "Please enter a valid phone number";
+    // Must start with 263 07 or just 07 (ZW format)
+    const local = stripped.startsWith("263") ? stripped.slice(3) : stripped;
+    if (!/^07/.test(local)) return "Please enter a valid phone number";
+    // Local number length between 10 and 13 digits
+    if (local.length < 10 || local.length > 13)
+      return "Please enter a valid phone number";
+    return undefined;
+  };
+
+  const handlePhoneBlur = () => {
+    const error = validatePhone(form.phone);
+    setErrors((prev) => ({
+      ...prev,
+      phone: error || "",
+    }));
+  };
+
+  const validateName = (name: string): string | undefined => {
+    if (!name.trim()) return undefined;
+    const trimmed = name.trim();
+    if (trimmed.length < 2 || trimmed.length > 70)
+      return "Please enter a valid name";
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
+      return "Please enter a valid name";
+    return undefined;
+  };
+
+  const handleNameBlur = () => {
+    const error = validateName(form.fullName);
+    setErrors((prev) => ({
+      ...prev,
+      fullName: error || "",
+    }));
+  };
+
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {};
 
@@ -242,18 +300,40 @@ export default function SecureCheckout() {
 
     if (!form.fullName.trim()) {
       newErrors.fullName = "Full name is required";
+    } else {
+      const trimmed = form.fullName.trim();
+      if (
+        trimmed.length < 2 ||
+        trimmed.length > 70 ||
+        !/^[\p{L}\s'\-]+$/u.test(trimmed)
+      ) {
+        newErrors.fullName = "Please enter a valid name";
+      }
     }
 
     if (!form.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-      newErrors.email = "Invalid email";
+    } else if (
+      form.email.length > 254 ||
+      /\s/.test(form.email) ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)
+    ) {
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!form.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!/^\+?\d{7,15}$/.test(form.phone.replace(/\s/g, ""))) {
-      newErrors.phone = "Invalid phone number";
+    } else {
+      const stripped = form.phone.replace(/\s/g, "").replace(/^\+/, "");
+      const local = stripped.startsWith("263") ? stripped.slice(3) : stripped;
+      if (
+        !/^\d+$/.test(stripped) ||
+        !/^07/.test(local) ||
+        local.length < 10 ||
+        local.length > 13
+      ) {
+        newErrors.phone = "Please enter a valid phone number";
+      }
     }
 
     return newErrors;
@@ -265,6 +345,7 @@ export default function SecureCheckout() {
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      setIsLoading(false);
       return;
     }
 
@@ -346,8 +427,12 @@ export default function SecureCheckout() {
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
+                onBlur={handleNameBlur}
+                maxLength={70}
                 placeholder="e.g. John Makumuri"
-                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+                className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
+                  errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
+                }`}
               />
               {errors.fullName && (
                 <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
@@ -359,10 +444,15 @@ export default function SecureCheckout() {
               </label>
               <input
                 name="email"
+                type="email"
                 value={form.email}
                 onChange={handleChange}
+                onBlur={handleEmailBlur}
+                maxLength={254}
                 placeholder="e.g. john@email.com"
-                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+                className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
+                  errors.email ? "border-red-400 focus:ring-red-300/30" : ""
+                }`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs">{errors.email}</p>
@@ -374,10 +464,14 @@ export default function SecureCheckout() {
               </label>
               <input
                 name="phone"
+                type="tel"
                 value={form.phone}
                 onChange={handleChange}
+                onBlur={handlePhoneBlur}
                 placeholder="e.g. +263 77 123 4567"
-                className="mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30"
+                className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
+                  errors.phone ? "border-red-400 focus:ring-red-300/30" : ""
+                }`}
               />
               {errors.phone && (
                 <p className="text-red-500 text-xs">{errors.phone}</p>

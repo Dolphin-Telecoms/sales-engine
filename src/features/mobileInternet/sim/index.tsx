@@ -117,6 +117,25 @@ export default function SimCard() {
     }));
   };
 
+  const validateName = (name: string): string | undefined => {
+    if (!name.trim()) return undefined;
+    const trimmed = name.trim();
+    if (trimmed.length < 2 || trimmed.length > 70)
+      return "Please enter a valid name";
+    // Only letters (unicode), spaces, hyphens, and apostrophes
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
+      return "Please enter a valid name";
+    return undefined;
+  };
+
+  const handleNameBlur = () => {
+    const error = validateName(form.fullName);
+    setErrors((prev) => ({
+      ...prev,
+      fullName: error || "",
+    }));
+  };
+
   const getSimCards = async () => {
     try {
       setLoading(true);
@@ -407,6 +426,15 @@ export default function SimCard() {
     } else {
       if (!form.fullName.trim()) {
         newErrors.fullName = "Full name is required";
+      } else {
+        const trimmed = form.fullName.trim();
+        if (
+          trimmed.length < 2 ||
+          trimmed.length > 70 ||
+          !/^[\p{L}\s'\-]+$/u.test(trimmed)
+        ) {
+          newErrors.fullName = "Please enter a valid name";
+        }
       }
 
       if (!form.passport.trim()) {
@@ -431,6 +459,7 @@ export default function SimCard() {
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      setIsLoading(false);
       return;
     } else {
       await generateCustomer(); // your API call
@@ -600,8 +629,12 @@ export default function SimCard() {
                       name="fullName"
                       value={form.fullName}
                       onChange={handleChange}
+                      onBlur={handleNameBlur}
+                      maxLength={70}
                       placeholder="As on ID document"
-                      className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
+                      }`}
                     />
                     {errors.fullName && (
                       <p className="text-red-500 text-xs mt-1">

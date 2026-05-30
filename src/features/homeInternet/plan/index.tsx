@@ -495,6 +495,9 @@ export default function Plan() {
                   selected &&
                   search.get("homeCategory") &&
                   search.get("location") &&
+                  search.get("childCategory") &&
+                  search.get("product") &&
+                  search.get("price") &&
                   categoryOpen
                 ) {
                   router.push(`/home-internet/extras?${params.toString()}`);

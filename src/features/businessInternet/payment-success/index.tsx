@@ -59,9 +59,8 @@ const PaymentSuccess = () => {
         }
       } catch (error: any) {
         console.error("Polling error:", error);
+      } finally {
         setLoading(false);
-        // Start polling
-        window.location.reload();
       }
     };
 

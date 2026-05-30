@@ -224,7 +224,6 @@ export default function Plan() {
                       <button
                         onClick={() => {
                           setSelectedAttribute([]); // reset attribute selection when switching categories
-                          setSelected(""); // reset plan selection when switching categories
                           if (categoryOpen.id === category.id.toString()) {
                             setCategoryOpen({ name: "", id: "" });
                           } else {
@@ -293,7 +292,7 @@ export default function Plan() {
                   {category.id.toString() === categoryOpen.id && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                       {category.products.map((plan) => {
-                        const isSelected =
+                        const isProductSelected =
                           selected === plan.product_variant_id[0].toString();
 
                         return (
@@ -301,7 +300,7 @@ export default function Plan() {
                             key={plan.id}
                             className={`relative border rounded-xl p-5 cursor-pointer transition 
                         ${
-                          isSelected
+                          isProductSelected
                             ? "border-[#f59e0b] bg-[#fff7ed]"
                             : "border-[#e5e7eb] bg-white"
                         }`}
@@ -318,12 +317,14 @@ export default function Plan() {
                               </h3>
                               <div className="w-5">
                                 <div
-                                  className={`w-5 h-5 rounded-full border flex items-center justify-center 
-                            ${
-                              isSelected
-                                ? "bg-[#f59e0b] border-[#f59e0b]"
-                                : "border-[#d1d5db]"
-                            }`}
+                                  className={cn(
+                                    `w-5 h-5 rounded-full border flex items-center justify-center`,
+                                    {
+                                      "bg-[#f59e0b] border-[#f59e0b]":
+                                        isProductSelected,
+                                      "border-[#d1d5db]": !isProductSelected,
+                                    },
+                                  )}
                                   onClick={() => {
                                     setSelected(
                                       plan.product_variant_id[0].toString(),
@@ -374,7 +375,7 @@ export default function Plan() {
                                     );
                                   }}
                                 >
-                                  {isSelected && (
+                                  {isProductSelected && (
                                     <FaCheck className="w-3 h-3 text-white" />
                                   )}
                                 </div>
@@ -382,8 +383,7 @@ export default function Plan() {
                             </div>
 
                             <p className="text-[#111827] font-medium mb-3">
-                              {selected ===
-                              plan?.product_variant_id[0]?.toString()
+                              {isProductSelected
                                 ? price
                                   ? `$${price}/ mo`
                                   : "Select to see pricing"
@@ -415,7 +415,7 @@ export default function Plan() {
                                           key={i}
                                           className="flex items-center gap-2 ml-4 pr-3 cursor-pointer w-full"
                                           onClick={() => {
-                                            if (selected) {
+                                            if (isProductSelected) {
                                               setPrice(
                                                 plan.list_price +
                                                   value.price_extra,

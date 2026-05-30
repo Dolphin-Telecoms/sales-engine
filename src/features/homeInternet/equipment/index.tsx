@@ -76,13 +76,11 @@ export default function EquipmentSetup() {
             <div className="h-3 lg:h-4 w-full bg-gray-300 rounded"></div>
             <div className="mt-2 h-3 lg:h-4 w-5/6 bg-gray-300 rounded"></div>
           </div>
-        ) : (
+        ) : equipment?.x_studio_label ? (
           <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176]">
-            Your {equipment?.name} is included with{" "}
-            {search.get("childCategoryName")} installation – no router purchase
-            required.
+            {equipment?.x_studio_label}
           </p>
-        )}
+        ) : null}
 
         {/* Card */}
         {loading ? (

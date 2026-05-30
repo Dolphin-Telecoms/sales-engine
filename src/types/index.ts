@@ -396,6 +396,7 @@ export interface ProductCategory {
 export interface EquipmentCategory {
   id: number;
   display_name: string;
+  x_studio_label: string;
 
   // Message fields
   message_is_follower: boolean;

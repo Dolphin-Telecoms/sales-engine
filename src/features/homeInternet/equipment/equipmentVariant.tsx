@@ -300,6 +300,12 @@ export default function EquipmentVariant({
 
                       <hr className="mb-3" />
 
+                      {plan?.description ? (
+                        <p className="text-[#111827] font-sm mb-3">
+                          {plan?.description}
+                        </p>
+                      ) : null}
+
                       <ul className="space-y-2 text-sm text-[#374151]">
                         {plan.attributes.map((attr, attrIndex) => (
                           <li key={attrIndex} className="flex flex-col gap-2">

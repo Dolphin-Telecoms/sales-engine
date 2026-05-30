@@ -31,20 +31,10 @@ export default function ReviewPlan() {
     );
   } else {
     const router = useRouter();
-    const [voucher, setVouchers] = useState<Voucher[]>([]);
-
-    const getFinalVoucher = async () => {
-      const { status: voucherStatus, data: vouchers } = await getVouchers();
-      if (voucherStatus && Array.isArray(vouchers) && vouchers.length) {
-        setVouchers(vouchers);
-      }
-    };
-
-    useEffect(() => {
-      getFinalVoucher();
-    }, []);
 
     const voucherSystem = JSON.parse(`${search.get("voucher")}`);
+
+    const finalVoucher = voucherSystem ? voucherSystem : [];
 
     return (
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
@@ -68,16 +58,10 @@ export default function ReviewPlan() {
               ["Service", "Home Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
               ["Package", `${search.get("productName")}`],
-              ...voucher
-                .filter(
-                  (item) =>
-                    voucherSystem &&
-                    voucherSystem.find((v: any) => v.id === item.id),
-                )
-                .map((item) => [
-                  "Extras",
-                  ` ${item.name} Voucher $${Number(voucherSystem.find((v: any) => v.id === item.id)?.price).toFixed(2)} / mo`,
-                ]),
+              ...finalVoucher.map((item: any) => [
+                "Extras",
+                ` ${item.name} Voucher $${Number(item.price).toFixed(2)} / mo`,
+              ]),
               [
                 "Equipment",
                 search.get("productNameEquipment")

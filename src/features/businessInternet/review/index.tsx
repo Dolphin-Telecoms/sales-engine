@@ -71,13 +71,13 @@ export default function ReviewPlan() {
               ["Package", `${search.get("productName")}`],
               ...finalVoucher.map((item: any) => [
                 "Extras",
-                ` ${item.name} Voucher $${item.price} / mo`,
+                ` ${item.name} Voucher $${Number(item.price).toFixed(2)} / mo`,
               ]),
               ...finalBusiness.map((item: any) => [
                 "Business Extras",
-                `${item.variant_name} - $${item.variant_price}/mo`,
+                `${item.variant_name} - $${Number(item.variant_price).toFixed(2)}/mo`,
               ]),
-               [
+              [
                 "Equipment",
                 search.get("productNameEquipment")
                   ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - $${search.get("priceEquipment")} /mo`

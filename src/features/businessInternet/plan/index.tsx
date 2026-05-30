@@ -242,8 +242,14 @@ export default function Plan() {
                             const product = category.products[0];
                             setSelected(`${product?.product_variant_id[0]}`);
                             setPrice(parseInt(`${product?.list_price}`));
-                            params.set("product", `${product?.product_variant_id[0]}`);
-                            params.set("productName", `${product?.product_variant_id[1]}`);
+                            params.set(
+                              "product",
+                              `${product?.product_variant_id[0]}`,
+                            );
+                            params.set(
+                              "productName",
+                              `${product?.product_variant_id[1]}`,
+                            );
                             params.set("price", `${product?.list_price}`);
                             if (product?.attributes?.length) {
                               const attribute = product?.attributes.map(
@@ -288,7 +294,8 @@ export default function Plan() {
                   {category.id.toString() === categoryOpen.id && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                       {category.products.map((plan) => {
-                        const isSelected = selected === plan.product_variant_id[0].toString();
+                        const isSelected =
+                          selected === plan.product_variant_id[0].toString();
 
                         return (
                           <div
@@ -319,15 +326,23 @@ export default function Plan() {
                                 : "border-[#d1d5db]"
                             }`}
                                   onClick={() => {
-                                    setSelected(plan.product_variant_id[0].toString());
+                                    setSelected(
+                                      plan.product_variant_id[0].toString(),
+                                    );
                                     setPrice(plan.list_price);
                                     setSelectedAttribute([]); // reset attribute selection when switching categories
-                                    params.set("product", plan.product_variant_id[0].toString());
+                                    params.set(
+                                      "product",
+                                      plan.product_variant_id[0].toString(),
+                                    );
                                     params.set(
                                       "price",
                                       plan.list_price.toString(),
                                     );
-                                    params.set("productName", `${plan?.product_variant_id[1]}`);
+                                    params.set(
+                                      "productName",
+                                      `${plan?.product_variant_id[1]}`,
+                                    );
                                     params.delete("attribute");
                                     if (plan?.attributes?.length) {
                                       const attribute = plan?.attributes.map(
@@ -368,7 +383,8 @@ export default function Plan() {
                             </div>
 
                             <p className="text-[#111827] font-medium mb-3">
-                              {selected === plan.product_variant_id[0].toString()
+                              {selected ===
+                              plan.product_variant_id[0].toString()
                                 ? price
                                   ? `$${price}/ mo`
                                   : "Select to see pricing"
@@ -376,6 +392,12 @@ export default function Plan() {
                             </p>
 
                             <hr className="mb-3" />
+
+                            {plan?.description ? (
+                              <p className="text-[#111827] font-sm mb-3">
+                                {plan?.description}
+                              </p>
+                            ) : null}
 
                             <ul className="space-y-2 text-sm text-[#374151]">
                               {plan.attributes.map((attr, attrIndex) => (

@@ -182,15 +182,17 @@ export default function Layout({
         });
       }
 
-      const newItem = {
-        id: "product",
-        title: `${search.get("productName")}`,
-        subtitle: `${formatPlan(data)}`,
-        value: `$${search.get("price")}/mo`,
-        icon: "📦",
-      };
-      // ✅ Insert if not found
-      values.push(newItem);
+      if (search.get("productName") && search.get("price")) {
+        const newItem = {
+          id: "product",
+          title: `${search.get("productName")}`,
+          subtitle: `${formatPlan(data)}`,
+          value: `$${search.get("price")}/mo`,
+          icon: "📦",
+        };
+        // ✅ Insert if not found
+        values.push(newItem);
+      }
 
       if (search.get("voucher")) {
         const voucher = JSON.parse(`${search.get("voucher")}`);

@@ -57,15 +57,15 @@ export default function ReviewPlan() {
             {[
               ["Service", "Home Internet"],
               ["Connection Type", `${search.get("childCategoryName")}`],
-              ["Package", `${search.get("productName")}`],
+              ["Package", `${search.get("productName")} $${Number(search.get("price"))}/mo`],
               ...finalVoucher.map((item: any) => [
                 "Extras",
-                ` ${item.name} Voucher $${Number(item.price).toFixed(2)} / mo`,
+                ` ${item.name} Voucher $${Number(item.price).toFixed(2)}`,
               ]),
               [
                 "Equipment",
                 search.get("productNameEquipment")
-                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} (${search.get("priceEquipment")})`
+                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - ${search.get("priceEquipment")}`
                   : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
               ],
             ].map(([label, value], index) => (

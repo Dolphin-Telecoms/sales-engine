@@ -81,7 +81,7 @@ const PaymentSuccess = () => {
 
   // The order details for easy data passing
   const orderDetails = {
-    reference: paymentData?.reference || "DLT-885435",
+    reference: `${search.get("salesOderId") || "DLT-885435"}`,
     product: `${search.get("productName") || "Dolphin Home Fibre - Plus"}`,
     plan: `${search.get("plan") || "100Mbps"} Plan`,
     amountPaid: paymentData

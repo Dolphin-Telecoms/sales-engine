@@ -566,7 +566,7 @@ export default function SimCard() {
               Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Min 1, Max 50 SIMs
+              Min 1, Max 5 SIMs
             </p>
           </>
         )}

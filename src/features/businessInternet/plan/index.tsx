@@ -272,6 +272,11 @@ export default function Plan() {
                                 "variant",
                                 JSON.stringify([...variant]),
                               );
+                            } else {
+                              setSelectedVariant([]);
+                              setSelectedAttribute([]);
+                              params.delete("attribute");
+                              params.delete("variant");
                             }
                             window.history.replaceState(
                               null,
@@ -369,6 +374,11 @@ export default function Plan() {
                                         "variant",
                                         JSON.stringify([...variant]),
                                       );
+                                    } else {
+                                      setSelectedVariant([]);
+                                      setSelectedAttribute([]);
+                                      params.delete("attribute");
+                                      params.delete("variant");
                                     }
                                     window.history.replaceState(
                                       null,
@@ -395,9 +405,12 @@ export default function Plan() {
                             <hr className="mb-3" />
 
                             {plan?.description ? (
-                              <p className="text-[#111827] font-sm mb-3">
-                                {plan?.description}
-                              </p>
+                              <div
+                                className="text-[#111827] font-sm mb-3"
+                                dangerouslySetInnerHTML={{
+                                  __html: plan.description,
+                                }}
+                              />
                             ) : null}
 
                             <ul className="space-y-2 text-sm text-[#374151]">
@@ -406,7 +419,11 @@ export default function Plan() {
                                   key={attrIndex}
                                   className="flex flex-col gap-2"
                                 >
-                                  {attr.display_name}
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: attr.display_name,
+                                    }}
+                                  />
                                   <ul className="space-y-2 text-sm text-[#374151]">
                                     {attr.values.map((value, i) => {
                                       const isSelected =

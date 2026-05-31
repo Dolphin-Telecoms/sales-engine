@@ -223,7 +223,6 @@ export default function Plan() {
                     {category.products.length > 0 ? (
                       <button
                         onClick={() => {
-                          setSelectedAttribute([]); // reset attribute selection when switching categories
                           if (categoryOpen.id === category.id.toString()) {
                             setCategoryOpen({ name: "", id: "" });
                           } else {
@@ -270,6 +269,11 @@ export default function Plan() {
                                 "variant",
                                 JSON.stringify([...variant]),
                               );
+                            } else {
+                              setSelectedVariant([]);
+                              setSelectedAttribute([]);
+                              params.delete("attribute");
+                              params.delete("variant");
                             }
                             window.history.replaceState(
                               null,
@@ -330,7 +334,6 @@ export default function Plan() {
                                       plan.product_variant_id[0].toString(),
                                     );
                                     setPrice(plan.list_price);
-                                    setSelectedAttribute([]); // reset attribute selection when switching categories
                                     params.set(
                                       "product",
                                       plan.product_variant_id[0].toString(),
@@ -367,6 +370,11 @@ export default function Plan() {
                                         "variant",
                                         JSON.stringify([...variant]),
                                       );
+                                    } else {
+                                      setSelectedAttribute([]); // reset attribute selection when switching categories
+                                      setSelectedVariant([]); // reset variant selection when switching categories
+                                      params.delete("attribute");
+                                      params.delete("variant");
                                     }
                                     window.history.replaceState(
                                       null,
@@ -393,9 +401,12 @@ export default function Plan() {
                             <hr className="mb-3" />
 
                             {plan?.description ? (
-                              <p className="text-[#111827] font-sm mb-3">
-                                {plan?.description}
-                              </p>
+                              <div
+                                className="text-[#111827] font-sm mb-3"
+                                dangerouslySetInnerHTML={{
+                                  __html: plan.description,
+                                }}
+                              />
                             ) : null}
 
                             <ul className="space-y-2 text-sm text-[#374151]">
@@ -404,7 +415,11 @@ export default function Plan() {
                                   key={attrIndex}
                                   className="flex flex-col gap-2"
                                 >
-                                  {plan.display_name}
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: attr.display_name,
+                                    }}
+                                  />
                                   <ul className="space-y-2 text-sm text-[#374151]">
                                     {attr.values.map((value, i) => {
                                       const isSelected =

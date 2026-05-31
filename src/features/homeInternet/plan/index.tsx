@@ -24,7 +24,7 @@ export default function Plan() {
   const search = useSearchParams();
 
   if (!search.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else if (
     !search.get("location") ||
     !search.get("services") ||
@@ -162,7 +162,7 @@ export default function Plan() {
       if (search.get("homeCategory")) {
         getCategories();
       } else {
-        router.push("/connect");
+        router.push("/");
       }
     }, []);
 

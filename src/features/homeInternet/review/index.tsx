@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { FaCalendarAlt } from "react-icons/fa";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
-import { getVouchers } from "@/src/features/homeInternet/apis/getVouchers";
-import { Voucher } from "@/src/features/homeInternet/types/type";
 
 export default function ReviewPlan() {
   const search = useSearchParams();
   const params = new URLSearchParams(search);
 
   if (!search.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else if (
     !search.get("location") ||
     !search.get("services") ||

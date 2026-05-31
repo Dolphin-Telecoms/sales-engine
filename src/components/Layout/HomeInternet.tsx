@@ -130,7 +130,7 @@ export default function Layout({
   };
 
   const steps = [
-    { label: "Service", link: "/connect" },
+    { label: "Service", link: "/" },
     {
       label: "Location",
       link: `/home-internet?${generateParams("Location")?.toString()}`,

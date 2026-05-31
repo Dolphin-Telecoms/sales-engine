@@ -8,7 +8,7 @@ export default function ReviewPlan() {
   const params = new URLSearchParams(search);
 
   if (!search.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else if (
     !search.get("location") ||
     !search.get("services") ||

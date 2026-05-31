@@ -91,10 +91,9 @@ export default function AvailabilityChecker() {
       },
       (predictions: any, status: string) => {
         if (status === "OK" && predictions) {
-    
           const sugession = predictions.map((items: any) => ({
             ...items,
-            city: `${getCity(items)}`, 
+            city: `${getCity(items)}`,
           }));
 
           setSuggestions([...sugession]);
@@ -246,6 +245,6 @@ export default function AvailabilityChecker() {
       </div>
     );
   } else {
-    redirect("/connect");
+    redirect("/");
   }
 }

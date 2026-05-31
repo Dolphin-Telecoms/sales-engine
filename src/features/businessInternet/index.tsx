@@ -9,7 +9,7 @@ function BusinessInternet() {
   const searchParam = useSearchParams();
 
   if (!searchParam.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else {
     // data/services.ts
     const services = [

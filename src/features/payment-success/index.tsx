@@ -247,7 +247,7 @@ const PaymentSuccess = () => {
       </div>
 
       {/* Back to Home Button */}
-      <a href="/connect" className="w-full">
+      <a href="/" className="w-full">
         <button className="w-full px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
           Back to Home
         </button>

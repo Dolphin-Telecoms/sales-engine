@@ -10,7 +10,7 @@ export default function EquipmentSetup() {
   const search = useSearchParams();
 
   if (!search.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else if (
     !search.get("location") ||
     !search.get("services") ||

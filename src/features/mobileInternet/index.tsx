@@ -11,7 +11,7 @@ import { redirect, useSearchParams } from "next/navigation";
 export default function MobileInternet() {
   const search = useSearchParams();
   if (!search.get("homeCategory")) {
-    redirect("/connect");
+    redirect("/");
   } else {
     const [idType, setIdType] = useState<"sim" | "airtime">("sim");
     return (

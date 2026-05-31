@@ -129,30 +129,6 @@ export default function Layout({
     }
   };
 
-  const steps = [
-    { label: "Service", link: "/connect" },
-    {
-      label: "Location",
-      link: `/home-internet?${generateParams("Location")?.toString()}`,
-    },
-    {
-      label: "Plan",
-      link: `/home-internet/plan?${generateParams("Location")?.toString()}`,
-    },
-    {
-      label: "Extras",
-      link: `/home-internet/extras?${generateParams("Extras")?.toString()}`,
-    },
-    {
-      label: "Equipment",
-      link: `/home-internet/equipment?${generateParams("Equipment")?.toString()}`,
-    },
-    {
-      label: "Review",
-      link: `/home-internet/review?${generateParams("Review")?.toString()}`,
-    },
-  ];
-
   const getProductAttribute = async (attributeIds: number[]) => {
     const { status, data } = await getAttributeValues(attributeIds);
 

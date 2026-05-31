@@ -254,7 +254,7 @@ const PaymentSuccess = () => {
           {/* Back to Home Button */}
           {paymentData?.status === "failed" ||
           paymentData?.status === "cancelled" ? (
-            <a href="/connect" className="w-full mt-2">
+            <a href="/" className="w-full mt-2">
               <button className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
                 Back to Home
               </button>

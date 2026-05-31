@@ -40,6 +40,7 @@ export default function Layout({
 
     if (status && data) {
       const values = [];
+      const price: PriceType[] = [];
 
       values.push({
         id: "service",
@@ -72,32 +73,40 @@ export default function Layout({
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         };
+
+        price.push({
+          label: `${search.get("productName")}`,
+          value: parseInt(`${search.get("price")}`),
+          type: `price`,
+        });
+
         // ✅ Insert if not found
         values.push(newItem);
       }
 
       if (search.get("voucher")) {
-        const { status: voucherStatus, data: vouchers } = await getVouchers();
-        if (voucherStatus && vouchers) {
-          vouchers.map((item) => {
-            const voucher = JSON.parse(`${search.get("voucher")}`);
-            const isSelected = voucher.find((v: any) => v.id === item.id);
-            if (isSelected) {
-              values.push({
-                id: `voucher-${item.id}`,
-                title: `${item.name}`,
-                subtitle: `${item.metadata.group.charAt(0).toUpperCase() + item.metadata.group.slice(1).toLowerCase()} Voucher`,
-                icon: (
-                  <Image
-                    src={item.metadata.logo_url}
-                    alt={item.name}
-                    height={40}
-                    width={40}
-                  />
-                ),
-                value: `$${Number(isSelected.price).toFixed(2)}`,
-              });
-            }
+        const voucher = JSON.parse(`${search.get("voucher")}`);
+        if (voucher) {
+          voucher.map((item: any) => {
+            values.push({
+              id: `voucher-${item.id}`,
+              title: `${item.name}`,
+              subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
+              icon: (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  height={40}
+                  width={40}
+                />
+              ),
+              value: `$${Number(item.price).toFixed(2)}`,
+            });
+            price.push({
+              label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
+              value: parseInt(`${item.price}`),
+              type: `price`,
+            });
           });
         }
       }
@@ -112,15 +121,23 @@ export default function Layout({
             ? `$${search.get("priceEquipment")}`
             : `Included`,
         });
+
+        price.push({
+          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
+          value: parseInt(`${search.get("priceEquipment")}`),
+          type: search.get("priceEquipment") ? `price` : "Included",
+        });
       }
 
       setItems(values);
+      setPricing(price);
     } else {
       const values = [];
+      const price: PriceType[] = [];
 
       values.push({
         id: "service",
-        title: "Business Internet",
+        title: "Home Internet",
         subtitle: "Selected service",
         icon: "🏠",
       });
@@ -143,27 +160,28 @@ export default function Layout({
       }
 
       if (search.get("voucher")) {
-        const { status: voucherStatus, data: vouchers } = await getVouchers();
-        if (voucherStatus && vouchers) {
-          vouchers.map((item) => {
-            const voucher = JSON.parse(`${search.get("voucher")}`);
-            const isSelected = voucher.find((v: any) => v.id === item.id);
-            if (isSelected) {
-              values.push({
-                id: `voucher-${item.id}`,
-                title: `${item.name}`,
-                subtitle: `${item.metadata.group.charAt(0).toUpperCase() + item.metadata.group.slice(1).toLowerCase()} Voucher`,
-                icon: (
-                  <Image
-                    src={item.metadata.logo_url}
-                    alt={item.name}
-                    height={40}
-                    width={40}
-                  />
-                ),
-                value: `$${Number(isSelected.price).toFixed(2)}/mo`,
-              });
-            }
+        const voucher = JSON.parse(`${search.get("voucher")}`);
+        if (voucher) {
+          voucher.map((item: any) => {
+            values.push({
+              id: `voucher-${item.id}`,
+              title: `${item.name}`,
+              subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
+              icon: (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  height={40}
+                  width={40}
+                />
+              ),
+              value: `$${Number(item.price).toFixed(2)}/mo`,
+            });
+            price.push({
+              label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
+              value: parseInt(`${item.price}`),
+              type: `price`,
+            });
           });
         }
       }
@@ -178,11 +196,18 @@ export default function Layout({
             ? `$${search.get("priceEquipment")}/mo`
             : `Included`,
         });
+        price.push({
+          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
+          value: parseInt(`${search.get("priceEquipment")}`),
+          type: search.get("priceEquipment") ? `price` : "Included",
+        });
       }
 
       setItems(values);
+      setPricing(price);
     }
   };
+
   const formatPlan = (data: AttributeValue[]): string => {
     let amount = "";
     let speed = "";
@@ -208,6 +233,8 @@ export default function Layout({
       pathname === "/business-internet/checkout"
     ) {
       const data: ItemType[] = [];
+      const price: PriceType[] = [];
+
       data.push({
         id: "service",
         title: "Business Internet",
@@ -242,29 +269,19 @@ export default function Layout({
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         });
+        price.push({
+          label: `${search.get("productName")}`,
+          value: parseInt(`${search.get("price")}`),
+          type: `price`,
+        });
       }
 
       getProductAttribute(JSON.parse(`${search.get("attribute")}`));
 
       setItems([...data]);
-    } else if (pathname === "/business-internet") {
-      setItems([]);
-    }
-
-    if (
-      search.get("location") &&
-      search.get("label") &&
-      search.get("value") &&
-      search.get("type")
-    ) {
-      const price: PriceType[] = [];
-      price.push({
-        label: `${search.get("label")}`,
-        value: parseInt(`${search.get("value")}`),
-        type: `${search.get("type")}`,
-      });
       setPricing([...price]);
     } else if (pathname === "/business-internet") {
+      setItems([]);
       setPricing([]);
     }
   }, [pathname, search]);

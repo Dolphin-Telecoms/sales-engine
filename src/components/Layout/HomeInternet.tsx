@@ -158,6 +158,7 @@ export default function Layout({
 
     if (status && data) {
       const values = [];
+      const price: PriceType[] = [];
 
       values.push({
         id: "service",
@@ -190,6 +191,13 @@ export default function Layout({
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         };
+
+        price.push({
+          label: `${search.get("productName")}`,
+          value: parseInt(`${search.get("price")}`),
+          type: `price`,
+        });
+
         // ✅ Insert if not found
         values.push(newItem);
       }
@@ -198,24 +206,25 @@ export default function Layout({
         const voucher = JSON.parse(`${search.get("voucher")}`);
         if (voucher) {
           voucher.map((item: any) => {
-            const voucher = JSON.parse(`${search.get("voucher")}`);
-            const isSelected = voucher.find((v: any) => v.id === item.id);
-            if (isSelected) {
-              values.push({
-                id: `voucher-${item.id}`,
-                title: `${item.name}`,
-                subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
-                icon: (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    height={40}
-                    width={40}
-                  />
-                ),
-                value: `$${Number(isSelected.price).toFixed(2)}`,
-              });
-            }
+            values.push({
+              id: `voucher-${item.id}`,
+              title: `${item.name}`,
+              subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
+              icon: (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  height={40}
+                  width={40}
+                />
+              ),
+              value: `$${Number(item.price).toFixed(2)}`,
+            });
+            price.push({
+              label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
+              value: parseInt(`${item.price}`),
+              type: `price`,
+            });
           });
         }
       }
@@ -230,11 +239,19 @@ export default function Layout({
             ? `$${search.get("priceEquipment")}`
             : `Included`,
         });
+
+        price.push({
+          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
+          value: parseInt(`${search.get("priceEquipment")}`),
+          type: search.get("priceEquipment") ? `price` : "Included",
+        });
       }
 
       setItems(values);
+      setPricing(price);
     } else {
       const values = [];
+      const price: PriceType[] = [];
 
       values.push({
         id: "service",
@@ -242,6 +259,7 @@ export default function Layout({
         subtitle: "Selected service",
         icon: "🏠",
       });
+
       if (search.get("location")) {
         values.push({
           id: "address",
@@ -263,24 +281,25 @@ export default function Layout({
         const voucher = JSON.parse(`${search.get("voucher")}`);
         if (voucher) {
           voucher.map((item: any) => {
-            const voucher = JSON.parse(`${search.get("voucher")}`);
-            const isSelected = voucher.find((v: any) => v.id === item.id);
-            if (isSelected) {
-              values.push({
-                id: `voucher-${item.id}`,
-                title: `${item.name}`,
-                subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
-                icon: (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    height={40}
-                    width={40}
-                  />
-                ),
-                value: `$${Number(isSelected.price).toFixed(2)}/mo`,
-              });
-            }
+            values.push({
+              id: `voucher-${item.id}`,
+              title: `${item.name}`,
+              subtitle: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher`,
+              icon: (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  height={40}
+                  width={40}
+                />
+              ),
+              value: `$${Number(item.price).toFixed(2)}/mo`,
+            });
+            price.push({
+              label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
+              value: parseInt(`${item.price}`),
+              type: `price`,
+            });
           });
         }
       }
@@ -295,9 +314,15 @@ export default function Layout({
             ? `$${search.get("priceEquipment")}/mo`
             : `Included`,
         });
+        price.push({
+          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
+          value: parseInt(`${search.get("priceEquipment")}`),
+          type: search.get("priceEquipment") ? `price` : "Included",
+        });
       }
 
       setItems(values);
+      setPricing(price);
     }
   };
 
@@ -329,6 +354,8 @@ export default function Layout({
       pathname === "/home-internet/checkout"
     ) {
       const data: ItemType[] = [];
+      const price: PriceType[] = [];
+
       data.push({
         id: "service",
         title: "Home Internet",
@@ -363,29 +390,19 @@ export default function Layout({
           value: `$${search.get("price")}/mo`,
           icon: "📦",
         });
+        price.push({
+          label: `${search.get("productName")}`,
+          value: parseInt(`${search.get("price")}`),
+          type: `price`,
+        });
       }
 
       getProductAttribute(JSON.parse(`${search.get("attribute")}`));
 
       setItems([...data]);
-    } else if (pathname === "/home-internet") {
-      setItems([]);
-    }
-
-    if (
-      search.get("location") &&
-      search.get("label") &&
-      search.get("value") &&
-      search.get("type")
-    ) {
-      const price: PriceType[] = [];
-      price.push({
-        label: `${search.get("label")}`,
-        value: parseInt(`${search.get("value")}`),
-        type: `${search.get("type")}`,
-      });
       setPricing([...price]);
     } else if (pathname === "/home-internet") {
+      setItems([]);
       setPricing([]);
     }
   }, [pathname, search]);

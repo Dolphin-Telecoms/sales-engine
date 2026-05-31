@@ -33,10 +33,12 @@ export default function PlanSummary({
     }, 0);
   }, [pricing]);
 
+  const pricingLength = pricing.length - 1;
+
   return (
     <div className="w-full bg-white rounded-xl shadow-md overflow-hidden">
       {/* Header */}
-      <div className="bg-teal-800 text-white px-5 py-4 font-bold text-[20px] leading-[120%] tracking-normal"  >
+      <div className="bg-teal-800 text-white px-5 py-4 font-bold text-[20px] leading-[120%] tracking-normal">
         {title}
       </div>
 
@@ -94,19 +96,23 @@ export default function PlanSummary({
                         <span>{item.label} Plan</span>
                         <span>
                           {currency}
-                          {item.value}/mo
+                          {item.value}
                         </span>
                       </div>
-                      <div key={index} className="flex justify-between">
-                        <span>Installation</span>
-                        <span className="px-2 bg-[#0CAB461A] text-[#0CAB46]">
-                          Free
-                        </span>
-                      </div>
-                      <div key={index} className="flex justify-between">
-                        <span>Est. installation</span>
-                        <span className="text-[#F2A413]">3-5 days</span>
-                      </div>
+                      {pricingLength === index && (
+                        <div className="flex justify-between">
+                          <span>Installation</span>
+                          <span className="px-2 bg-[#0CAB461A] text-[#0CAB46]">
+                            Free
+                          </span>
+                        </div>
+                      )}
+                      {pricingLength === index && (
+                        <div className="flex justify-between">
+                          <span>Est. installation</span>
+                          <span className="text-[#F2A413]">3-5 days</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

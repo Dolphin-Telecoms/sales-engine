@@ -26,6 +26,7 @@ export default function AvailabilityChecker() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [noService, setNoService] = useState(false);
   const [coverage, setCoverage] = useState<ServiceAvailability | null>(null);
 
@@ -56,6 +57,9 @@ export default function AvailabilityChecker() {
     setQuery(value);
     setSelected(null);
     setShowDropdown(true);
+    if (value) {
+      setIsFetchingSuggestions(true);
+    }
   };
 
   const router = useRouter();
@@ -67,10 +71,13 @@ export default function AvailabilityChecker() {
   useEffect(() => {
     if (!debouncedQuery) {
       setSuggestions([]);
+      setIsFetchingSuggestions(false);
       return;
     }
 
     if (!(window as any).google) return;
+
+    setIsFetchingSuggestions(true);
 
     const service = new (
       window as any
@@ -94,6 +101,7 @@ export default function AvailabilityChecker() {
         } else {
           setSuggestions([]);
         }
+        setIsFetchingSuggestions(false);
       },
     );
   }, [debouncedQuery]);
@@ -129,7 +137,12 @@ export default function AvailabilityChecker() {
               {/* Dropdown */}
               {showDropdown && query && !selected && (
                 <div className="absolute z-10 mt-2 w-full rounded-lg border bg-white shadow-sm max-h-40 overflow-y-auto">
-                  {suggestions.length > 0 ? (
+                  {isFetchingSuggestions ? (
+                    <div className="px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-[#2F5D67]"></div>
+                      Searching...
+                    </div>
+                  ) : suggestions.length > 0 ? (
                     suggestions.map((item) => (
                       <div
                         key={item.place_id}

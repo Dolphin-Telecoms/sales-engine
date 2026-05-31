@@ -144,8 +144,6 @@ export default function EquipmentVariant({
             {category.products.length > 0 ? (
               <button
                 onClick={() => {
-                  setSelectedAttribute([]); // reset attribute selection when switching categories
-                  setSelected(""); // reset plan selection when switching categories
                   if (categoryOpen.id === category.id.toString()) {
                     setCategoryOpen({ name: "", id: "" });
                   } else {
@@ -185,6 +183,11 @@ export default function EquipmentVariant({
                         "variantEquipment",
                         JSON.stringify([...variant]),
                       );
+                    } else {
+                      setSelectedVariant([]);
+                      setSelectedAttribute([]);
+                      params.delete("attributeEquipment");
+                      params.delete("variantEquipment");
                     }
                     window.history.replaceState(
                       null,
@@ -239,7 +242,6 @@ export default function EquipmentVariant({
                             onClick={() => {
                               setSelected(plan.id.toString());
                               setPrice(plan.list_price);
-                              setSelectedAttribute([]); // reset attribute selection when switching categories
                               params.set(
                                 "productEquipment",
                                 plan.id.toString(),
@@ -275,6 +277,11 @@ export default function EquipmentVariant({
                                   "variantEquipment",
                                   JSON.stringify([...variant]),
                                 );
+                              } else {
+                                setSelectedVariant([]);
+                                setSelectedAttribute([]);
+                                params.delete("attributeEquipment");
+                                params.delete("variantEquipment");
                               }
                               window.history.replaceState(
                                 null,
@@ -301,15 +308,22 @@ export default function EquipmentVariant({
                       <hr className="mb-3" />
 
                       {plan?.description ? (
-                        <p className="text-[#111827] font-sm mb-3">
-                          {plan?.description}
-                        </p>
+                        <div
+                          className="text-[#111827] font-sm mb-3"
+                          dangerouslySetInnerHTML={{
+                            __html: plan.description,
+                          }}
+                        />
                       ) : null}
 
                       <ul className="space-y-2 text-sm text-[#374151]">
                         {plan.attributes.map((attr, attrIndex) => (
                           <li key={attrIndex} className="flex flex-col gap-2">
-                            {attr.display_name}
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: attr.display_name,
+                              }}
+                            />
                             <ul className="space-y-2 text-sm text-[#374151]">
                               {attr.values.map((value, i) => {
                                 const isSelected =

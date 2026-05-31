@@ -547,9 +547,9 @@ export default function SimCard() {
             <span className="px-6 flex items-center">{quantity}</span>
 
             <button
-              onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-              disabled={quantity >= 50}
-              className={`p-3 ${quantity >= 50 ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-gray-100"}`}
+              onClick={() => setQuantity((q) => Math.min(5, q + 1))}
+              disabled={quantity >= 5}
+              className={`p-3 ${quantity >= 5 ? "bg-gray-50 text-gray-300 cursor-not-allowed" : "bg-gray-100"}`}
             >
               <FiPlus />
             </button>

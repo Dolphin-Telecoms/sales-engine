@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
       paramsObject;
     const { payment_id, status, payment_reference } = body;
 
+    console.log("Received webhook with body:", voucher);
+
     const vouchers = JSON.parse(voucher || "[]");
 
     // ✅ get query params
@@ -27,6 +29,7 @@ export async function POST(req: NextRequest) {
           "/json/2/sale.order/action_confirm",
           { ids: [parseInt(salesOderId)] },
         ).then((res) => res.data);
+
         console.log("confirmsaleOrder :: ", confirmsaleOrder);
 
         const uuid = uuidv4();
@@ -36,7 +39,7 @@ export async function POST(req: NextRequest) {
             `/api/v1/redeem`,
             {
               reservation_id: item.reservation_id,
-              order_ref: salesOderId,
+              order_ref: parseInt(salesOderId),
               payment_reference: payment_reference,
               customer_name: customerName,
               customer_email: customerEmail,

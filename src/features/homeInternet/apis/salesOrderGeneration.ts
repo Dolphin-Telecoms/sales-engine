@@ -6,6 +6,7 @@ export const generateSaleOrder = async ({
   partnerInvoiceId,
   tag_ids,
   partnerShippingId,
+  plan_id,
   order_line,
 }: {
   companyId: number;
@@ -14,15 +15,17 @@ export const generateSaleOrder = async ({
   tag_ids: number[];
   partnerShippingId: number;
   order_line:  any[];
+  plan_id: number[];
 }) => {
   try {
-    const response = await Axios.post(`/apis/generate-sales-order`, {
+  const response = await Axios.post(`/apis/generate-sales-order`, {
       companyId,
       partnerId,
       partnerInvoiceId,
       tag_ids,
       partnerShippingId,
       order_line,
+      plan_id,
     }).then((res) => res.data);
 
     if (response) {

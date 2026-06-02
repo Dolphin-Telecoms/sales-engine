@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
       partnerInvoiceId,
       partnerShippingId,
       order_line,
+      plan_id,
     } = await req.json();
 
     let response = await OddoAxios.post(`/json/2/sale.order/create`, {
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
           partner_shipping_id: Number(partnerShippingId),
           picking_policy: "direct",
           order_line: order_line,
+          plan_id: plan_id
         },
       ],
     }).then((res) => res.data);

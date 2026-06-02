@@ -708,3 +708,12 @@ export interface AirtimeBundle {
   Description: string;
   ValidityPeriod: number;
 }
+
+export type VoucherReservation = {
+  reservation_id: string;
+  voucher_id: string;
+  status: string;
+  phase: string;
+  expires_at: string;
+  ttl_seconds: number;
+};

@@ -151,25 +151,63 @@ export default function Extras() {
     }, []);
 
     const onSubmit = async () => {
-      setIsLoading(true);
-      const res = await Promise.allSettled(
-        entertainment.map(async (item) => {
-          if (searchParams[item.name] === item.id) {
-            return await reserveVoucher(
-              item.id,
-              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.currency}`,
-              `${item.prices.find((p) => p.currency.toLowerCase() === "usd")?.value}`,
-            );
-          }
-        }),
-      ).then((results) =>
-        results.map((r) => (r.status === "fulfilled" ? r : [])).flat(),
-      ); // ✅ flatten all product arrays;
+      try {
+        setIsLoading(true);
 
-      if (!res.find((item) => item?.value?.status === false)) {
-        router.push(`/business-internet/equipment?${params.toString()}`);
+        const vouchers = JSON.parse(search.get("voucher") || "[]");
+
+        const allProducts = [
+          ...entertainment,
+          ...shopping,
+          ...gaming,
+          ...security,
+        ];
+
+        const voucherIds = new Set(vouchers.map((voucher: any) => voucher.id));
+
+        const reservePromises = allProducts
+          .filter((item) => voucherIds.has(item.id))
+          .map((item) => {
+            const usdPrice = item.prices.find(
+              (p) => p.currency.toLowerCase() === "usd",
+            );
+
+            return reserveVoucher(
+              item.id,
+              usdPrice?.currency ?? "",
+              `${usdPrice?.value ?? ""}`,
+            );
+          });
+
+        const results: any = await Promise.allSettled(reservePromises);
+
+        const updatedVouchers = vouchers.map((voucher: any, index: number) => {
+          return {
+            ...voucher,
+            reservation_id:
+              results[index]?.status === "fulfilled" &&
+              results[index].value?.data?.data?.reservation_id
+                ? results[index]?.value.data?.data?.reservation_id
+                : null,
+          };
+        });
+
+        params.set("voucher", JSON.stringify(updatedVouchers));
+
+        const hasFailed = results.some(
+          (result: any) =>
+            result.status === "rejected" ||
+            (result.status === "fulfilled" && result.value?.status === false),
+        );
+
+        if (!hasFailed) {
+          router.push(`/business-internet/equipment?${params.toString()}`);
+        }
+      } catch (error) {
+        console.error("Reserve voucher error:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     const handleSelect = (

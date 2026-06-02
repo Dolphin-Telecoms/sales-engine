@@ -1,7 +1,7 @@
-// app/api/webhook/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import OddoAxios from "@/src/libs/Oddo";
+import VoucherAxios from "@/src/libs/Voucher";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -11,12 +11,15 @@ export async function POST(req: NextRequest) {
 
     const paramsObject = Object.fromEntries(searchParams.entries());
 
-    const { salesOderId } = paramsObject;
-    const { payment_id, status } = body;
+    const { salesOderId, voucher, customerEmail, customerPhone, customerName } =
+      paramsObject;
+    const { payment_id, status, payment_reference } = body;
+
+    const vouchers = JSON.parse(voucher || "[]");
 
     // ✅ get query params
 
-    console.log(body, paramsObject);
+    console.log(body, paramsObject, vouchers);
 
     if (status === "completed" && payment_id) {
       try {
@@ -25,6 +28,33 @@ export async function POST(req: NextRequest) {
           { ids: [parseInt(salesOderId)] },
         ).then((res) => res.data);
         console.log("confirmsaleOrder :: ", confirmsaleOrder);
+
+        const uuid = uuidv4();
+
+        const reservePromises = vouchers.map((item: any) => {
+          return VoucherAxios.post(
+            `/api/v1/redeem`,
+            {
+              reservation_id: item.reservation_id,
+              order_ref: salesOderId,
+              payment_reference: payment_reference,
+              customer_name: customerName,
+              customer_email: customerEmail,
+              customer_phone: customerPhone,
+              idempotency_key: uuid,
+            },
+            {
+              headers: {
+                "Idempotency-Key": uuid,
+              },
+            },
+          ).then((res) => res.data);
+        });
+
+        const results: any = await Promise.allSettled(reservePromises);
+
+        console.log("redmeeemVoucher :: ", results);
+
         if (confirmsaleOrder) {
           try {
             const wizard = await OddoAxios.post(

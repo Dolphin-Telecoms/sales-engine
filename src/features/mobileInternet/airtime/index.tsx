@@ -154,15 +154,17 @@ export default function Airtime() {
 
   const validatePhone = (phone: string): string | undefined => {
     if (!phone.trim()) return undefined;
-    // Strip all spaces for validation
-    const stripped = phone.replace(/\s/g, "");
-    // Numbers only — no letters or unsupported symbols
-    if (!/^\d+$/.test(stripped)) return "Please enter a valid phone number";
-    // Must start with 07 (ZW format, entered without country code)
-    if (!/^07/.test(stripped)) return "Please enter a valid phone number";
-    // Length between 10 and 13 digits
-    if (stripped.length < 10 || stripped.length > 13)
+
+    // Remove spaces, +, -, (, )
+    const cleaned = phone.replace(/[^\d]/g, "");
+
+    // Zimbabwe formats:
+    const zwRegex = /^(07\d{8}|2637\d{8})$/;
+
+    if (!zwRegex.test(cleaned)) {
       return "Please enter a valid phone number";
+    }
+
     return undefined;
   };
 
@@ -180,8 +182,7 @@ export default function Airtime() {
     if (trimmed.length < 2 || trimmed.length > 70)
       return "Please enter a valid name";
     // Only letters (unicode), spaces, hyphens, and apostrophes
-    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
-      return "Please enter a valid name";
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed)) return "Please enter a valid name";
     return undefined;
   };
 
@@ -528,9 +529,11 @@ export default function Airtime() {
 
           <label className="text-xs font-semibold">Mobile Number</label>
 
-          <div className={`flex items-center border rounded-lg px-3 py-2 mt-1 ${
-            errors.phone ? "border-red-400" : "border-[#2F5D6C]"
-          }`}>
+          <div
+            className={`flex items-center border rounded-lg px-3 py-2 mt-1 ${
+              errors.phone ? "border-red-400" : "border-[#2F5D6C]"
+            }`}
+          >
             <span className="text-sm font-medium mr-2">+263</span>
             <input
               type="tel"

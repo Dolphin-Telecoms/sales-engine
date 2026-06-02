@@ -1,11 +1,11 @@
 import Axios from "@/src/libs/Axios";
-import { HomeInternetProductCategory } from "@/src/features/homeInternet/types/type";
+import { VoucherReservation } from "@/src/types";
 
 export const reserveVoucher = async (
   category_id: string,
   currency: string,
   value: string,
-): Promise<{ status: boolean; data: HomeInternetProductCategory[] | null }> => {
+): Promise<{ status: boolean; data: VoucherReservation | null }> => {
   try {
     const response = await Axios.post(`/apis/reserve-voucher`, {
       category_id,
@@ -14,7 +14,7 @@ export const reserveVoucher = async (
     }).then((res) => res.data);
 
     if (response) {
-      return { status: true, data: response.data };
+      return { status: true, data: response };
     } else {
       return { status: false, data: null };
     }

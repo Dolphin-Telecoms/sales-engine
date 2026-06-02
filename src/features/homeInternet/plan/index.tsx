@@ -120,11 +120,11 @@ export default function Plan() {
             params.set("childCategoryName", `${data?.name}`);
             if (data?.products?.length) {
               const product = data.products[0];
-              setSelected(`${product?.id}`);
+              setSelected(`${product?.product_variant_id[0]}`);
               setPrice(parseInt(`${product?.list_price}`));
-              params.set("product", `${product?.id}`);
+              params.set("product", `${product?.product_variant_id[0]}`);
               params.set("price", `${product?.list_price}`);
-              params.set("productName", `${product?.name}`);
+              params.set("productName", `${product?.product_variant_id[1]}`);
               if (product?.attributes?.length) {
                 const attribute = product?.attributes.map(
                   (item) => item.values[0].id,
@@ -208,10 +208,7 @@ export default function Plan() {
                   <div className="flex justify-between items-center p-4">
                     <div>
                       <h2 className="font-semibold text-[#111827]">
-                        {category.name}{" "}
-                        {category.name.toLocaleLowerCase() === "fiber"
-                          ? "(recommended)"
-                          : ""}
+                        {category.name} {category.name.toLocaleLowerCase() === "fiber" ? "(recommended)" : ""}
                       </h2>
                       {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">
@@ -244,15 +241,15 @@ export default function Plan() {
                             params.delete("attribute");
                             params.delete("productName");
                             const product = category.products[0];
-                            setSelected(`${product?.id}`);
+                            setSelected(`${product?.product_variant_id[0]}`);
                             setPrice(parseInt(`${product?.list_price}`));
                             params.set(
                               "product",
-                              `${product?.id}`,
+                              `${product?.product_variant_id[0]}`,
                             );
                             params.set(
                               "productName",
-                              `${product?.name}`,
+                              `${product?.product_variant_id[1]}`,
                             );
                             params.set("price", `${product?.list_price}`);
                             if (product?.attributes?.length) {
@@ -304,7 +301,7 @@ export default function Plan() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                       {category.products.map((plan) => {
                         const isProductSelected =
-                          selected === plan.id.toString();
+                          selected === plan.product_variant_id[0].toString();
 
                         return (
                           <div
@@ -338,12 +335,12 @@ export default function Plan() {
                                   )}
                                   onClick={() => {
                                     setSelected(
-                                      plan.id.toString(),
+                                      plan.product_variant_id[0].toString(),
                                     );
                                     setPrice(plan.list_price);
                                     params.set(
                                       "product",
-                                      plan.id.toString(),
+                                      plan.product_variant_id[0].toString(),
                                     );
                                     params.set(
                                       "price",
@@ -351,7 +348,7 @@ export default function Plan() {
                                     );
                                     params.set(
                                       "productName",
-                                      `${plan?.name}`,
+                                      `${plan?.product_variant_id[1]}`,
                                     );
                                     params.delete("attribute");
                                     if (plan?.attributes?.length) {

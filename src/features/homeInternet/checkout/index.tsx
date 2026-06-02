@@ -126,7 +126,7 @@ export default function SecureCheckout() {
       }
 
       if (
-        search.get("productName") &&
+        search.get("product") &&
         search.get("price") &&
         search.get("productName")
       ) {
@@ -134,7 +134,7 @@ export default function SecureCheckout() {
           0,
           0,
           {
-            product_id: Number(`${search.get("productName")}`),
+            product_id: Number(`${search.get("product")}`),
             product_uom_qty: 1,
             price_unit: Number(`${search.get("price")}`),
             name: `${search.get("productName")}`,

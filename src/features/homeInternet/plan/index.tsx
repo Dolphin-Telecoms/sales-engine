@@ -208,11 +208,18 @@ export default function Plan() {
                   <div className="flex justify-between items-center p-4">
                     <div>
                       <h2 className="font-semibold text-[#111827]">
-                        {category.name}
+                        {category.name}{" "}
+                        {category.name.toLocaleLowerCase() === "fiber"
+                          ? "(recommended)"
+                          : ""}
                       </h2>
-                      {category.products.length > 0 ? (
+                      {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">
-                          High-speed, stable wired connection
+                          Reliable uninterrupted wired connectivity
+                        </p>
+                      ) : category.name.toLocaleLowerCase() === "lte" ? (
+                        <p className="text-sm text-[#6b7280]">
+                          Stay seamlessly connected
                         </p>
                       ) : (
                         <p className="text-sm text-[#6b7280]">

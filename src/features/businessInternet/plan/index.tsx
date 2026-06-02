@@ -120,11 +120,11 @@ export default function Plan() {
             params.set("childCategoryName", `${data?.name}`);
             if (data?.products?.length) {
               const product = data.products[0];
-              setSelected(`${product?.product_variant_id[0]}`);
+              setSelected(`${product?.id}`);
               setPrice(parseInt(`${product?.list_price}`));
-              params.set("product", `${product?.product_variant_id[0]}`);
+              params.set("product", `${product?.id}`);
               params.set("price", `${product?.list_price}`);
-              params.set("productName", `${product?.product_variant_id[1]}`);
+              params.set("productName", `${product?.name}`);
               if (product?.attributes?.length) {
                 const attribute = product?.attributes.map(
                   (item) => item.values[0].id,
@@ -239,15 +239,15 @@ export default function Plan() {
                             params.delete("variant");
                             params.delete("productName");
                             const product = category.products[0];
-                            setSelected(`${product?.product_variant_id[0]}`);
+                            setSelected(`${product?.id}`);
                             setPrice(parseInt(`${product?.list_price}`));
                             params.set(
                               "product",
-                              `${product?.product_variant_id[0]}`,
+                              `${product?.id}`,
                             );
                             params.set(
                               "productName",
-                              `${product?.product_variant_id[1]}`,
+                              `${product?.name}`,
                             );
                             params.set("price", `${product?.list_price}`);
                             if (product?.attributes?.length) {
@@ -299,7 +299,7 @@ export default function Plan() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                       {category.products.map((plan) => {
                         const isProductSelected =
-                          selected === plan.product_variant_id[0].toString();
+                          selected === plan.id.toString();
 
                         return (
                           <div
@@ -333,13 +333,13 @@ export default function Plan() {
                                   )}
                                   onClick={() => {
                                     setSelected(
-                                      plan.product_variant_id[0].toString(),
+                                      plan.id.toString(),
                                     );
                                     setPrice(plan.list_price);
                                     setSelectedAttribute([]); // reset attribute selection when switching categories
                                     params.set(
                                       "product",
-                                      plan.product_variant_id[0].toString(),
+                                      plan.id.toString(),
                                     );
                                     params.set(
                                       "price",
@@ -347,7 +347,7 @@ export default function Plan() {
                                     );
                                     params.set(
                                       "productName",
-                                      `${plan?.product_variant_id[1]}`,
+                                      `${plan?.name}`,
                                     );
                                     params.delete("attribute");
                                     if (plan?.attributes?.length) {

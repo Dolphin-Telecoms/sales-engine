@@ -48,6 +48,29 @@ export async function POST(req: NextRequest) {
 
     // ✅ get query params
 
+    const uuid = uuidv4();
+
+    vouchers.map((item: any) => {
+      console.log(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/redeem`,
+        {
+          reservation_id: item.reservation_id,
+          order_ref: parseInt(salesOderId),
+          payment_reference: payment_reference,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone,
+          idempotency_key: uuid,
+        },
+        {
+          headers: {
+            "Idempotency-Key": uuid,
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    });
+
     console.log(body, paramsObject, vouchers);
 
     if (status === "completed" && payment_id) {

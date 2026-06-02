@@ -271,10 +271,18 @@ export default function SecureCheckout() {
   const validatePhone = (phone: string): string | undefined => {
     if (!phone.trim()) return undefined;
 
-    // Remove spaces, +, -, (, )
-    const cleaned = phone.replace(/[^\d]/g, "");
+    const trimmed = phone.trim();
+
+    // Only allow digits, spaces, and an optional leading +
+    if (!/^\+?[\d\s]+$/.test(trimmed)) {
+      return "Please enter a valid phone number";
+    }
+
+    const cleaned = trimmed.replace(/\s/g, "").replace(/^\+/, "");
 
     // Zimbabwe formats:
+    // 0776797359
+    // 263776797359
     const zwRegex = /^(07\d{8}|2637\d{8})$/;
 
     if (!zwRegex.test(cleaned)) {
@@ -341,19 +349,18 @@ export default function SecureCheckout() {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (!form.phone.trim()) {
-      newErrors.phone = "Phone number is required";
+    const phone = form.phone.trim();
+
+    // Allow only digits, spaces and optional leading +
+    if (!/^\+?\d+$/.test(phone.replace(/\s/g, ""))) {
+      newErrors.phone = "Please enter a valid phone number";
     } else {
-      if (!form.phone.trim()) {
-        newErrors.phone = "Phone number is required";
-      } else {
-        const cleaned = form.phone.replace(/[^\d]/g, "");
+      const cleaned = phone.replace(/\s/g, "").replace(/^\+/, "");
 
-        const zwRegex = /^(07\d{8}|2637\d{8})$/;
+      const zwRegex = /^(07\d{8}|2637\d{8})$/;
 
-        if (!zwRegex.test(cleaned)) {
-          newErrors.phone = "Please enter a valid phone number";
-        }
+      if (!zwRegex.test(cleaned)) {
+        newErrors.phone = "Please enter a valid phone number";
       }
     }
 

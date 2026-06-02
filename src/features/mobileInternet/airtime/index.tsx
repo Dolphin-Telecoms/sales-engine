@@ -155,10 +155,18 @@ export default function Airtime() {
   const validatePhone = (phone: string): string | undefined => {
     if (!phone.trim()) return undefined;
 
-    // Remove spaces, +, -, (, )
-    const cleaned = phone.replace(/[^\d]/g, "");
+    const trimmed = phone.trim();
+
+    // Only allow digits, spaces, and an optional leading +
+    if (!/^\+?[\d\s]+$/.test(trimmed)) {
+      return "Please enter a valid phone number";
+    }
+
+    const cleaned = trimmed.replace(/\s/g, "").replace(/^\+/, "");
 
     // Zimbabwe formats:
+    // 0776797359
+    // 263776797359
     const zwRegex = /^(07\d{8}|2637\d{8})$/;
 
     if (!zwRegex.test(cleaned)) {

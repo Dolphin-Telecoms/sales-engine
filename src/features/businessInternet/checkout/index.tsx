@@ -181,6 +181,7 @@ export default function SecureCheckout() {
         tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
         partnerShippingId: Number(`${response.data[0]}`),
         order_line: orderLines,
+        plan_id: [1]
       };
 
       if (orderLines.length > 0) {

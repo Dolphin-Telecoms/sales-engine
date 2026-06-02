@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     vouchers.map((item: any) => {
       console.log(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/redeem`,
+        `${process.env.NEXT_PUBLIC_VOUCHER_BASE_URL}/api/v1/redeem`,
         {
           reservation_id: item.reservation_id,
           order_ref: parseInt(salesOderId),
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         const reservePromises = vouchers.map((item: any) => {
           return axios
             .post(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/redeem`,
+              `${process.env.NEXT_PUBLIC_VOUCHER_BASE_URL}/api/v1/redeem`,
               {
                 reservation_id: item.reservation_id,
                 order_ref: parseInt(salesOderId),

@@ -1,10 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import OddoAxios from "@/src/libs/Oddo";
-import VoucherAxios from "@/src/libs/Voucher";
 import { v4 as uuidv4 } from "uuid";
+import { SignJWT, importPKCS8 } from "jose";
+import fs from "fs";
+import path from "path";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+
+  // ✅ Extract User-Agent from request headers
+  const userAgent = req.headers.get("user-agent") || "unknown-client";
+
+  // ✅ Read private key (server-side only)
+  const privateKeyPath = path.join(process.cwd(), "keys", "private_pkcs8.pem");
+  const privateKeyPem = fs.readFileSync(privateKeyPath, "utf8");
+  const privateKey = await importPKCS8(privateKeyPem, "RS256");
+
+  const token = await new SignJWT({
+    sub: "storefront-service",
+    client_id: userAgent, // 👈 using user-agent here
+    scopes: [
+      "vouchers:reserve",
+      "vouchers:validate",
+      "vouchers:redeem",
+      "vouchers:status",
+    ],
+    jti: uuidv4(),
+  })
+    .setProtectedHeader({ alg: "RS256" })
+    .setIssuedAt()
+    .setExpirationTime("15m")
+    .sign(privateKey);
 
   try {
     const { searchParams } = new URL(req.url);
@@ -35,23 +62,26 @@ export async function POST(req: NextRequest) {
         const uuid = uuidv4();
 
         const reservePromises = vouchers.map((item: any) => {
-          return VoucherAxios.post(
-            `/api/v1/redeem`,
-            {
-              reservation_id: item.reservation_id,
-              order_ref: parseInt(salesOderId),
-              payment_reference: payment_reference,
-              customer_name: customerName,
-              customer_email: customerEmail,
-              customer_phone: customerPhone,
-              idempotency_key: uuid,
-            },
-            {
-              headers: {
-                "Idempotency-Key": uuid,
+          return axios
+            .post(
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/redeem`,
+              {
+                reservation_id: item.reservation_id,
+                order_ref: parseInt(salesOderId),
+                payment_reference: payment_reference,
+                customer_name: customerName,
+                customer_email: customerEmail,
+                customer_phone: customerPhone,
+                idempotency_key: uuid,
               },
-            },
-          ).then((res) => res.data);
+              {
+                headers: {
+                  "Idempotency-Key": uuid,
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
+            .then((res) => res.data);
         });
 
         const results: any = await Promise.allSettled(reservePromises);

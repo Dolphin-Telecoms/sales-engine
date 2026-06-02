@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const {
-      name,
+      tag_ids,
       companyId,
       partnerId,
       partnerInvoiceId,
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     let response = await OddoAxios.post(`/json/2/sale.order/create`, {
       vals_list: [
         {
-          name: name,
+          tag_ids: tag_ids,
           company_id: Number(companyId),
           partner_id: Number(partnerId),
           partner_invoice_id: Number(partnerInvoiceId),

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // No existing customer found — create a new one
     let response = await OddoAxios.post(`/json/2/res.partner/create`, {
-      vals_list: [{ ...body, tag_ids: ["ecommerce"] }],
+      vals_list: [{ ...body }],
     }).then((res) => res.data);
 
     if (response) {

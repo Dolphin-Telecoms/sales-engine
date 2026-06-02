@@ -12,6 +12,7 @@ import { RxPerson } from "react-icons/rx";
 import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGeneration";
 import { getCustomerAccountNumber } from "@/src/features/homeInternet/apis/getCustomerAccount";
 import { getVoucherProduct } from "@/src/features/homeInternet/apis/getVoucherProduct";
+import { getTagId } from "@/src/features/homeInternet/apis/getTagId";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -42,6 +43,8 @@ export default function SecureCheckout() {
       name: name,
       phone: phone,
     };
+
+    const tagId = await getTagId();
 
     const response = await createCustomer(body);
 
@@ -160,7 +163,7 @@ export default function SecureCheckout() {
         companyId: 1,
         partnerId: Number(`${response.data[0]}`),
         partnerInvoiceId: Number(`${response.data[0]}`),
-        name: `${name}`,
+        tag_ids: tagId.data ? tagId.data : [],
         partnerShippingId: Number(`${response.data[0]}`),
         order_line: orderLines,
       };
@@ -276,8 +279,7 @@ export default function SecureCheckout() {
     const trimmed = name.trim();
     if (trimmed.length < 2 || trimmed.length > 70)
       return "Please enter a valid name";
-    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
-      return "Please enter a valid name";
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed)) return "Please enter a valid name";
     return undefined;
   };
 

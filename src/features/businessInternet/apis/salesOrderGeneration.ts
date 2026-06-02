@@ -4,14 +4,14 @@ export const generateSaleOrder = async ({
   companyId,
   partnerId,
   partnerInvoiceId,
-  name,
+  tag_ids,
   partnerShippingId,
   order_line,
 }: {
   companyId: number;
   partnerId: number;
   partnerInvoiceId: number;
-  name: string;
+  tag_ids: number[];
   partnerShippingId: number;
   order_line:  any[];
 }) => {
@@ -20,7 +20,7 @@ export const generateSaleOrder = async ({
       companyId,
       partnerId,
       partnerInvoiceId,
-      name,
+      tag_ids,
       partnerShippingId,
       order_line,
     }).then((res) => res.data);

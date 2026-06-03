@@ -1,11 +1,11 @@
 import Axios from "@/src/libs/Axios";
-import { ProductCategory } from "@/src/types";
+import { VoucherReservation } from "@/src/types";
 
 export const reserveVoucher = async (
   category_id: string,
   currency: string,
   value: string,
-): Promise<{ status: boolean; data: ProductCategory[] | null }> => {
+): Promise<{ status: boolean; data: VoucherReservation | null }> => {
   try {
     const response = await Axios.post(`/apis/reserve-voucher`, {
       category_id,
@@ -14,12 +14,12 @@ export const reserveVoucher = async (
     }).then((res) => res.data);
 
     if (response) {
-      return { status: true, data: response.data };
+      return { status: true, data: response };
     } else {
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error checking coverage:", error);
+    console.error("Error in reserving voucher:", error);
     return { status: false, data: null };
   }
 };

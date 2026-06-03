@@ -11,7 +11,7 @@ export async function GET() {
       return NextResponse.json(
         {
           message: "Voucher categories fetch successful",
-          data: response.sort((a: any, b: any) => a.id - b.id),
+          data: response,
         },
         { status: 200 },
       );

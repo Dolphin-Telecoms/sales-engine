@@ -13,6 +13,7 @@ import { generateSaleOrder } from "@/src/features/homeInternet/apis/salesOrderGe
 import { getCustomerAccountNumber } from "@/src/features/homeInternet/apis/getCustomerAccount";
 import { getVoucherProduct } from "@/src/features/homeInternet/apis/getVoucherProduct";
 import { getTagId } from "@/src/features/homeInternet/apis/getTagId";
+import { validatePurchase } from "@/src/features/homeInternet/apis/validatePurchase";
 
 export default function SecureCheckout() {
   const [showModal, setShowModal] = useState(false);
@@ -73,6 +74,27 @@ export default function SecureCheckout() {
       ) {
         const voucher = JSON.parse(`${search.get("voucher")}`);
         const finalVoucher = voucher ? voucher : [];
+
+        const validatePurchasePromises = finalVoucher.map((item: any) => {
+          return validatePurchase(item.reservation_id);
+        });
+
+        const results: any = await Promise.allSettled(validatePurchasePromises);
+
+        const updatedVouchers = finalVoucher.map(
+          (voucher: any, index: number) => {
+            return {
+              ...voucher,
+              order_ref:
+                results[index]?.status === "fulfilled" &&
+                results[index].value?.data?.data?.order_ref
+                  ? results[index]?.value.data?.data?.order_ref
+                  : null,
+            };
+          },
+        );
+
+        params.set("voucher", JSON.stringify(updatedVouchers)); 
 
         finalVoucher.map((items: any) =>
           orderLines.push([

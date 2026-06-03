@@ -718,3 +718,10 @@ export type VoucherReservation = {
   expires_at: string;
   ttl_seconds: number;
 };
+
+export type VoucherValidatePurchaseResponse = {
+  reservation_id: string;
+  status: string;
+  order_ref: string;
+  payment_window_expires_at: string;
+};

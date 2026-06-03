@@ -38,7 +38,7 @@ const VoucherAxios = axios.create({
 VoucherAxios.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = await getServerAccessToken();
-
+    
     if (token) {
       config.headers.set("Authorization", `Bearer ${token}`);
     }

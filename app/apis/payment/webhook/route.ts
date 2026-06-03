@@ -98,8 +98,7 @@ export async function POST(req: NextRequest) {
                 idempotency_key: uuid,
               },
               {
-                headers: {
-                  "Idempotency-Key": uuid,
+                headers: { 
                   Authorization: `Bearer ${token}`,
                 },
               },

@@ -7,7 +7,7 @@ import Service from "@/src/components/Services";
 import { LuBuilding2 } from "react-icons/lu";
 import { FiSmartphone, FiHome } from "react-icons/fi";
 import { getHomeCategories } from "@/src/features/connect/apis/homeCategories";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { HomeCategory } from "@/src/features/connect/types/connect";
 
 function Connect() {
@@ -78,7 +78,7 @@ function Connect() {
   ];
 
   return (
-    <>
+    <Suspense>
       <div className="text-center pt-[70px] lg:pt-[93px] min-h-0" />
       <Stepper steps={steps} currentStep={0} />
       <div className="bg-gray-100 pt-6 min-h-[100vh]">
@@ -98,7 +98,7 @@ function Connect() {
           </div>
         </Container>
       </div>
-    </>
+    </Suspense>
   );
 }
 

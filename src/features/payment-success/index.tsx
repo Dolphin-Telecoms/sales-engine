@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
+import { getSalesOrderName } from "@/src/features/payment-success/apis/getSalesOrder";
 
 // Add this helper component above return()
 const Skeleton = ({ className = "" }: { className?: string }) => (
@@ -24,6 +25,22 @@ const PaymentSuccess = () => {
   const transactionID = searchParams.get("transactionID");
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [salesOrderName, setSalesOrderName] = useState<string | null>(null);
+
+  const fetchSalesOrderName = async () => {
+    try {
+      const salesOrderId = searchParams.get("salesOderId") || "";
+      const { data } = await getSalesOrderName(salesOrderId);
+      setSalesOrderName(data?.data || null);
+    } catch (error) {
+      console.error("Error fetching sales order name:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSalesOrderName();
+  }, []);
 
   useEffect(() => {
     if (!transactionID) return;
@@ -83,7 +100,7 @@ const PaymentSuccess = () => {
 
   // The order details for easy data passing
   const orderDetails = {
-    reference: `${searchParams.get("salesOderId") || "DLT-885435"}`,
+    reference: `${salesOrderName || "DLT-885435"}`,
     product: `${searchParams.get("productName") || "Dolphin Home Fibre - Plus"}`,
     plan: `${searchParams.get("plan") || "100Mbps"} Plan`,
     amountPaid: paymentData
@@ -202,7 +219,7 @@ const PaymentSuccess = () => {
         {/* Detailed Order List */}
         <div className="flex flex-col gap-4 text-gray-800">
           {[
-            { label: "Plan", value: orderDetails.product }, 
+            { label: "Plan", value: orderDetails.product },
             { label: "Amount Paid", value: orderDetails.amountPaid },
             { label: "Payment Method", value: orderDetails.paymentMethod },
             {
@@ -240,7 +257,8 @@ const PaymentSuccess = () => {
         <FiInfo className="text-amber-400 w-8 h-8 flex-shrink-0" />
         <p className="text-sm text-gray-700 leading-relaxed pt-0.5">
           {paymentData?.status !== "completed"
-            ? paymentData?.status === "pending" || paymentData?.status === "processing"
+            ? paymentData?.status === "pending" ||
+              paymentData?.status === "processing"
               ? "Your order is currently being processed"
               : `Your order has been ${paymentData?.status}`
             : "Your is order is being processed. Kindly check your email for further onboarding instructions."}

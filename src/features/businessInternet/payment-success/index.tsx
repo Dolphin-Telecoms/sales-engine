@@ -1,16 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
-
-// Add this helper component above return()
-const Skeleton = ({ className = "" }: { className?: string }) => (
-  <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
-);
+import { getSalesOrderName } from "@/src/features/businessInternet/apis/getSalesOrder";
 
 const PaymentSuccess = () => {
   const search = useSearchParams();
@@ -23,6 +18,22 @@ const PaymentSuccess = () => {
   const transactionID = search.get("transactionID");
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [salesOrderName, setSalesOrderName] = useState<string | null>(null);
+
+  const fetchSalesOrderName = async () => {
+    try {
+      const salesOrderId = search.get("salesOderId") || "";
+      const { data } = await getSalesOrderName(salesOrderId);
+      setSalesOrderName(data?.data || null);
+    } catch (error) {
+      console.error("Error fetching sales order name:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSalesOrderName();
+  }, []);
 
   useEffect(() => {
     if (!transactionID) return;
@@ -80,24 +91,13 @@ const PaymentSuccess = () => {
 
   // The order details for easy data passing
   const orderDetails = {
-    reference: `${search.get("salesOderId") || "DLT-885435"}`,
+    reference: `${salesOrderName || "DLT-885435"}`,
     product: `${search.get("productName") || "Dolphin Home Fibre - Plus"}`,
     plan: `${search.get("plan") || "100Mbps"} Plan`,
     amountPaid: paymentData
       ? `${paymentData.amount} ${paymentData.currency}`
       : "$69.00 USD",
     paymentMethod: paymentData?.payment_method || "EcoCash",
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(orderDetails.reference);
-
-      // Optional toast / alert
-      alert("Reference copied successfully!");
-    } catch (error) {
-      console.error("Copy failed:", error);
-    }
   };
 
   const statusStyles = {
@@ -238,7 +238,7 @@ const PaymentSuccess = () => {
 
           <p className="mt-2 font-exo font-normal text-[16px] leading-[1.5] tracking-normal text-center mx-auto text-[#2C6176]">
             {paymentData?.status === "completed"
-              ? "We've received your order. Our team will contact you within 24 hours to schedule installation."
+              ? "Your order has been recived"
               : ""}
           </p>
 

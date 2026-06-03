@@ -583,7 +583,7 @@ export default function Airtime() {
           )}
 
           <p className="text-[10px] text-gray-500 mt-1">
-            Enter number without country code. e.g. 77 123 4567
+            Enter number without country code. e.g. 071 *** ****
           </p>
 
           <label className="text-xs font-semibold">Full Name</label>

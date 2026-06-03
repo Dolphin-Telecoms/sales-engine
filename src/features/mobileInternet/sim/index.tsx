@@ -94,13 +94,33 @@ export default function SimCard() {
   });
   type FormData = {
     fullName: string;
+    email: string;
     passport: string;
   };
   const [form, setForm] = useState<FormData>({
     fullName: ``,
+    email: ``,
     passport: ``,
   });
   const params = new URLSearchParams(search);
+
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) return undefined; // don't show error for empty on blur
+    if (email.length > 254) return "Please enter a valid email address";
+    if (/\s/.test(email)) return "Please enter a valid email address";
+    // Must contain @, valid local part, and a domain with at least one dot
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const handleEmailBlur = () => {
+    const error = validateEmail(form.email);
+    setErrors((prev) => ({
+      ...prev,
+      email: error || "",
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -328,6 +348,7 @@ export default function SimCard() {
       const body = {
         country_code: "ZW",
         name: form.fullName,
+        email: form.email,
         national_id_number: form.passport,
       };
       const response = await createCustomer(body);
@@ -454,6 +475,7 @@ export default function SimCard() {
     customerId?: string;
     file?: string;
     echoCashNumber?: string;
+    email?: string;
   };
 
   const validate = () => {
@@ -468,6 +490,15 @@ export default function SimCard() {
         newErrors.customerId = "Existing account number is required";
       }
     } else {
+      if (!form.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (
+        form.email.length > 254 ||
+        /\s/.test(form.email) ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)
+      ) {
+        newErrors.email = "Please enter a valid email address";
+      }
       if (!form.fullName.trim()) {
         newErrors.fullName = "Full name is required";
       } else {
@@ -695,7 +726,7 @@ export default function SimCard() {
                   </div>
 
                   {/* ID Number */}
-                  <div className="mb-3">
+                  <div>
                     <label className="font-bold text-[14px] leading-[100%] tracking-normal text-gray-800">
                       National ID / Passport
                     </label>
@@ -709,6 +740,24 @@ export default function SimCard() {
                     />
                     {errors.passport && (
                       <p className="text-red-500 text-xs">{errors.passport}</p>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label className="font-bold text-[14px] leading-[100%] tracking-normal text-gray-800">
+                      Email Address
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      onBlur={handleEmailBlur}
+                      maxLength={254}
+                      placeholder="e.g. john@email.com"
+                      className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs">{errors.email}</p>
                     )}
                   </div>
                 </div>

@@ -59,6 +59,9 @@ export default function EquipmentVariant({
           const product = data?.products[0]?.equipments[0];
           setSelected(`${product?.id}`);
           setPrice(parseInt(`${product?.list_price}`));
+          if (product.recurring_invoice) {
+            params.set("planId", "1");
+          }
           params.set("productEquipment", `${product?.id}`);
           params.set("priceEquipment", `${product?.list_price}`);
           params.set("productNameEquipment", `${product?.name}`);
@@ -162,6 +165,9 @@ export default function EquipmentVariant({
                     setSelected(`${product?.id}`);
                     setPrice(parseInt(`${product?.list_price}`));
                     params.set("productEquipment", `${product?.id}`);
+                    if (product.recurring_invoice) {
+                      params.set("planId", "1");
+                    }
                     params.set("productNameEquipment", `${product?.name}`);
                     params.set("priceEquipment", `${product?.list_price}`);
                     if (product?.attributes?.length) {
@@ -246,6 +252,9 @@ export default function EquipmentVariant({
                                 "productEquipment",
                                 plan.id.toString(),
                               );
+                              if (plan.recurring_invoice) {
+                                params.set("planId", "1");
+                              }
                               params.set(
                                 "priceEquipment",
                                 plan.list_price.toString(),

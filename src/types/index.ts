@@ -481,6 +481,7 @@ export interface EquipmentTemplate {
   display_name: string;
   name: string;
   equipments: ProductTemplate[];
+  recurring_invoice: boolean;
   // Images
   image_1920: string | false;
   image_1024: string | false;
@@ -580,7 +581,7 @@ export interface ProductTemplate {
   id: number;
   display_name: string;
   name: string;
-
+  recurring_invoice: boolean;
   // Images
   image_1920: string | false;
   image_1024: string | false;

@@ -174,18 +174,35 @@ export default function SecureCheckout() {
         );
       }
 
-      const body = {
-        companyId: 1,
-        partnerId: Number(`${response.data[0]}`),
-        partnerInvoiceId: Number(`${response.data[0]}`),
-        tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
-        partnerShippingId: Number(`${response.data[0]}`),
-        order_line: orderLines,
-        plan_id: 1
-      };
+      const planId = search.get("planId")
+        ? Number(`${search.get("planId")}`)
+        : undefined;
+
+      let body = {};
+
+      if (planId) {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${response.data[0]}`),
+          partnerInvoiceId: Number(`${response.data[0]}`),
+          tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
+          partnerShippingId: Number(`${response.data[0]}`),
+          order_line: orderLines,
+          plan_id: 1,
+        };
+      } else {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${response.data[0]}`),
+          partnerInvoiceId: Number(`${response.data[0]}`),
+          tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
+          partnerShippingId: Number(`${response.data[0]}`),
+          order_line: orderLines,
+        };
+      }
 
       if (orderLines.length > 0) {
-        const orderResponse = await generateSaleOrder(body);
+        const orderResponse = await generateSaleOrder(body as any);
 
         if (orderResponse.status && orderResponse.data) {
           params.set("salesOderId", `${orderResponse.data[0]}`);

@@ -92,6 +92,7 @@ export interface ProductTemplate {
   display_name: string;
   name: string;
 
+  recurring_invoice: boolean;
   // Images
   image_1920: string | false;
   image_1024: string | false;

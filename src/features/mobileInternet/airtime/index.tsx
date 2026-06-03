@@ -14,6 +14,7 @@ import { generateSaleOrder } from "@/src/features/mobileInternet/apis/salesOrder
 import { getCustomerAccountNumber } from "@/src/features/mobileInternet/apis/getCustomerAccount";
 import { createCustomer } from "@/src/features/mobileInternet/apis/createCustomer";
 import { getAirtimeBundleProduct } from "@/src/features/mobileInternet/apis/getAirtimeBundleProduct";
+import { getTagId } from "@/src/features/mobileInternet/apis/getTagId";
 
 const NetworkCardSkeleton = () => {
   return (
@@ -215,6 +216,8 @@ export default function Airtime() {
       phone: phone,
     };
 
+    const tagId = await getTagId();
+
     const response = await createCustomer(body);
 
     if (response.status && response.data) {
@@ -276,16 +279,34 @@ export default function Airtime() {
         );
       }
 
-      const body = {
-        companyId: 1,
-        partnerId: Number(`${response.data[0]}`),
-        partnerInvoiceId: Number(`${response.data[0]}`),
-        name: `${name}`,
-        partnerShippingId: Number(`${response.data[0]}`),
-        order_line: orderLines,
-      };
+      const planId = search.get("planId")
+        ? Number(`${search.get("planId")}`)
+        : undefined;
 
-      const orderResponse = await generateSaleOrder(body);
+      let body = {};
+
+      if (planId) {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${response.data[0]}`),
+          partnerInvoiceId: Number(`${response.data[0]}`),
+          tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
+          partnerShippingId: Number(`${response.data[0]}`),
+          order_line: orderLines,
+          plan_id: 1,
+        };
+      } else {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${response.data[0]}`),
+          partnerInvoiceId: Number(`${response.data[0]}`),
+          tag_ids: tagId.data ? tagId.data.map((id: any) => id?.id) : [],
+          partnerShippingId: Number(`${response.data[0]}`),
+          order_line: orderLines,
+        };
+      }
+
+      const orderResponse = await generateSaleOrder(body as any);
 
       if (orderResponse.status && orderResponse.data) {
         params.set("salesOderId", `${orderResponse.data[0]}`);
@@ -434,6 +455,9 @@ export default function Airtime() {
                           variant_name: product.product_variant_id[1],
                           variant_price: product.list_price,
                         });
+                        if (product.recurring_invoice) {
+                          params.set("planId", "1");
+                        }
                         params.set(
                           "selectedproduct",
                           JSON.stringify([

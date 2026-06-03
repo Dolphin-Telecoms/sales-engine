@@ -124,6 +124,9 @@ export default function Plan() {
               setPrice(parseInt(`${product?.list_price}`));
               params.set("product", `${product?.product_variant_id[0]}`);
               params.set("price", `${product?.list_price}`);
+              if (product.recurring_invoice) {
+                params.set("planId", "1");
+              }
               params.set("productName", `${product?.product_variant_id[1]}`);
               if (product?.attributes?.length) {
                 const attribute = product?.attributes.map(
@@ -208,7 +211,10 @@ export default function Plan() {
                   <div className="flex justify-between items-center p-4">
                     <div>
                       <h2 className="font-semibold text-[#111827]">
-                        {category.name} {category.name.toLocaleLowerCase() === "fiber" ? "(recommended)" : ""}
+                        {category.name}{" "}
+                        {category.name.toLocaleLowerCase() === "fiber"
+                          ? "(recommended)"
+                          : ""}
                       </h2>
                       {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">
@@ -243,6 +249,9 @@ export default function Plan() {
                             const product = category.products[0];
                             setSelected(`${product?.product_variant_id[0]}`);
                             setPrice(parseInt(`${product?.list_price}`));
+                            if (product.recurring_invoice) {
+                              params.set("planId", "1");
+                            }
                             params.set(
                               "product",
                               `${product?.product_variant_id[0]}`,
@@ -338,6 +347,9 @@ export default function Plan() {
                                       plan.product_variant_id[0].toString(),
                                     );
                                     setPrice(plan.list_price);
+                                    if (plan.recurring_invoice) {
+                                      params.set("planId", "1");
+                                    }
                                     params.set(
                                       "product",
                                       plan.product_variant_id[0].toString(),

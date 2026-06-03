@@ -123,6 +123,9 @@ export default function Plan() {
               setSelected(`${product?.product_variant_id[0]}`);
               setPrice(parseInt(`${product?.list_price}`));
               params.set("product", `${product?.product_variant_id[0]}`);
+              if (product.recurring_invoice) {
+                params.set("planId", "1");
+              }
               params.set("price", `${product?.list_price}`);
               params.set("productName", `${product?.product_variant_id[1]}`);
               if (product?.attributes?.length) {
@@ -241,6 +244,9 @@ export default function Plan() {
                             const product = category.products[0];
                             setSelected(`${product?.product_variant_id[0]}`);
                             setPrice(parseInt(`${product?.list_price}`));
+                            if (product.recurring_invoice) {
+                              params.set("planId", "1");
+                            }
                             params.set(
                               "product",
                               `${product?.product_variant_id[0]}`,
@@ -337,6 +343,9 @@ export default function Plan() {
                                     );
                                     setPrice(plan.list_price);
                                     setSelectedAttribute([]); // reset attribute selection when switching categories
+                                    if (plan.recurring_invoice) {
+                                      params.set("planId", "1");
+                                    }
                                     params.set(
                                       "product",
                                       plan.product_variant_id[0].toString(),

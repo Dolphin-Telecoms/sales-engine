@@ -13,19 +13,33 @@ export async function POST(req: NextRequest) {
       plan_id,
     } = await req.json();
 
+    let body = {};
+
+    if (plan_id) {
+      body = {
+        tag_ids: tag_ids,
+        company_id: Number(companyId),
+        partner_id: Number(partnerId),
+        partner_invoice_id: Number(partnerInvoiceId),
+        partner_shipping_id: Number(partnerShippingId),
+        picking_policy: "direct",
+        order_line: order_line,
+        plan_id: plan_id,
+      };
+    } else {
+      body = {
+        tag_ids: tag_ids,
+        company_id: Number(companyId),
+        partner_id: Number(partnerId),
+        partner_invoice_id: Number(partnerInvoiceId),
+        partner_shipping_id: Number(partnerShippingId),
+        picking_policy: "direct",
+        order_line: order_line,
+      };
+    }
+
     let response = await OddoAxios.post(`/json/2/sale.order/create`, {
-      vals_list: [
-        {
-          tag_ids: tag_ids,
-          company_id: Number(companyId),
-          partner_id: Number(partnerId),
-          partner_invoice_id: Number(partnerInvoiceId),
-          partner_shipping_id: Number(partnerShippingId),
-          picking_policy: "direct",
-          order_line: order_line,
-          plan_id: plan_id
-        },
-      ],
+      vals_list: [body],
     }).then((res) => res.data);
 
     if (response) {

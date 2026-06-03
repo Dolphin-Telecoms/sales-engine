@@ -14,7 +14,7 @@ import { getCustomerAccountNumber } from "@/src/features/mobileInternet/apis/get
 import { createCustomer } from "@/src/features/mobileInternet/apis/createCustomer";
 import { getAirtimeBundleProduct } from "@/src/features/mobileInternet/apis/getAirtimeBundleProduct";
 import { uploadDocument } from "@/src/features/mobileInternet/apis/uploadDocument";
-
+import { getTagId } from "@/src/features/mobileInternet/apis/getTagId";
 import cn from "classnames";
 
 const MAX_SIZE = 5 * 1024 * 1024;
@@ -123,8 +123,7 @@ export default function SimCard() {
     if (trimmed.length < 2 || trimmed.length > 70)
       return "Please enter a valid name";
     // Only letters (unicode), spaces, hyphens, and apostrophes
-    if (!/^[\p{L}\s'\-]+$/u.test(trimmed))
-      return "Please enter a valid name";
+    if (!/^[\p{L}\s'\-]+$/u.test(trimmed)) return "Please enter a valid name";
     return undefined;
   };
 
@@ -157,6 +156,10 @@ export default function SimCard() {
             },
           ]),
         );
+
+        if (res.data[0].recurring_invoice) {
+          params.set("planId", "1");
+        }
 
         params.set("productName", res.data[0].product_variant_id[1]);
 
@@ -219,6 +222,9 @@ export default function SimCard() {
 
   const generateCustomer = async () => {
     setSubmitLoader(true);
+
+    const tagId = await getTagId();
+
     if (customerId && accountType === "existing") {
       params.set("customerId", `${customerId}`);
 
@@ -278,16 +284,34 @@ export default function SimCard() {
         );
       }
 
-      const body = {
-        companyId: 1,
-        partnerId: Number(`${customerId}`),
-        partnerInvoiceId: Number(`${customerId}`),
-        name: `${accountResponse.data?.name}`,
-        partnerShippingId: Number(`${customerId}`),
-        order_line: orderLines,
-      };
+      const planId = search.get("planId")
+        ? Number(`${search.get("planId")}`)
+        : undefined;
 
-      const orderResponse = await generateSaleOrder(body);
+      let body = {};
+
+      if (planId) {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${customerId}`),
+          partnerInvoiceId: Number(`${customerId}`),
+          name: `${accountResponse.data?.name}`,
+          partnerShippingId: Number(`${customerId}`),
+          order_line: orderLines,
+          plan_id: 1,
+        };
+      } else {
+        body = {
+          companyId: 1,
+          partnerId: Number(`${customerId}`),
+          partnerInvoiceId: Number(`${customerId}`),
+          name: `${accountResponse.data?.name}`,
+          partnerShippingId: Number(`${customerId}`),
+          order_line: orderLines,
+        };
+      }
+
+      const orderResponse = await generateSaleOrder(body as any);
 
       if (orderResponse.status && orderResponse.data) {
         params.set("salesOderId", `${orderResponse.data[0]}`);
@@ -375,15 +399,35 @@ export default function SimCard() {
               ]),
             );
           }
-          const body = {
-            companyId: 1,
-            partnerId: Number(`${response.data[0]}`),
-            partnerInvoiceId: Number(`${response.data[0]}`),
-            name: `${accountResponse.data?.name}`,
-            partnerShippingId: Number(`${response.data[0]}`),
-            order_line: orderLines,
-          };
-          const orderResponse = await generateSaleOrder(body);
+
+          const planId = search.get("planId")
+            ? Number(`${search.get("planId")}`)
+            : undefined;
+
+          let body = {};
+
+          if (planId) {
+            body = {
+              companyId: 1,
+              partnerId: Number(`${response.data[0]}`),
+              partnerInvoiceId: Number(`${response.data[0]}`),
+              name: `${accountResponse.data?.name}`,
+              partnerShippingId: Number(`${response.data[0]}`),
+              order_line: orderLines,
+              plan_id: 1,
+            };
+          } else {
+            body = {
+              companyId: 1,
+              partnerId: Number(`${response.data[0]}`),
+              partnerInvoiceId: Number(`${response.data[0]}`),
+              name: `${accountResponse.data?.name}`,
+              partnerShippingId: Number(`${response.data[0]}`),
+              order_line: orderLines,
+            };
+          }
+
+          const orderResponse = await generateSaleOrder(body as any);
           if (orderResponse.status && orderResponse.data) {
             params.set("salesOderId", `${orderResponse.data[0]}`);
             params.set("orderType", `airtime`);
@@ -565,9 +609,7 @@ export default function SimCard() {
             <p className="text-sm text-gray-500 mt-2">
               Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
             </p>
-            <p className="text-xs text-gray-400 mt-1">
-              Min 1, Max 5 SIMs
-            </p>
+            <p className="text-xs text-gray-400 mt-1">Min 1, Max 5 SIMs</p>
           </>
         )}
 
@@ -640,7 +682,9 @@ export default function SimCard() {
                       maxLength={70}
                       placeholder="As on ID document"
                       className={`mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
+                        errors.fullName
+                          ? "border-red-400 focus:ring-red-300/30"
+                          : ""
                       }`}
                     />
                     {errors.fullName && (

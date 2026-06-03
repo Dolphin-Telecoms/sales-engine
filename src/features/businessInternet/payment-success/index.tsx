@@ -149,6 +149,7 @@ const PaymentSuccess = () => {
   const totalPrice =
     Number(search.get("price") || 0) +
     Number(search.get("voucherPrice") || 0) +
+    Number(search.get("priceEquipment") || 0) +
     totalVariantPrice;
 
   return (
@@ -170,18 +171,26 @@ const PaymentSuccess = () => {
 
         <div className="mt-3 border-t border-[#E5E7EB] pt-4 space-y-3">
           {[
-            ["Service", "Home Internet"],
+            ["Service", "Business Internet"],
             ["Connection Type", `${search.get("childCategoryName")}`],
-            ["Package", `${search.get("productName")}`],
+            [
+              "Package",
+              `${search.get("productName")} $${Number(search.get("price"))}/mo`,
+            ],
             ...finalVoucher.map((item: any) => [
               "Extras",
-              ` ${item.name} Voucher $${item.price} / mo`,
+              ` ${item.name} Voucher $${Number(item.price).toFixed(2)}`,
             ]),
             ...finalBusiness.map((item: any) => [
               "Business Extras",
-              `${item.variant_name} - $${item.variant_price}/mo`,
+              `${item.variant_name} - $${Number(item.variant_price).toFixed(2)}`,
             ]),
-            ["Equipment", `${search.get("equipmentName")} (Included)`],
+            [
+              "Equipment",
+              search.get("productNameEquipment")
+                ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - $${search.get("priceEquipment")}`
+                : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
+            ],
           ].map(([label, value], index) => (
             <div key={index} className="flex justify-between">
               <span className="font-exo font-normal text-[14px] leading-[1] tracking-normal text-[#2C6176]">
@@ -198,17 +207,13 @@ const PaymentSuccess = () => {
       {/* Monthly Card */}
       <div className="mt-6 rounded-xl bg-[#DCE7EB] px-5 py-4 flex justify-between items-center">
         <div>
-          <p className="font-exo font-bold text-[14px] text-[#111827]">
-            Monthly Total
-          </p>
-          <p className="font-exo text-[12px] text-[#6B7280]">Once-off Fees</p>
+          <p className="font-exo font-bold text-[14px] text-[#111827]">Total</p>
         </div>
         <div className="text-right">
           <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
             ${totalPrice}
             /mo
           </p>
-          <p className="font-exo text-[12px] text-[#6B7280]">Free</p>
         </div>
       </div>
 

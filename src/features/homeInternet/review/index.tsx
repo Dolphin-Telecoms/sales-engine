@@ -85,9 +85,8 @@ export default function ReviewPlan() {
         <div className="mt-6 rounded-xl bg-[#DCE7EB] px-5 py-4 flex justify-between items-center">
           <div>
             <p className="font-exo font-bold text-[14px] text-[#111827]">
-              Monthly Total
-            </p>
-            <p className="font-exo text-[12px] text-[#6B7280]">Once-off Fees</p>
+              Total
+            </p> 
           </div>
           <div className="text-right">
             <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
@@ -96,8 +95,7 @@ export default function ReviewPlan() {
                 Number(search.get("voucherPrice")) +
                 Number(`${search.get("priceEquipment")}`)}
               /mo
-            </p>
-            <p className="font-exo text-[12px] text-[#6B7280]">Free</p>
+            </p> 
           </div>
         </div>
 
@@ -106,7 +104,11 @@ export default function ReviewPlan() {
           <FaCalendarAlt className="text-[#9CA3AF]" />
           <p className="font-exo text-[14px] text-[#111827]">
             Estimated installation:{" "}
-            <span className="font-bold text-[#F59E0B]">3-5 business days</span>
+            <span className="font-bold text-[#F59E0B]">
+              {search.get("childCategoryName")?.toLocaleLowerCase() === "fiber"
+                ? "3-6 business days"
+                : "24 - 48 hours"}
+            </span>
           </p>
         </div>
 

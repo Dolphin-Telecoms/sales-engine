@@ -166,9 +166,9 @@ const PaymentSuccess = () => {
             : `Processing ${paymentData?.status ?? ""}`}
           !
         </h1>
-        <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-center">
+        {/* <p className="font-exo font-normal text-[12px] lg:text-[14px] leading-[100%] tracking-[0%] text-center">
           Thank you for choosing Dolphin Telecoms. Your order is confirmed.
-        </p>
+        </p> */}
       </div>
 
       {/* Middle Card: Order Details */}
@@ -202,8 +202,7 @@ const PaymentSuccess = () => {
         {/* Detailed Order List */}
         <div className="flex flex-col gap-4 text-gray-800">
           {[
-            { label: "Product", value: orderDetails.product },
-            { label: "Plan", value: orderDetails.plan },
+            { label: "Plan", value: orderDetails.product }, 
             { label: "Amount Paid", value: orderDetails.amountPaid },
             { label: "Payment Method", value: orderDetails.paymentMethod },
             {
@@ -225,7 +224,7 @@ const PaymentSuccess = () => {
                 {item.label}
               </span>
               {paymentData && !loading ? (
-                <div className="font-exo font-bold text-[14px] leading-[1] tracking-normal text-right text-gray-950">
+                <div className="font-exo font-bold text-[14px] leading-[1] tracking-normal text-right text-gray-950 capitalize">
                   {item.value}
                 </div>
               ) : (
@@ -241,8 +240,10 @@ const PaymentSuccess = () => {
         <FiInfo className="text-amber-400 w-8 h-8 flex-shrink-0" />
         <p className="text-sm text-gray-700 leading-relaxed pt-0.5">
           {paymentData?.status !== "completed"
-            ? `Your order is ${paymentData?.status}`
-            : "Your order is now being processed. Our team will contact you shortly to schedule installation."}
+            ? paymentData?.status === "pending" || paymentData?.status === "processing"
+              ? "Your order is currently being processed"
+              : `Your order has been ${paymentData?.status}`
+            : "Your is order is being processed. Kindly check your email for further onboarding instructions."}
         </p>
       </div>
 

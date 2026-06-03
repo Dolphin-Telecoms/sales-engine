@@ -9,7 +9,7 @@ import {
 } from "react-icons/io5";
 import { FiDollarSign } from "react-icons/fi";
 import { CiShoppingCart } from "react-icons/ci";
-
+import { useSearchParams } from "next/navigation";
 interface PlanSummaryProps {
   title?: string;
   items: SummaryItem[];
@@ -24,7 +24,7 @@ export default function PlanSummary({
   currency = "$",
 }: PlanSummaryProps) {
   const [open, setOpen] = useState(true);
-
+ const search = useSearchParams();
   // ✅ Dynamic total calculation
   const total = useMemo(() => {
     return pricing.reduce((sum, item) => {
@@ -110,7 +110,7 @@ export default function PlanSummary({
                       {pricingLength === index && (
                         <div className="flex justify-between">
                           <span>Est. installation</span>
-                          <span className="text-[#F2A413]">3-5 days</span>
+                          <span className="text-[#F2A413]">{search.get("childCategoryName")?.toLocaleLowerCase() === "fiber" ? "3-6 business days" : "24 - 48 hours" }</span>
                         </div>
                       )}
                     </div>

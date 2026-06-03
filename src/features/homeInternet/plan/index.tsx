@@ -212,9 +212,15 @@ export default function Plan() {
                     <div>
                       <h2 className="font-semibold text-[#111827]">
                         {category.name}{" "}
-                        {category.name.toLocaleLowerCase() === "fiber"
-                          ? "(recommended)"
-                          : ""}
+                        {category.name.toLocaleLowerCase() === "fiber" ? (
+                          <span className="px-2 bg-[#0CAB461A] text-[#0CAB46] text-[12px] rounded-lg font-normal">
+                            recommended
+                          </span>
+                        ) : category.name.toLocaleLowerCase() === "lte" ? (
+                          <span className="px-2 bg-[#fff7ed] text-[#F2A413] text-[12px] rounded-lg font-normal">
+                            Subject to availability
+                          </span>
+                        ) : null}
                       </h2>
                       {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">

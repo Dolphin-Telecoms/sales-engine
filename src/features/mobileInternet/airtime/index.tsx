@@ -593,7 +593,7 @@ export default function Airtime() {
             onChange={handleChange}
             onBlur={handleNameBlur}
             maxLength={70}
-            placeholder="e.g. John Makumuri"
+            placeholder="e.g. John Doe"
             className={`mt-1 w-full rounded-lg border px-4 py-2 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
               errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
             }`}

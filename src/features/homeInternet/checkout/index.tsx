@@ -480,7 +480,7 @@ export default function SecureCheckout() {
                 onChange={handleChange}
                 onBlur={handleNameBlur}
                 maxLength={70}
-                placeholder="e.g. John Makumuri"
+                placeholder="e.g. John Doe"
                 className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
                   errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
                 }`}
@@ -519,7 +519,7 @@ export default function SecureCheckout() {
                 value={form.phone}
                 onChange={handleChange}
                 onBlur={handlePhoneBlur}
-                placeholder="e.g. +263 77 123 4567"
+                placeholder="e.g. +2637********"
                 className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
                   errors.phone ? "border-red-400 focus:ring-red-300/30" : ""
                 }`}

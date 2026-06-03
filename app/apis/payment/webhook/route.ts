@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         `${process.env.NEXT_PUBLIC_VOUCHER_BASE_URL}/api/v1/redeem`,
         {
           reservation_id: item.reservation_id,
-          order_ref: parseInt(salesOderId),
+          order_ref:  item.order_ref,
           payment_reference: payment_reference,
           customer_name: customerName,
           customer_email: customerEmail,

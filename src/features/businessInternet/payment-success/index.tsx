@@ -228,9 +228,12 @@ const PaymentSuccess = () => {
           )}
 
           <h3 className="mt-3 font-exo font-bold text-[20px] leading-[1.2] tracking-normal text-center text-[#111827]">
-            {paymentData?.status === "completed"
-              ? "You're almost connected!"
-              : `Your order is ${paymentData?.status}`}
+            {paymentData?.status !== "completed"
+              ? paymentData?.status === "pending" ||
+                paymentData?.status === "processing"
+                ? "Your order is currently being processed"
+                : `Your order has been ${paymentData?.status}`
+              : "You're almost connected!"}
           </h3>
 
           <p className="mt-2 font-exo font-normal text-[16px] leading-[1.5] tracking-normal text-center mx-auto text-[#2C6176]">

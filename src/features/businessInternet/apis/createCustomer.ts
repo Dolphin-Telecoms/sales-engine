@@ -9,6 +9,7 @@ export const createCustomer = async ({
   country_code,
   name,
   phone,
+  is_company,
 }: {
   partner_latitude: string;
   partner_longitude: string;
@@ -18,6 +19,7 @@ export const createCustomer = async ({
   country_code: string;
   name: string;
   phone: string;
+  is_company: boolean;
 }) => {
   try {
     const response = await Axios.post(`/apis/create-customer`, {
@@ -29,6 +31,7 @@ export const createCustomer = async ({
       country_code,
       name,
       phone,
+      is_company
     }).then((res) => res.data);
 
     if (response) {

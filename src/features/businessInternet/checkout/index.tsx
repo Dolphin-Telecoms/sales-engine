@@ -43,6 +43,7 @@ export default function SecureCheckout() {
       country_code: "ZW",
       name: name,
       phone: phone,
+      is_company: true,
     };
 
     const tagId = await getTagId();
@@ -341,23 +342,6 @@ export default function SecureCheckout() {
     }));
   };
 
-  const validateName = (name: string): string | undefined => {
-    if (!name.trim()) return undefined;
-    const trimmed = name.trim();
-    if (trimmed.length < 2 || trimmed.length > 70)
-      return "Please enter a valid name";
-    if (!/^[\p{L}\s'\-]+$/u.test(trimmed)) return "Please enter a valid name";
-    return undefined;
-  };
-
-  const handleNameBlur = () => {
-    const error = validateName(form.fullName);
-    setErrors((prev) => ({
-      ...prev,
-      fullName: error || "",
-    }));
-  };
-
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {};
 
@@ -371,11 +355,7 @@ export default function SecureCheckout() {
       newErrors.fullName = "Full name is required";
     } else {
       const trimmed = form.fullName.trim();
-      if (
-        trimmed.length < 2 ||
-        trimmed.length > 70 ||
-        !/^[\p{L}\s'\-]+$/u.test(trimmed)
-      ) {
+      if (trimmed.length < 2) {
         newErrors.fullName = "Please enter a valid name";
       }
     }
@@ -490,15 +470,14 @@ export default function SecureCheckout() {
           <div className="p-4 space-y-4">
             <div>
               <label className="font-exo font-bold text-[14px] text-[#111827]">
-                Full Name
+                Company Name
               </label>
               <input
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
-                onBlur={handleNameBlur}
                 maxLength={70}
-                placeholder="e.g. John Doe"
+                placeholder="e.g. Example co. (Pvt) Ltd"
                 className={`mt-1 w-full rounded-lg border px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#2F5D6C]/30 ${
                   errors.fullName ? "border-red-400 focus:ring-red-300/30" : ""
                 }`}
@@ -509,7 +488,7 @@ export default function SecureCheckout() {
             </div>
             <div>
               <label className="font-exo font-bold text-[14px] text-[#111827]">
-                Email Address
+                Business Email Address
               </label>
               <input
                 name="email"

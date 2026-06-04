@@ -91,6 +91,28 @@ export default function Airtime() {
           variant_name: data[0].products[0].product_variant_id[1],
           variant_price: data[0].products[0].list_price,
         });
+
+        if (data[0].products[0].recurring_invoice) {
+          params.set("planId", "1");
+        }
+        params.set(
+          "selectedproduct",
+          JSON.stringify([
+            {
+              variant_id: data[0].products[0].product_variant_id[0],
+              variant_name: data[0].products[0].product_variant_id[1],
+              variant_price: data[0].products[0].list_price,
+            },
+          ]),
+        );
+
+        params.set("productName", data[0].products[0].product_variant_id[1]);
+
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?${params.toString()}`,
+        );
       } else {
         setAirtimeProducts([]);
       }

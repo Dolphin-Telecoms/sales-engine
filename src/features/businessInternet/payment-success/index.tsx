@@ -53,7 +53,9 @@ const PaymentSuccess = () => {
 
         if (response?.data?.status) {
           setPaymentData(response.data);
-        } 
+        }
+
+        setLoading(false);
 
         // stop polling when completed
         if (
@@ -71,6 +73,7 @@ const PaymentSuccess = () => {
         }
       } catch (error: any) {
         console.error("Polling error:", error);
+        setLoading(false);
       } finally {
         setLoading(false);
       }

@@ -63,6 +63,8 @@ const PaymentSuccess = () => {
           setPaymentData(response.data);
         }
 
+        setLoading(false);
+
         // stop polling when completed
         if (
           response?.data?.status &&
@@ -82,6 +84,7 @@ const PaymentSuccess = () => {
         // ❌ DON'T call pollPaymentStatus again here
 
         // polling will continue automatically from setInterval
+        setLoading(false);
       } finally {
         setLoading(false);
       }

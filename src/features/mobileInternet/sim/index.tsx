@@ -159,7 +159,7 @@ export default function SimCard() {
     try {
       setLoading(true);
       const res = await getSimCard(`${search.get("homeCategory")}`);
-      if (res.status && Array.isArray(res?.data)) {
+      if (res.status && Array.isArray(res?.data) && res?.data.length > 0) {
         setSimCard(res.data[0] as ProductTemplate);
         setSimCardVariant({
           variant_id: res.data[0].product_variant_id[0],
@@ -609,7 +609,7 @@ export default function SimCard() {
               <div className="w-4 h-4 bg-gray-300 rounded" />
             </div>
           </div>
-        ) : (
+        ) : simcard ? (
           <div className="flex border border-[#DCDCDC] rounded-lg w-fit overflow-hidden">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -629,20 +629,20 @@ export default function SimCard() {
               <FiPlus />
             </button>
           </div>
-        )}
+        ) : null}
 
         {loading ? (
           <div className="mt-2 animate-pulse">
             <div className="h-4 w-64 bg-gray-200 rounded" />
           </div>
-        ) : (
+        ) : simcard ? (
           <>
             <p className="text-sm text-gray-500 mt-2">
               Each SIM card – ${simcard?.list_price || pricePerSim} (once-off)
             </p>
             <p className="text-xs text-gray-400 mt-1">Min 1, Max 5 SIMs</p>
           </>
-        )}
+        ) : null}
 
         <Divider />
 
@@ -670,6 +670,7 @@ export default function SimCard() {
                 className="mt-2 w-full md:w-72 border border-[#DCDCDC]  bg-white rounded-lg p-4 text-sm"
                 onChange={(event) => setCustomerId(event.target.value)}
                 value={customerId}
+                disabled={!simcard}
               />
               {errors.customerId && (
                 <p className="text-red-500 text-xs mt-1">{errors.customerId}</p>
@@ -711,6 +712,7 @@ export default function SimCard() {
                       onChange={handleChange}
                       onBlur={handleNameBlur}
                       maxLength={70}
+                      disabled={!simcard}
                       placeholder="As on ID document"
                       className={`mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         errors.fullName
@@ -735,6 +737,7 @@ export default function SimCard() {
                       name="passport"
                       value={form.passport}
                       onChange={handleChange}
+                      disabled={!simcard}
                       placeholder="ID number"
                       className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -753,6 +756,7 @@ export default function SimCard() {
                       onChange={handleChange}
                       onBlur={handleEmailBlur}
                       maxLength={254}
+                      disabled={!simcard}
                       placeholder="e.g. john@email.com"
                       className="mt-1 w-full border border-[#DCDCDC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -767,6 +771,7 @@ export default function SimCard() {
                   error={error}
                   setFile={setFile}
                   setError={setError}
+                  disabled={!simcard}
                   inputRef={inputRef}
                   handleFile={handleFile}
                 />
@@ -913,7 +918,8 @@ export default function SimCard() {
                 ? true
                 : false) ||
             submitLoader ||
-            isLoading
+            isLoading ||
+            !simcard
           }
           onClick={handleSubmit}
         >

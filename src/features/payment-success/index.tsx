@@ -8,8 +8,9 @@ import { getTransaction } from "@/src/features/payment-success/apis/getTransacti
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
 import { getSalesOrderName } from "@/src/features/payment-success/apis/getSalesOrder";
-
+import { Toaster, toast } from "sonner";
 // Add this helper component above return()
+
 const Skeleton = ({ className = "" }: { className?: string }) => (
   <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
 );
@@ -113,8 +114,7 @@ const PaymentSuccess = () => {
     try {
       await navigator.clipboard.writeText(orderDetails.reference);
 
-      // Optional toast / alert
-      alert("Reference copied successfully!");
+      toast.success("Order reference copied successfully!");
     } catch (error) {
       console.error("Copy failed:", error);
     }
@@ -271,6 +271,8 @@ const PaymentSuccess = () => {
           Back to Home
         </button>
       </a>
+
+      <Toaster position="top-center" />
     </div>
   );
 };

@@ -178,7 +178,10 @@ export default function AvailabilityChecker() {
                       ? coverage?.available_service_types
                       : ["Fibre", "LTE", "FWA"],
                   )}{" "}
-                  is available at your address.
+                  {(Array.isArray(coverage?.available_service_types) &&
+                  coverage?.available_service_types.length > 2)
+                    ? "are"
+                    : "is"}{" "} available at your address.
                 </p>
               </div>
             </div>

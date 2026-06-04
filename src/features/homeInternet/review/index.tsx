@@ -56,7 +56,7 @@ export default function ReviewPlan() {
               ["Connection Type", `${search.get("childCategoryName")}`],
               [
                 "Package",
-                `${search.get("productName")} $${Number(search.get("price"))}/mo`,
+                `${search.get("productName")} $${Number(search.get("price"))}`,
               ],
               ...finalVoucher.map((item: any) => [
                 "Extras",
@@ -65,8 +65,8 @@ export default function ReviewPlan() {
               [
                 "Equipment",
                 search.get("productNameEquipment")
-                  ? `${search.get("equipmentName")} ${search.get("productNameEquipment")} - $${search.get("priceEquipment")}`
-                  : `${search.get("equipmentName")} ${search.get("productNameEquipment")} (Included)`,
+                  ? `${search.get("productNameEquipment")} - $${search.get("priceEquipment")}`
+                  : `${search.get("productNameEquipment")} (Included)`,
               ],
             ].map(([label, value], index) => (
               <div key={index} className="flex justify-between">
@@ -86,7 +86,7 @@ export default function ReviewPlan() {
           <div>
             <p className="font-exo font-bold text-[14px] text-[#111827]">
               Total
-            </p> 
+            </p>
           </div>
           <div className="text-right">
             <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
@@ -94,8 +94,7 @@ export default function ReviewPlan() {
               {Number(search.get("price")) +
                 Number(search.get("voucherPrice")) +
                 Number(`${search.get("priceEquipment")}`)}
-              /mo
-            </p> 
+            </p>
           </div>
         </div>
 

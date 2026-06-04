@@ -129,7 +129,7 @@ export default function PlanSummary({
 
                 <p className="text-xl font-bold text-teal-800">
                   {currency}
-                  {total}/mo
+                  {total}
                 </p>
               </div>
             </div>

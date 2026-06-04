@@ -175,7 +175,7 @@ const PaymentSuccess = () => {
             ["Connection Type", `${search.get("childCategoryName")}`],
             [
               "Package",
-              `${search.get("productName")} $${Number(search.get("price"))}/mo`,
+              `${search.get("productName")} $${Number(search.get("price"))}`,
             ],
             ...finalVoucher.map((item: any) => [
               "Extras",
@@ -212,7 +212,6 @@ const PaymentSuccess = () => {
         <div className="text-right">
           <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
             ${totalPrice}
-            /mo
           </p>
         </div>
       </div>

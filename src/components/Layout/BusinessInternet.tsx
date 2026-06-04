@@ -201,7 +201,7 @@ export default function Layout({
           id: "product",
           title: `${search.get("productName")}`,
           subtitle: `${formatPlan(data)}`,
-          value: `$${search.get("price")}/mo`,
+          value: `$${search.get("price")}`,
           icon: "📦",
         };
 
@@ -306,7 +306,7 @@ export default function Layout({
                   width={40}
                 />
               ),
-              value: `$${Number(item.price).toFixed(2)}/mo`,
+              value: `$${Number(item.price).toFixed(2)}`,
             });
             price.push({
               label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
@@ -320,15 +320,15 @@ export default function Layout({
       if (search.get("equipmentName") && search.get("equipmentId")) {
         values.push({
           id: `equipment`,
-          title: `${search.get("equipmentName")} ${search.get("productNameEquipment")}`,
+          title: `${search.get("productNameEquipment")}`,
           subtitle: `Equipment`,
           icon: `🛜`,
           value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}/mo`
+            ? `$${search.get("priceEquipment")}`
             : `Included`,
         });
         price.push({
-          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
+          label: `${search.get("productNameEquipment")}`,
           value: parseInt(`${search.get("priceEquipment")}`),
           type: search.get("priceEquipment") ? `price` : "Included",
         });
@@ -399,7 +399,7 @@ export default function Layout({
           id: "product",
           title: `${search.get("productName")}`,
           subtitle: ``,
-          value: `$${search.get("price")}/mo`,
+          value: `$${search.get("price")}`,
           icon: "📦",
         });
         price.push({

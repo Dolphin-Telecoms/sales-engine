@@ -59,7 +59,9 @@ const PaymentSuccess = () => {
           transaction_id: transactionID,
         });
 
-        setPaymentData(response.data);
+        if (response?.data?.status) {
+          setPaymentData(response.data);
+        }
 
         // stop polling when completed
         if (

@@ -216,7 +216,7 @@ export default function Plan() {
                           <span className="px-2 bg-[#0CAB461A] text-[#0CAB46] text-[12px] rounded-lg font-normal">
                             recommended
                           </span>
-                        ) : (categories.length > 1 && category.name.toLocaleLowerCase() === "lte") ? (
+                        ) : (categories.length > 1 && (category.name.toLocaleLowerCase() === "lte" || category.name.toLocaleLowerCase() === "fwa")) ? (
                           <span className="px-2 bg-[#fff7ed] text-[#F2A413] text-[12px] rounded-lg font-normal">
                             Subject to availability
                           </span>
@@ -232,7 +232,7 @@ export default function Plan() {
                         </p>
                       ) : (
                         <p className="text-sm text-[#6b7280]">
-                          Not available at your address
+                           Available at your address
                         </p>
                       )}
                     </div>

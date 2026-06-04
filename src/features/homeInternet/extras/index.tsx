@@ -134,41 +134,49 @@ export default function Extras() {
           ...security,
         ];
 
-        const voucherIds = new Set(vouchers.map((voucher: any) => voucher.id));
+        const updatedVouchers = await Promise.all(
+          vouchers.map(async (voucher: any) => {
+            // Skip API call if reservation_id already exists
+            if (voucher.reservation_id) {
+              return voucher;
+            }
 
-        const reservePromises = allProducts
-          .filter((item) => voucherIds.has(item.id))
-          .map((item) => {
-            const usdPrice = item.prices.find(
+            const product = allProducts.find((item) => item.id === voucher.id);
+
+            if (!product) {
+              return voucher;
+            }
+
+            const usdPrice = product.prices.find(
               (p) => p.currency.toLowerCase() === "usd",
             );
 
-            return reserveVoucher(
-              item.id,
-              usdPrice?.currency ?? "",
-              `${usdPrice?.value ?? ""}`,
-            );
-          });
+            try {
+              const response: any = await reserveVoucher(
+                product.id,
+                usdPrice?.currency ?? "",
+                `${usdPrice?.value ?? ""}`,
+              );
 
-        const results: any = await Promise.allSettled(reservePromises);
+              return {
+                ...voucher,
+                reservation_id: response?.data?.data?.reservation_id ?? null,
+              };
+            } catch (error) {
+              console.error(`Failed to reserve voucher ${voucher.id}`, error);
 
-        const updatedVouchers = vouchers.map((voucher: any, index: number) => {
-          return {
-            ...voucher,
-            reservation_id:
-              results[index]?.status === "fulfilled" &&
-              results[index].value?.data?.data?.reservation_id
-                ? results[index]?.value.data?.data?.reservation_id
-                : null,
-          };
-        });
+              return {
+                ...voucher,
+                reservation_id: null,
+              };
+            }
+          }),
+        );
 
         params.set("voucher", JSON.stringify(updatedVouchers));
 
-        const hasFailed = results.some(
-          (result: any) =>
-            result.status === "rejected" ||
-            (result.status === "fulfilled" && result.value?.status === false),
+        const hasFailed = updatedVouchers.some(
+          (voucher: any) => !voucher.reservation_id,
         );
 
         if (!hasFailed) {

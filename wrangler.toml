@@ -1,0 +1,9 @@
+name = "sales-engine"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+workers_dev = false
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "sales-engine"

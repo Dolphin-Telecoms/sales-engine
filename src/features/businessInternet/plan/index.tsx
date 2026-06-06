@@ -220,7 +220,7 @@ export default function Plan() {
                       </h2>
                       {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">
-                          Reliable uninterrupted wired connectivity
+                          Stable wired connectivity
                         </p>
                       ) : category.name.toLocaleLowerCase() === "lte" ? (
                         <p className="text-sm text-[#6b7280]">

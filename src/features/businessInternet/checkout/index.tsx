@@ -106,7 +106,7 @@ export default function SecureCheckout() {
                 `${voucherResponse?.data ? voucherResponse?.data?.id : 0}`,
               ),
               product_uom_qty: 1,
-              price_unit: Number(`${items.price}`),
+              price_unit: Number(`${items.price}`).toFixed(2),
               name: `${items.name}`,
             },
           ]),
@@ -447,7 +447,7 @@ export default function SecureCheckout() {
       <div className="w-full lg:max-w-3xl bg-white rounded-xl p-4 xl:p-8 shadow-sm">
         {/* Header */}
         <h1 className="font-exo font-bold text-[24px] lg:text-[34px] leading-[1.2] tracking-normal">
-          Secure Checkout
+          To make payment
         </h1>
         <p className="mt-2 font-exo font-normal text-[12px] lg:text-[14px] leading-[1] tracking-normal text-[#2C6176]">
           Complete your details below to proceed to payment.

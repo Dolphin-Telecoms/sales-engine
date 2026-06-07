@@ -121,7 +121,7 @@ export default function PlanSummary({
               {/* Total */}
               <div className="mt-4 bg-gray-100 rounded-lg p-4 flex justify-between items-center">
                 <div>
-                  <p className="font-semibold text-sm">Monthly Total</p>
+                  <p className="font-semibold text-sm">Total Amount</p>
                   <p className="text-xs text-gray-500">
                     incl. all selected extras
                   </p>

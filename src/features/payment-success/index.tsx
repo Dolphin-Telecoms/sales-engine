@@ -9,6 +9,7 @@ import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
 import { getSalesOrderName } from "@/src/features/payment-success/apis/getSalesOrder";
 import { Toaster, toast } from "sonner";
+import cn from "classnames"
 // Add this helper component above return()
 
 const Skeleton = ({ className = "" }: { className?: string }) => (
@@ -185,6 +186,8 @@ const PaymentSuccess = () => {
         <h1 className="font-exo font-bold text-[18px] lg:text-[24px] leading-[120%] tracking-[0%] text-center">
           {paymentData?.status === "processing"
             ? `Processing`
+            : paymentData?.status === "cancelled"
+            ? `Payment cancelled!`
             : `Processing ${paymentData?.status ?? ""}`}
           !
         </h1>
@@ -258,8 +261,14 @@ const PaymentSuccess = () => {
       </div>
 
       {/* Warning/Status Box */}
-      <div className="w-full bg-yellow-50 p-5 rounded-lg flex items-center gap-3 border border-yellow-200 my-4">
-        <FiInfo className="text-amber-400 w-8 h-8 flex-shrink-0" />
+      <div className={cn("w-full p-5 rounded-lg flex items-center gap-3 border my-4", {
+          "bg-green-50 border-green-200": paymentData?.status === "completed",
+          "border-yellow-200 bg-yellow-50": paymentData?.status !== "completed"
+      })}>
+        <FiInfo className={cn("w-8 h-8 flex-shrink-0", {
+          "text-green-500": paymentData?.status === "completed",
+          "text-yellow-700": paymentData?.status !== "completed"
+        })} />
         <p className="text-sm text-gray-700 leading-relaxed pt-0.5">
           {paymentData?.status !== "completed"
             ? paymentData?.status === "pending" ||

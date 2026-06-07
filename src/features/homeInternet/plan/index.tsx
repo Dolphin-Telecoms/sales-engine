@@ -216,7 +216,9 @@ export default function Plan() {
                           <span className="px-2 bg-[#0CAB461A] text-[#0CAB46] text-[12px] rounded-lg font-normal">
                             recommended
                           </span>
-                        ) : (categories.length > 1 && (category.name.toLocaleLowerCase() === "lte" || category.name.toLocaleLowerCase() === "fwa")) ? (
+                        ) : categories.length > 1 &&
+                          (category.name.toLocaleLowerCase() === "lte" ||
+                            category.name.toLocaleLowerCase() === "fwa") ? (
                           <span className="px-2 bg-[#fff7ed] text-[#F2A413] text-[12px] rounded-lg font-normal">
                             Subject to availability
                           </span>
@@ -224,7 +226,7 @@ export default function Plan() {
                       </h2>
                       {category.name.toLocaleLowerCase() === "fiber" ? (
                         <p className="text-sm text-[#6b7280]">
-                          Reliable uninterrupted wired connectivity
+                          Stable wired connectivity
                         </p>
                       ) : category.name.toLocaleLowerCase() === "lte" ? (
                         <p className="text-sm text-[#6b7280]">
@@ -232,7 +234,7 @@ export default function Plan() {
                         </p>
                       ) : (
                         <p className="text-sm text-[#6b7280]">
-                           Available at your address
+                          Available at your address
                         </p>
                       )}
                     </div>

@@ -163,7 +163,7 @@ const PaymentSuccess = () => {
         Review Your Business Plan
       </h1>
       <p className="font-exo font-normal text-[12px] text-[14px] leading-[1] tracking-normal text-[#2C6176] mt-3">
-        Everything looks good? Hit Get Connected and we'll take care of the
+        Everything looks good? Click Get Connected and we'll take care of the
         rest.
       </p>
 
@@ -215,7 +215,7 @@ const PaymentSuccess = () => {
         </div>
         <div className="text-right">
           <p className="font-exo font-bold text-[20px] text-[#2F5D6C]">
-            ${totalPrice}
+            ${totalPrice}.00
           </p>
         </div>
       </div>

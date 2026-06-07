@@ -194,7 +194,7 @@ export default function Layout({
 
         price.push({
           label: `${search.get("productName")}`,
-          value: parseInt(`${search.get("price")}`),
+          value: Number(`${search.get("price")}`),
           type: `price`,
         });
 
@@ -222,7 +222,7 @@ export default function Layout({
             });
             price.push({
               label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
-              value: parseInt(`${item.price}`),
+              value: Number(`${item.price}`),
               type: `price`,
             });
           });
@@ -242,7 +242,7 @@ export default function Layout({
 
         price.push({
           label: `${search.get("productNameEquipment")}`,
-          value: parseInt(`${search.get("priceEquipment")}`),
+          value: Number(`${search.get("priceEquipment")}`),
           type: search.get("priceEquipment") ? `price` : "Included",
         });
       }
@@ -297,7 +297,7 @@ export default function Layout({
             });
             price.push({
               label: `${item?.group.charAt(0).toUpperCase() + item?.group.slice(1).toLowerCase()} Voucher - ${item.name}`,
-              value: parseInt(`${item.price}`),
+              value: Number(`${item.price}`),
               type: `price`,
             });
           });
@@ -316,7 +316,7 @@ export default function Layout({
         });
         price.push({
           label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
-          value: parseInt(`${search.get("priceEquipment")}`),
+          value: Number(`${search.get("priceEquipment")}`),
           type: search.get("priceEquipment") ? `price` : "Included",
         });
       }
@@ -392,7 +392,7 @@ export default function Layout({
         });
         price.push({
           label: `${search.get("productName")}`,
-          value: parseInt(`${search.get("price")}`),
+          value: Number(`${search.get("price")}`),
           type: `price`,
         });
       }

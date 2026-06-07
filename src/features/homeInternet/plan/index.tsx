@@ -415,11 +415,9 @@ export default function Plan() {
                             </div>
 
                             <p className="text-[#111827] font-medium mb-3">
-                              {isProductSelected
-                                ? price
-                                  ? `$${price}/ mo`
-                                  : "Select to see pricing"
-                                : "Select to see pricing"}
+                              {isProductSelected && price
+                                ? `$${price}/ mo`
+                                : `$${plan.list_price}/ mo`}
                             </p>
 
                             <hr className="mb-3" />

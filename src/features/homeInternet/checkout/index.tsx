@@ -24,7 +24,7 @@ export default function SecureCheckout() {
   const search = useSearchParams();
   const params = new URLSearchParams(search);
   const [submitLoader, setSubmitLoader] = useState<boolean>(false);
-  const [echocashNumber, setEchoCashNumber] = useState<string>("");
+  const [echocashNumber, setEcocashNumber] = useState<string>("");
 
   const generateCustomer = async (
     email: string,
@@ -234,7 +234,7 @@ export default function SecureCheckout() {
     fullName?: string;
     email?: string;
     phone?: string;
-    echoCashNumber?: string;
+    ecocashNumber?: string;
   };
 
   const [form, setForm] = useState<FormData>({
@@ -345,7 +345,7 @@ export default function SecureCheckout() {
 
     if (selectedMethod === "EcoCash") {
       if (!echocashNumber.trim()) {
-        newErrors.echoCashNumber = "Echocash Number is required!";
+        newErrors.ecocashNumber = "Echocash Number is required!";
       }
     }
 
@@ -686,16 +686,16 @@ export default function SecureCheckout() {
                         <input
                           type="text"
                           onChange={(event) => {
-                            setEchoCashNumber(event.target.value);
+                            setEcocashNumber(event.target.value);
                             setErrors({});
                           }}
                           value={echocashNumber}
                           placeholder="Enter EcoCash number"
                           className="w-full rounded-lg border border-[#D1D5DB] px-4 py-3 outline-none focus:border-[#2F5D6C]"
                         />
-                        {errors.echoCashNumber && (
+                        {errors.ecocashNumber && (
                           <p className="text-red-500 text-xs mt-1 mb-3">
-                            {errors.echoCashNumber}
+                            {errors.ecocashNumber}
                           </p>
                         )}
                       </div>

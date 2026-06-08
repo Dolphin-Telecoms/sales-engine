@@ -2,15 +2,24 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { echoCashPaymentInitiate } from "@/src/features/echoCash/apis/paymentInitiate";
+import { ecocashPaymentInitiate } from "@/src/features/ecocash/apis/paymentInitiate";
+import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 
-export default function EchoCash() {
+export default function Ecocash() {
   const router = useRouter();
   const search = useSearchParams();
   const params = new URLSearchParams(search);
 
+  const getSuccessPath = () => {
+    const orderType = search.get("orderType");
+    if (orderType === "home" || orderType === "airtime") {
+      return `/payment-success/echocash?${params.toString()}`;
+    }
+    return `/business-internet/payment-success/echocash?${params.toString()}`;
+  };
+
   const InitiatePayment = async () => {
-    const { status, data } = await echoCashPaymentInitiate({
+    const { status, data } = await ecocashPaymentInitiate({
       customer_name: `${search.get("customerName")}`,
       account_number: `${search.get("accountNumber")}`,
       phone: `${search.get("echocashNumber")}`,
@@ -36,7 +45,31 @@ export default function EchoCash() {
   };
 
   useEffect(() => {
-    InitiatePayment();
+    const existingTxId = search.get("transactionID");
+
+    if (!existingTxId) {
+      InitiatePayment();
+      return;
+    }
+
+    getTransaction({ transaction_id: existingTxId })
+      .then(({ data }) => {
+        const txStatus = data?.status;
+        if (
+          txStatus === "completed" ||
+          txStatus === "processing" ||
+          txStatus === "pending"
+        ) {
+          router.replace(getSuccessPath());
+        } else {
+          params.delete("transactionID");
+          InitiatePayment();
+        }
+      })
+      .catch(() => {
+        params.delete("transactionID");
+        InitiatePayment();
+      });
   }, []);
 
   return (

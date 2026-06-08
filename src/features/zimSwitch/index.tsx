@@ -1,13 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zimswitchPaymentInitiate } from "@/src/features/zimSwitch/apis/paymentInitiate";
+import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 
 export default function ZimSwitch() {
+  const router = useRouter();
   const search = useSearchParams();
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(search);
+
+  const getSuccessPath = () => {
+    const orderType = search.get("orderType");
+    if (orderType === "home" || orderType === "airtime") {
+      return `/payment-success/zimswitch?${params.toString()}`;
+    }
+    return `/business-internet/payment-success/zimswitch?${params.toString()}`;
+  };
 
   const InitiatePayment = async () => {
     const { status, data } = await zimswitchPaymentInitiate({
@@ -73,7 +83,27 @@ export default function ZimSwitch() {
   };
 
   useEffect(() => {
-    InitiatePayment();
+    const existingTxId = search.get("transactionID");
+
+    if (!existingTxId) {
+      InitiatePayment();
+    } else {
+      getTransaction({ transaction_id: existingTxId })
+        .then(({ data }) => {
+          const txStatus = data?.status;
+          if (txStatus === "completed" || txStatus === "processing") {
+            router.replace(getSuccessPath());
+          } else {
+            // pending = card not entered, failed/cancelled = retrigger
+            params.delete("transactionID");
+            InitiatePayment();
+          }
+        })
+        .catch(() => {
+          params.delete("transactionID");
+          InitiatePayment();
+        });
+    }
 
     return () => {
       const existing = document.getElementById("zimswitch-widget");

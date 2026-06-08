@@ -7,7 +7,8 @@ export async function GET() {
       `/json/2/product.category/search_read`,
       {
         domain: [
-          ["parent_id", "=", false], // 👈 filter added
+          ["parent_id", "=", false],
+          ["complete_name", "!=", "Mobile"],
         ]
       },
     ).then((res) => res.data);

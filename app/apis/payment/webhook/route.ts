@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
                   { ids: [wizard[0]] },
                 ).then((res) => res.data);
                 console.log("invoice created successfully:", invoice);
-                const { id, res_id } = invoice;
-                if (id && res_id) {
+                const { res_id } = invoice;
+                if (res_id) {
                   try {
                     const action = await OddoAxios.post(
                       "/json/2/account.move/action_post",

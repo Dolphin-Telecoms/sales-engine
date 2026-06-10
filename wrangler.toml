@@ -7,7 +7,7 @@ workers_dev = true
 preview_urls = true
 
 [[routes]]
-pattern = "se-origin.dtel.co.zw/*"
+pattern = "*/*"
 zone_name = "dtel.co.zw"
 
 [assets]

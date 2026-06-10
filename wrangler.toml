@@ -6,6 +6,10 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 preview_urls = true
 
+[[routes]]
+pattern = "se-origin.dtel.co.zw/*"
+zone_name = "dtel.co.zw"
+
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"

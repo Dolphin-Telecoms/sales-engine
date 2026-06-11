@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("echocash API failed!", error);
+    console.error("zimswitch API failed!", error);
     return NextResponse.json(
       { error: "Payment initiation failed" },
       { status: 500 },

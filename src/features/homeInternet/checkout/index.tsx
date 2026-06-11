@@ -24,7 +24,7 @@ export default function SecureCheckout() {
   const search = useSearchParams();
   const params = new URLSearchParams(search);
   const [submitLoader, setSubmitLoader] = useState<boolean>(false);
-  const [echocashNumber, setEcocashNumber] = useState<string>("");
+  const [ecocashNumber, setEcocashNumber] = useState<string>("");
 
   const generateCustomer = async (
     email: string,
@@ -360,7 +360,7 @@ export default function SecureCheckout() {
     const newErrors: FormErrors = {};
 
     if (selectedMethod === "EcoCash") {
-      if (!echocashNumber.trim()) {
+      if (!ecocashNumber.trim()) {
         newErrors.ecocashNumber = "Echocash Number is required!";
       }
     }
@@ -705,7 +705,7 @@ export default function SecureCheckout() {
                             setEcocashNumber(event.target.value);
                             setErrors({});
                           }}
-                          value={echocashNumber}
+                          value={ecocashNumber}
                           placeholder="Enter EcoCash number"
                           className="w-full rounded-lg border border-[#D1D5DB] px-4 py-3 outline-none focus:border-[#2F5D6C]"
                         />
@@ -732,7 +732,7 @@ export default function SecureCheckout() {
                         setErrors(validationErrors);
                         return;
                       } else {
-                        params.set("echocashNumber", echocashNumber);
+                        params.set("ecocashNumber", ecocashNumber);
                         window.history.replaceState(
                           null,
                           "",

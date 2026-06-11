@@ -72,7 +72,7 @@ export default function Airtime() {
     email: ``,
     phone: ``,
   });
-  const [echocashNumber, setEcocashNumber] = useState<string>("");
+  const [ecocashNumber, setEcocashNumber] = useState<string>("");
   const [submitLoader, setSubmitLoader] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -348,7 +348,7 @@ export default function Airtime() {
     const newErrors: FormErrors = {};
 
     if (selectedMethod === "EcoCash") {
-      if (!echocashNumber.trim()) {
+      if (!ecocashNumber.trim()) {
         newErrors.ecocashNumber = "Echocash Number is required!";
       }
     }
@@ -833,7 +833,7 @@ export default function Airtime() {
                             setEcocashNumber(event.target.value);
                             setErrors({});
                           }}
-                          value={echocashNumber}
+                          value={ecocashNumber}
                           placeholder="Enter EcoCash number"
                           className="w-full rounded-lg border border-[#D1D5DB] px-4 py-3 outline-none focus:border-[#2F5D6C]"
                         />
@@ -860,7 +860,7 @@ export default function Airtime() {
                         setErrors(validationErrors);
                         return;
                       } else {
-                        params.set("echocashNumber", echocashNumber);
+                        params.set("ecocashNumber", ecocashNumber);
                         window.history.replaceState(
                           null,
                           "",

@@ -229,21 +229,43 @@ export default function Layout({
         }
       }
 
-      if (search.get("equipmentName") && search.get("equipmentId")) {
+      const equipId = search.get("equipmentId");
+      const equipName = search.get("equipmentName");
+      const equipProductName = search.get("productNameEquipment");
+      const equipPrice = search.get("priceEquipment");
+      const isValidStr = (v: string | null) => !!v && v !== "null" && v !== "undefined";
+      const validEquipPrice = isValidStr(equipPrice) && !isNaN(Number(equipPrice)) && Number(equipPrice) > 0;
+      if (isValidStr(equipId) && isValidStr(equipName)) {
         values.push({
           id: `equipment`,
-          title: `${search.get("productNameEquipment")}`,
+          title: `${isValidStr(equipProductName) ? equipProductName : equipName}`,
           subtitle: `Equipment`,
           icon: `🛜`,
-          value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}`
-            : `Included`,
+          value: validEquipPrice ? `$${equipPrice}` : `Included`,
         });
 
         price.push({
-          label: `${search.get("productNameEquipment")}`,
-          value: Number(`${search.get("priceEquipment")}`),
-          type: search.get("priceEquipment") ? `price` : "Included",
+          label: `${isValidStr(equipProductName) ? equipProductName : equipName}`,
+          value: validEquipPrice ? Number(equipPrice) : 0,
+          type: validEquipPrice ? `price` : "Included",
+        });
+      }
+
+      if (search.get("optionalFees")) {
+        const fees = JSON.parse(search.get("optionalFees") || "[]");
+        fees.forEach((fee: any) => {
+          values.push({
+            id: `fee-${fee.variantId}`,
+            title: fee.name,
+            subtitle: "Additional fee",
+            icon: "💰",
+            value: `$${Number(fee.price).toFixed(2)}`,
+          });
+          price.push({
+            label: fee.name,
+            value: Number(fee.price),
+            type: "fee",
+          });
         });
       }
 
@@ -304,20 +326,42 @@ export default function Layout({
         }
       }
 
-      if (search.get("equipmentName") && search.get("equipmentId")) {
+      const equipId2 = search.get("equipmentId");
+      const equipName2 = search.get("equipmentName");
+      const equipProductName2 = search.get("productNameEquipment");
+      const equipPrice2 = search.get("priceEquipment");
+      const isValidStr2 = (v: string | null) => !!v && v !== "null" && v !== "undefined";
+      const validEquipPrice2 = isValidStr2(equipPrice2) && !isNaN(Number(equipPrice2)) && Number(equipPrice2) > 0;
+      if (isValidStr2(equipId2) && isValidStr2(equipName2)) {
         values.push({
           id: `equipment`,
-          title: `${search.get("equipmentName")} ${search.get("productNameEquipment")}`,
+          title: `${isValidStr2(equipProductName2) ? equipProductName2 : equipName2}`,
           subtitle: `Equipment`,
           icon: `🛜`,
-          value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}`
-            : `Included`,
+          value: validEquipPrice2 ? `$${equipPrice2}` : `Included`,
         });
         price.push({
-          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
-          value: Number(`${search.get("priceEquipment")}`),
-          type: search.get("priceEquipment") ? `price` : "Included",
+          label: `${isValidStr2(equipProductName2) ? equipProductName2 : equipName2}`,
+          value: validEquipPrice2 ? Number(equipPrice2) : 0,
+          type: validEquipPrice2 ? `price` : "Included",
+        });
+      }
+
+      if (search.get("optionalFees")) {
+        const fees = JSON.parse(search.get("optionalFees") || "[]");
+        fees.forEach((fee: any) => {
+          values.push({
+            id: `fee-${fee.variantId}`,
+            title: fee.name,
+            subtitle: "Additional fee",
+            icon: "💰",
+            value: `$${Number(fee.price).toFixed(2)}`,
+          });
+          price.push({
+            label: fee.name,
+            value: Number(fee.price),
+            type: "fee",
+          });
         });
       }
 

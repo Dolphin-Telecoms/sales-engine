@@ -19,6 +19,21 @@ export default function ZimSwitch() {
     return `/business-internet/payment-success/zimswitch?${params.toString()}`;
   };
 
+  const computeTotal = () => {
+    const price = Number(search.get("price") || 0);
+    const voucherPrice = Number(search.get("voucherPrice") || 0);
+    const priceEquipment = Number(search.get("priceEquipment") || 0);
+    const optionalFees = (() => {
+      try { return JSON.parse(search.get("optionalFees") || "[]"); } catch { return []; }
+    })();
+    const feesTotal = optionalFees.reduce((sum: number, f: any) => sum + Number(f.price), 0);
+    const businessVariant = (() => {
+      try { return JSON.parse(search.get("businessvariant") || "[]"); } catch { return []; }
+    })();
+    const variantTotal = businessVariant.reduce((sum: number, v: any) => sum + Number(v.variant_price || 0), 0);
+    return price + voucherPrice + priceEquipment + feesTotal + variantTotal;
+  };
+
   const InitiatePayment = async () => {
     const { status, data } = await zimswitchPaymentInitiate({
       customer_name: `${search.get("customerName")}`,
@@ -26,7 +41,7 @@ export default function ZimSwitch() {
       phone: `${search.get("customerPhone")}`,
       customer_email: `${search.get("customerEmail")}`,
       currency: "USD",
-      amount: 0.1,
+      amount: computeTotal(),
       param: `${params.toString()}`,
     });
 

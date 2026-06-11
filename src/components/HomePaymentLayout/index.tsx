@@ -205,21 +205,43 @@ export default function Layout({
         }
       }
 
-      if (search.get("equipmentName") && search.get("equipmentId")) {
+      const eId = search.get("equipmentId");
+      const eName = search.get("equipmentName");
+      const eProdName = search.get("productNameEquipment");
+      const ePrice = search.get("priceEquipment");
+      const isV = (v: string | null) => !!v && v !== "null" && v !== "undefined";
+      const validEPrice = isV(ePrice) && !isNaN(Number(ePrice)) && Number(ePrice) > 0;
+      if (isV(eId) && isV(eName)) {
         values.push({
           id: `equipment`,
-          title: `${search.get("equipmentName")} ${search.get("productNameEquipment")}`,
+          title: `${eName} ${isV(eProdName) ? eProdName : ""}`.trim(),
           subtitle: `Equipment`,
           icon: `🛜`,
-          value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}`
-            : `Included`,
+          value: validEPrice ? `$${ePrice}` : `Included`,
         });
 
         price.push({
-          label: `${search.get("equipmentName")} ${search.get("productNameEquipment")} Equipment`,
-          value: Number(`${search.get("priceEquipment")}`),
-          type: search.get("priceEquipment") ? `price` : "Included",
+          label: `${eName} ${isV(eProdName) ? eProdName : ""} Equipment`.trim(),
+          value: validEPrice ? Number(ePrice) : 0,
+          type: validEPrice ? `price` : "Included",
+        });
+      }
+
+      if (search.get("optionalFees")) {
+        const fees = JSON.parse(search.get("optionalFees") || "[]");
+        fees.forEach((fee: any) => {
+          values.push({
+            id: `fee-${fee.variantId}`,
+            title: fee.name,
+            subtitle: "Additional fee",
+            icon: "💰",
+            value: `$${Number(fee.price).toFixed(2)}`,
+          });
+          price.push({
+            label: fee.name,
+            value: Number(fee.price),
+            type: "fee",
+          });
         });
       }
 
@@ -280,20 +302,42 @@ export default function Layout({
         }
       }
 
-      if (search.get("equipmentName") && search.get("equipmentId")) {
+      const eId2 = search.get("equipmentId");
+      const eName2 = search.get("equipmentName");
+      const eProdName2 = search.get("productNameEquipment");
+      const ePrice2 = search.get("priceEquipment");
+      const isV2 = (v: string | null) => !!v && v !== "null" && v !== "undefined";
+      const validEPrice2 = isV2(ePrice2) && !isNaN(Number(ePrice2)) && Number(ePrice2) > 0;
+      if (isV2(eId2) && isV2(eName2)) {
         values.push({
           id: `equipment`,
-          title: `${search.get("productNameEquipment")}`,
+          title: `${isV2(eProdName2) ? eProdName2 : eName2}`,
           subtitle: `Equipment`,
           icon: `🛜`,
-          value: search.get("priceEquipment")
-            ? `$${search.get("priceEquipment")}`
-            : `Included`,
+          value: validEPrice2 ? `$${ePrice2}` : `Included`,
         });
         price.push({
-          label: `${search.get("productNameEquipment")}`,
-          value: Number(`${search.get("priceEquipment")}`),
-          type: search.get("priceEquipment") ? `price` : "Included",
+          label: `${isV2(eProdName2) ? eProdName2 : eName2}`,
+          value: validEPrice2 ? Number(ePrice2) : 0,
+          type: validEPrice2 ? `price` : "Included",
+        });
+      }
+
+      if (search.get("optionalFees")) {
+        const fees = JSON.parse(search.get("optionalFees") || "[]");
+        fees.forEach((fee: any) => {
+          values.push({
+            id: `fee-${fee.variantId}`,
+            title: fee.name,
+            subtitle: "Additional fee",
+            icon: "💰",
+            value: `$${Number(fee.price).toFixed(2)}`,
+          });
+          price.push({
+            label: fee.name,
+            value: Number(fee.price),
+            type: "fee",
+          });
         });
       }
 

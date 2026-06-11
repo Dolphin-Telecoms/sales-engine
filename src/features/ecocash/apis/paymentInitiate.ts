@@ -38,7 +38,7 @@ export const ecocashPaymentInitiate = async ({
       return { status: false, data: null };
     }
   } catch (error) {
-    console.error("Error echocash payment initiate:", error);
+    console.error("Error ecocash payment initiate:", error);
     return { status: false, data: null };
   }
 };

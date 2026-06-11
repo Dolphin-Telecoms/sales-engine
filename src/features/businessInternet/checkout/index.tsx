@@ -198,6 +198,22 @@ export default function SecureCheckout() {
         );
       }
 
+      if (search.get("optionalFees")) {
+        const fees = JSON.parse(search.get("optionalFees") || "[]");
+        fees.forEach((fee: any) =>
+          orderLines.push([
+            0,
+            0,
+            {
+              product_id: Number(fee.variantId),
+              product_uom_qty: 1,
+              price_unit: Number(fee.price),
+              name: fee.name,
+            },
+          ]),
+        );
+      }
+
       const planId = search.get("planId")
         ? Number(`${search.get("planId")}`)
         : undefined;

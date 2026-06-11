@@ -5,7 +5,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // ✅ get query params
     const { searchParams } = new URL(req.url);
 
     const paramsObject = Object.fromEntries(searchParams.entries());

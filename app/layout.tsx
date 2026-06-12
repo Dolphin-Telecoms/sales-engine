@@ -9,21 +9,23 @@ const exo = Exo({
   weight: ["400", "700"],
 });
 export const metadata: Metadata = {
-  title: "Dolphin Pay (D pay) — A New Way to Manage Your Digital Lifestyle",
+  title: "Dolphin Telecoms | Connectivity for Every Part of Your Life",
   description:
-    "Seamlessly control your finances and experiences with Dolphin Pay — a secure, elegant digital platform designed for your modern life.",
+    "Reliable internet and mobile services for home, business, and life on the move. Fibre, LTE, FWA, and mobile plans across Zimbabwe and South Africa.",
   keywords: [
-    "dolphin pay",
-    "dpay",
-    "digital payments",
-    "fintech",
-    "digital wallet",
+    "dolphin telecoms",
+    "fibre internet zimbabwe",
+    "LTE internet zimbabwe",
+    "home internet zimbabwe",
+    "business internet zimbabwe",
+    "mobile plans zimbabwe",
+    "broadband zimbabwe",
   ],
-  authors: [{ name: "Dolphin Pay" }],
+  authors: [{ name: "Dolphin Telecoms" }],
   openGraph: {
-    title: "Dolphin Pay — A New Way to Manage Your Digital Lifestyle",
+    title: "Dolphin Telecoms | Connectivity for Every Part of Your Life",
     description:
-      "Seamlessly control your finances and experiences with a secure, elegant digital platform designed for your modern life.",
+      "Reliable internet and mobile services for home, business, and life on the move. Fibre, LTE, FWA, and mobile plans across Zimbabwe and South Africa.",
     type: "website",
   },
 };

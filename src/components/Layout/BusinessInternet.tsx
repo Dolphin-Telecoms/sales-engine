@@ -251,14 +251,14 @@ export default function Layout({
       if (validEquip(equipId) && validEquip(equipName)) {
         values.push({
           id: `equipment`,
-          title: `${equipName} ${validEquip(equipProductName) ? equipProductName : ""}`.trim(),
+          title: `${validEquip(equipProductName) ? equipProductName : equipName}`,
           subtitle: `Equipment`,
           icon: `🛜`,
           value: validEquipPrice ? `$${equipPrice}` : `Included`,
         });
 
         price.push({
-          label: `${equipName} ${validEquip(equipProductName) ? equipProductName : ""} Equipment`.trim(),
+          label: `${validEquip(equipProductName) ? equipProductName : equipName}`,
           value: validEquipPrice ? Number(equipPrice) : 0,
           type: validEquipPrice ? `price` : "Included",
         });

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       const equipmentIds = productsResponse?.x_equipment_ids;
 
       if (!equipmentIds || equipmentIds.length === 0) {
-        productAttributes = [{ ...productsResponse, equipments: [] }];
+        productAttributes = [];
       } else {
         // ✅ Step 1: Fetch attribute lines
         const equipments = await OddoAxios.post(

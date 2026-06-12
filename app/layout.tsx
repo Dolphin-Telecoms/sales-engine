@@ -22,6 +22,14 @@ export const metadata: Metadata = {
     "broadband zimbabwe",
   ],
   authors: [{ name: "Dolphin Telecoms" }],
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png" }],
+  },
   openGraph: {
     title: "Dolphin Telecoms | Connectivity for Every Part of Your Life",
     description:

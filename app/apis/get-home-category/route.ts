@@ -8,7 +8,6 @@ export async function GET() {
       {
         domain: [
           ["parent_id", "=", false],
-          ["complete_name", "!=", "Mobile"],
         ]
       },
     ).then((res) => res.data);

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       `/json/2/product.template/search_read`,
       {
         domain: [["categ_id", "=", parseInt(homeCategory)]],
-        fields: ["id", "name", "list_price", "categ_id", "valid_product_template_attribute_line_ids", "product_variant_ids", "recurring_invoice"],
+        fields: ["id", "name", "description", "list_price", "categ_id", "valid_product_template_attribute_line_ids", "product_variant_ids", "product_variant_id", "recurring_invoice"],
       },
     ).then((res) => res.data);
 

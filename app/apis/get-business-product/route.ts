@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         categoriesIds.map((id: number) =>
           OddoAxios.post(`/json/2/product.template/search_read`, {
             domain: [["categ_id", "=", id]],
-            fields: ["id", "name", "list_price", "categ_id", "valid_product_template_attribute_line_ids", "product_variant_ids", "recurring_invoice", "x_equipment_ids"],
+            fields: ["id", "name", "description", "list_price", "categ_id", "valid_product_template_attribute_line_ids", "product_variant_ids", "product_variant_id", "recurring_invoice", "x_equipment_ids"],
           }),
         ),
       ).then(

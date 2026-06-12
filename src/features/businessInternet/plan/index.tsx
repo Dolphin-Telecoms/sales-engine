@@ -461,7 +461,7 @@ export default function Plan() {
                                                 },
                                               )}
                                             >
-                                              {isSelected ? "✓" : ""}
+                                              {isSelected ? <FaCheck /> : null}
                                             </span>
                                             <div className="flex items-center justify-between w-[92%]">
                                               <p>{value.name}</p>

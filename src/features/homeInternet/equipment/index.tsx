@@ -3,6 +3,7 @@
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { EquipmentCategory } from "@/src/types";
+import { FiPackage } from "react-icons/fi";
 import { getEquipment } from "@/src/features/businessInternet/apis/getEquipment";
 import EquipmentVariant from "@/src/features/businessInternet/equipment/equipmentVariant";
 import { getOptionalProducts } from "@/src/features/homeInternet/apis/getOptionalProducts";
@@ -220,7 +221,7 @@ export default function EquipmentSetup() {
           <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] p-5">
             <div className="flex items-start lg:items-center gap-4">
               <div className="flex p-4 text-3xl items-center justify-center rounded-lg bg-[#FFFFFF]">
-                📦
+                <FiPackage />
               </div>
               <div>
                 <h2 className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">

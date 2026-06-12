@@ -5,6 +5,7 @@ import { getTransaction } from "@/src/features/payment-success/apis/getTransacti
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
+import { BsStars } from "react-icons/bs";
 import { getSalesOrderName } from "@/src/features/businessInternet/apis/getSalesOrder";
 
 const PaymentSuccess = () => {
@@ -225,7 +226,7 @@ const PaymentSuccess = () => {
       ) : (
         <div className="mt-8 text-center">
           {paymentData?.status === "completed" ? (
-            <div className="text-8xl">🎉</div>
+            <div className="text-8xl text-[#f59e0b]"><BsStars /></div>
           ) : (
             ""
           )}

@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, redirect } from "next/navigation";
 import useDebounce from "@/src/hooks/useDebounce";
+import { FaCheck } from "react-icons/fa";
+import { LuX } from "react-icons/lu";
 import { checkCoverage } from "@/src/features/businessInternet/apis/checkCoverage";
 import { ServiceAvailability } from "@/src/types";
 
@@ -174,7 +176,7 @@ export default function AvailabilityChecker() {
           {isChecking && (
             <div className="mt-6 rounded-lg border border-[#86EFAC] bg-[#DCFCE7] p-4 flex gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#BBF7D0]">
-                <span className="text-green-700 font-bold">✓</span>
+                <FaCheck className="text-green-700 text-lg" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-green-800">
@@ -198,7 +200,7 @@ export default function AvailabilityChecker() {
           {noService && (
             <div className="mt-6 rounded-lg border border-[#FCA5A5] bg-[#FEF2F2] p-4 flex gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FECACA]">
-                <span className="text-red-700 font-bold">✕</span>
+                <LuX className="text-red-700 text-lg" />
               </div>
 
               <div>

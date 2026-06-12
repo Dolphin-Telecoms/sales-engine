@@ -379,7 +379,7 @@ export default function EquipmentVariant({
                                           },
                                         )}
                                       >
-                                        {isSelected ? "✓" : ""}
+                                        {isSelected ? <FaCheck /> : null}
                                       </span>
                                       <div className="flex items-center justify-between w-[92%]">
                                         <p>{value.name}</p>

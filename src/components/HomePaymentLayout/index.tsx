@@ -9,12 +9,14 @@ import AppBar from "@/src/components/AppBar";
 import Container from "@/src/components/Container";
 import Stepper from "@/src/components/Stepper";
 import PlanSummary from "@/src/components/SummaryPlan";
-import { useState, Suspense } from "react";
+import { useState, Suspense, type ReactNode } from "react";
+import { FiHome, FiMapPin, FiPackage, FiWifi, FiDollarSign } from "react-icons/fi";
+import { LuRadio } from "react-icons/lu";
 interface ItemType {
   id: string;
   title: string;
   subtitle: string;
-  icon: string;
+  icon: ReactNode;
   value?: string;
 }
 
@@ -140,14 +142,14 @@ export default function Layout({
         id: "service",
         title: "Home Internet",
         subtitle: "Selected service",
-        icon: "🏠",
+        icon: <FiHome />,
       });
       if (search.get("location")) {
         values.push({
           id: "address",
           title: `${search.get("location")}`,
           subtitle: "Service address",
-          icon: "📍",
+          icon: <FiMapPin />,
         });
       }
       if (search.get("childCategoryName")) {
@@ -155,7 +157,7 @@ export default function Layout({
           id: `${search.get("childCategory")}`,
           title: `${search.get("childCategoryName")}`,
           subtitle: "Connection type",
-          icon: "📡",
+          icon: <LuRadio />,
         });
       }
 
@@ -165,7 +167,7 @@ export default function Layout({
           title: `${search.get("productName")}`,
           subtitle: `${formatPlan(data)}`,
           value: `$${search.get("price")}`,
-          icon: "📦",
+          icon: <FiPackage />,
         };
 
         price.push({
@@ -216,7 +218,7 @@ export default function Layout({
           id: `equipment`,
           title: `${isV(eProdName) ? eProdName : eName}`,
           subtitle: `Equipment`,
-          icon: `🛜`,
+          icon: <FiWifi />,
           value: validEPrice ? `$${ePrice}` : `Included`,
         });
 
@@ -234,7 +236,7 @@ export default function Layout({
             id: `fee-${fee.variantId}`,
             title: fee.name,
             subtitle: "Additional fee",
-            icon: "💰",
+            icon: <FiDollarSign />,
             value: `$${Number(fee.price).toFixed(2)}`,
           });
           price.push({
@@ -255,7 +257,7 @@ export default function Layout({
         id: "service",
         title: "Home Internet",
         subtitle: "Selected service",
-        icon: "🏠",
+        icon: <FiHome />,
       });
 
       if (search.get("location")) {
@@ -263,7 +265,7 @@ export default function Layout({
           id: "address",
           title: `${search.get("location")}`,
           subtitle: "Service address",
-          icon: "📍",
+          icon: <FiMapPin />,
         });
       }
       if (search.get("childCategoryName")) {
@@ -271,7 +273,7 @@ export default function Layout({
           id: `${search.get("childCategory")}`,
           title: `${search.get("childCategoryName")}`,
           subtitle: "Connection type",
-          icon: "📡",
+          icon: <LuRadio />,
         });
       }
 
@@ -313,7 +315,7 @@ export default function Layout({
           id: `equipment`,
           title: `${isV2(eProdName2) ? eProdName2 : eName2}`,
           subtitle: `Equipment`,
-          icon: `🛜`,
+          icon: <FiWifi />,
           value: validEPrice2 ? `$${ePrice2}` : `Included`,
         });
         price.push({
@@ -330,7 +332,7 @@ export default function Layout({
             id: `fee-${fee.variantId}`,
             title: fee.name,
             subtitle: "Additional fee",
-            icon: "💰",
+            icon: <FiDollarSign />,
             value: `$${Number(fee.price).toFixed(2)}`,
           });
           price.push({
@@ -374,14 +376,14 @@ export default function Layout({
         id: "service",
         title: "Home Internet",
         subtitle: "Selected service",
-        icon: "🏠",
+        icon: <FiHome />,
       });
       if (search.get("location")) {
         data.push({
           id: "address",
           title: `${search.get("location")}`,
           subtitle: "Service address",
-          icon: "📍",
+          icon: <FiMapPin />,
         });
       }
       if (search.get("childCategoryName")) {
@@ -389,7 +391,7 @@ export default function Layout({
           id: `${search.get("childCategory")}`,
           title: `${search.get("childCategoryName")}`,
           subtitle: "Connection type",
-          icon: "📡",
+          icon: <LuRadio />,
         });
       }
       if (
@@ -402,7 +404,7 @@ export default function Layout({
           title: `${search.get("productName")}`,
           subtitle: ``,
           value: `$${search.get("price")}`,
-          icon: "📦",
+          icon: <FiPackage />,
         });
         price.push({
           label: `${search.get("productName")}`,

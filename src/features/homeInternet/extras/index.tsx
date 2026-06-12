@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, ReactNode, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
+import { FiSmartphone } from "react-icons/fi";
 import cn from "classnames";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import { Voucher } from "@/src/features/homeInternet/types/type";
@@ -266,7 +267,7 @@ export default function Extras() {
           >
             <div className="flex gap-4">
               <div className="bg-[#FDECCC] rounded-lg py-4 px-2 text-2xl">
-                📱
+                <FiSmartphone />
               </div>
               <div className="flex-1">
                 <p className="font-exo font-bold text-[20px] leading-[1.2] tracking-normal">
@@ -288,7 +289,7 @@ export default function Extras() {
                   : "bg-[#f59e0b] text-white border-[#f59e0b] opacity-20"
               }`}
             >
-              {bundleActive ? "✓ Bundle Active" : "Add Mobile Plan"}
+              {bundleActive ? <><FaCheck className="inline mr-1" />Bundle Active</> : "Add Mobile Plan"}
             </button>
           </div>
 

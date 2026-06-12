@@ -259,7 +259,7 @@ const PaymentSuccess = () => {
             >
               {paymentData?.status === "completed"
                 ? "A confirmation has been sent to your email."
-                : `You payment is ${paymentData?.status}`}
+                : `Your payment is ${paymentData?.status}`}
             </span>
           </p>
 

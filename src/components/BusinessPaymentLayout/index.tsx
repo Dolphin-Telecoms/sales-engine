@@ -120,14 +120,14 @@ export default function Layout({
       if (isV(eId) && isV(eName)) {
         values.push({
           id: `equipment`,
-          title: `${eName} ${isV(eProdName) ? eProdName : ""}`.trim(),
+          title: `${isV(eProdName) ? eProdName : eName}`,
           subtitle: `Equipment`,
           icon: `🛜`,
           value: validEPrice ? `$${ePrice}` : `Included`,
         });
 
         price.push({
-          label: `${eName} ${isV(eProdName) ? eProdName : ""} Equipment`.trim(),
+          label: `${isV(eProdName) ? eProdName : eName}`,
           value: validEPrice ? Number(ePrice) : 0,
           type: validEPrice ? `price` : "Included",
         });

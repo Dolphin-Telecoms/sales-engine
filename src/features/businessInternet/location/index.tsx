@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, redirect } from "next/navigation";
 import useDebounce from "@/src/hooks/useDebounce";
 import { checkCoverage } from "@/src/features/businessInternet/apis/checkCoverage";
@@ -31,13 +31,16 @@ export default function AvailabilityChecker() {
   const [coverage, setCoverage] = useState<ServiceAvailability | null>(null);
 
   const debouncedQuery = useDebounce(query, 300);
+  const sessionTokenRef = useRef<any>(null);
 
-  const handleSelect = (item: Address) => {
+  const handleSelect = async (item: Address) => {
     setQuery(item.description);
     setSelected(item);
     setShowDropdown(false);
     setIsChecking(false);
     setNoService(false);
+    const { AutocompleteSessionToken } = await (window as any).google.maps.importLibrary("places");
+    sessionTokenRef.current = new AutocompleteSessionToken();
   };
 
   const checkAddress = async () => {
@@ -78,12 +81,19 @@ export default function AvailabilityChecker() {
 
     (async () => {
       try {
-        const { suggestions: results } = await (
+        const { AutocompleteSuggestion, AutocompleteSessionToken } = await (
           window as any
-        ).google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        ).google.maps.importLibrary("places");
+
+        if (!sessionTokenRef.current) {
+          sessionTokenRef.current = new AutocompleteSessionToken();
+        }
+
+        const { suggestions: results } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
           input: debouncedQuery,
           includedRegionCodes: ["zw"],
-          includedPrimaryTypes: ["address"],
+          includedPrimaryTypes: ["street_address", "route"],
+          sessionToken: sessionTokenRef.current,
         });
 
         const mapped = results.map((s: any) => {

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         },
       ).then((response) => response.data[0]);
 
-      let productAttributes = [];
+      let productAttributes: any[] = [];
 
       const equipmentIds = productsResponse?.x_equipment_ids;
 

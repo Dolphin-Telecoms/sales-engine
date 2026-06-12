@@ -144,7 +144,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           message: "Oddo product home categories fetch successful",
-          data: response.sort((a: any, b: any) => a.id - b.id),
+          data: response.sort((a: any, b: any) => {
+            const PRIORITY: Record<string, number> = { fiber: 0, fibre: 0, fwa: 1, lte: 2 };
+            const aPriority = PRIORITY[(a.name ?? "").toLowerCase()] ?? 99;
+            const bPriority = PRIORITY[(b.name ?? "").toLowerCase()] ?? 99;
+            return aPriority - bPriority;
+          }),
         },
         { status: 200 },
       );

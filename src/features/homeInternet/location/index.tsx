@@ -65,9 +65,6 @@ export default function AvailabilityChecker() {
   const router = useRouter();
   const search = useSearchParams();
 
-  const getCity = (prediction: any): string => {
-    return prediction.structured_formatting.secondary_text.split(",")[0];
-  };
   useEffect(() => {
     if (!debouncedQuery) {
       setSuggestions([]);
@@ -79,30 +76,32 @@ export default function AvailabilityChecker() {
 
     setIsFetchingSuggestions(true);
 
-    const service = new (
-      window as any
-    ).google.maps.places.AutocompleteService();
+    (async () => {
+      try {
+        const { suggestions: results } = await (
+          window as any
+        ).google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input: debouncedQuery,
+          includedRegionCodes: ["zw"],
+          includedPrimaryTypes: ["address"],
+        });
 
-    service.getPlacePredictions(
-      {
-        input: debouncedQuery,
-        types: ["address"],
-        componentRestrictions: { country: "zw" }, // 🇿🇼 restriction
-      },
-      (predictions: any, status: string) => {
-        if (status === "OK" && predictions) {
-          const sugession = predictions.map((items: any) => ({
-            ...items,
-            city: `${getCity(items)}`,
-          }));
+        const mapped = results.map((s: any) => {
+          const pred = s.placePrediction;
+          return {
+            description: pred.text.toString(),
+            place_id: pred.placeId,
+            city: pred.secondaryText?.toString().split(",")[0] ?? "",
+          };
+        });
 
-          setSuggestions([...sugession]);
-        } else {
-          setSuggestions([]);
-        }
+        setSuggestions(mapped);
+      } catch {
+        setSuggestions([]);
+      } finally {
         setIsFetchingSuggestions(false);
-      },
-    );
+      }
+    })();
   }, [debouncedQuery]);
 
   if (search.get("homeCategory")) {
@@ -229,7 +228,7 @@ export default function AvailabilityChecker() {
                 if (isChecking) {
                   if (selected) {
                     router.push(
-                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${selected.description}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${selected?.city}`,
+                      `/home-internet/plan?homeCategory=${search.get("homeCategory")}&location=${encodeURIComponent(coverage?.address ?? selected.description)}&services=${JSON.stringify(coverage?.available_service_types)}&coordinates=${JSON.stringify(coverage?.coordinates)}&city=${selected?.city}`,
                     );
                   }
                 } else {

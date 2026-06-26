@@ -94,7 +94,6 @@ export default function AvailabilityChecker() {
         const { suggestions: results } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
           input: debouncedQuery,
           includedRegionCodes: ["zw"],
-          includedPrimaryTypes: ["street_address", "route"],
           sessionToken: sessionTokenRef.current,
         });
 

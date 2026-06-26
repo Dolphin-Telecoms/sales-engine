@@ -236,13 +236,13 @@ const PaymentSuccess = () => {
               ? paymentData?.status === "pending" ||
                 paymentData?.status === "processing"
                 ? "Your order is currently being processed"
-                : `Your order has been ${paymentData?.status}`
+                : `Your order could not be processed.`
               : "You're almost connected!"}
           </h3>
 
           <p className="mt-2 font-exo font-normal text-[16px] leading-[1.5] tracking-normal text-center mx-auto text-[#2C6176]">
             {paymentData?.status === "completed"
-              ? "Your order has been recived"
+              ? "Your order has been received"
               : ""}
           </p>
 
@@ -259,7 +259,7 @@ const PaymentSuccess = () => {
             >
               {paymentData?.status === "completed"
                 ? "A confirmation has been sent to your email."
-                : `Your payment is ${paymentData?.status}`}
+                : `Transaction failed! Please check your payment details and try again.`}
             </span>
           </p>
 

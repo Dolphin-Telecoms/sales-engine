@@ -292,4 +292,86 @@ Replaced every emoji used as UI elements across 16 files with proper react-icons
 
 ---
 
-*Document covers commits `62f6c7a` through HEAD (post-handover from Raju/Nilanchal9437). Last entry (emoji → react-icons) is uncommitted as of 2026-06-12.*
+---
+
+## Equipment & Setup Page — Jun 15
+
+Three interrelated improvements to how equipment is selected, priced, and displayed across the wizard.
+
+---
+
+### 1. Dynamic Installation Fee — Tied to Rental Equipment via Odoo
+
+**Background.** The business decision was made to charge an installation fee only when a customer selects rental equipment. For owned (upfront) equipment, no installation fee applies. This is now managed entirely in Odoo — not hardcoded in the application.
+
+**How it works in Odoo:**
+- Rental equipment product template (e.g. "Fibre ONT — Rental") has one or more products listed under **Sales → Optional Products**. The installation fee product lives there.
+- Upfront/owned equipment templates have no optional products linked.
+
+**What the app now does:**
+1. When the user selects a piece of equipment, the app calls `/apis/get-optional-products` with the selected equipment variant's Odoo ID.
+2. That API resolves the variant's parent template, then reads `optional_product_ids` from Odoo.
+3. If optional products exist and include an installation fee, a fee pane appears below the equipment cards.
+4. If the user switches to upfront equipment (no optional products), the installation fee pane disappears and is removed from the order.
+
+**Previously:** The `get-product-equipment` API was not fetching the `recurring_invoice` field from Odoo, so the app could never distinguish rental from upfront equipment. The fee lookup was also using the plan's product ID instead of the selected equipment's product ID, meaning the wrong products were being queried.
+
+**Files changed:**
+- `app/apis/get-product-equipment/route.ts` — added `"recurring_invoice"` to the `product.product/search_read` fields list
+- `src/features/homeInternet/equipment/index.tsx` — `fetchOptionalProducts()` now takes an equipment variant ID parameter; reactive effect re-fetches when user changes equipment selection; clears fees (and removes them from URL) when switching to equipment with no optional products
+- `src/features/businessInternet/equipment/index.tsx` — same changes
+
+---
+
+### 2. Per-Month Pricing — Data-Driven, Not Hardcoded
+
+**Background.** The `/mo` label on equipment cards was previously hardcoded. This meant all equipment appeared to be monthly regardless of whether it was a subscription or a one-off purchase.
+
+**How it works in Odoo:**
+- Each `product.product` record has a boolean field `recurring_invoice`.
+- `true` = subscription/rental (monthly billing)
+- `false` = one-time upfront purchase
+
+**What the app now does:**
+- Reads `recurring_invoice` from the Odoo API response for each equipment variant.
+- Displays `$XX/mo` only when `recurring_invoice` is `true`.
+- Displays `$XX` (no suffix) when `recurring_invoice` is `false`.
+- Shows `"Included"` when price is `0`.
+- Sets `planId=1` in the Odoo sale order only for rental equipment — this triggers recurring billing in Odoo. Cleared from the order when upfront equipment is selected.
+
+**Example (from Odoo data):**
+
+| Product | `recurring_invoice` | Display |
+|---|---|---|
+| Fibre ONT — Rental (template 566, variant 575) | `true` | `$50/mo` |
+| Fibre ONT — Own (template 560, variant 569) | `false` | `$120` |
+
+**Files changed:**
+- `src/features/businessInternet/equipment/equipmentVariant.tsx` — price display now reads `plan.recurring_invoice` instead of hardcoded `/mo`; `planId` URL param set/cleared based on this field
+- `src/features/homeInternet/equipment/equipmentVariant.tsx` — same changes
+
+---
+
+### 3. Equipment Card UX — Whole-Card Click & Live Prices
+
+**What changed:**
+
+**Prices visible immediately.** Cards previously showed "Select to see pricing" until the user clicked. Prices now display on page load for every card, regardless of selection state.
+
+**Whole card is clickable.** Previously only the small radio button circle was the click target. Now clicking anywhere on the card selects it — consistent with how the "Choose Your Plan" step works. Selection is radio-button style: once a card is selected, clicking it again does nothing. Users must pick one option if equipment is available.
+
+**Equipment appears in "Your Plan Summary" sidebar live.** When the user selects equipment, the sidebar now updates immediately to show the equipment name and price. Previously this only appeared after navigating away from the equipment page.
+
+**Equipment data carried through to review and checkout.** This was a bug: the app was building the navigation URL using a stale copy of URL parameters (from `useSearchParams()`), which does not reflect changes made via `window.history.replaceState`. Equipment variant ID, price, name, subscription flag, and attribute selections were all being dropped when the user clicked "Continue." Fixed by reading `window.location.search` directly at navigation time.
+
+**Files changed:**
+- `src/features/businessInternet/equipment/equipmentVariant.tsx`
+- `src/features/homeInternet/equipment/equipmentVariant.tsx`
+- `src/features/businessInternet/equipment/index.tsx`
+- `src/features/homeInternet/equipment/index.tsx`
+- `src/components/Layout/BusinessInternet.tsx`
+- `src/components/Layout/HomeInternet.tsx`
+
+---
+
+*Document covers commits `62f6c7a` through HEAD (post-handover from Raju/Nilanchal9437). Last updated 2026-06-15.*

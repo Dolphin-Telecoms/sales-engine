@@ -48,6 +48,7 @@ export default function EquipmentSetup() {
     const [installationFee, setInstallationFee] = useState<OptionalProduct | null>(null);
     const [deliveryFee, setDeliveryFee] = useState<OptionalProduct | null>(null);
     const [deliveryFeeSelected, setDeliveryFeeSelected] = useState(false);
+    const [selectedEquipVariantId, setSelectedEquipVariantId] = useState<string | null>(null);
 
     const getProductEquipments = async () => {
       try {
@@ -70,8 +71,7 @@ export default function EquipmentSetup() {
       }
     };
 
-    const fetchOptionalProducts = async () => {
-      const variantId = search.get("product");
+    const fetchOptionalProducts = async (variantId: string) => {
       if (!variantId) return;
 
       setFeesLoading(true);
@@ -125,6 +125,12 @@ export default function EquipmentSetup() {
               `${window.location.pathname}?${currentParams.toString()}`,
             );
           }
+        } else {
+          setInstallationFee(null);
+          setDeliveryFee(null);
+          const currentParams = new URLSearchParams(window.location.search);
+          currentParams.delete("optionalFees");
+          window.history.replaceState(null, "", `${window.location.pathname}?${currentParams.toString()}`);
         }
       } catch (error) {
         console.error("Error fetching optional products:", error);
@@ -170,13 +176,19 @@ export default function EquipmentSetup() {
 
     useEffect(() => {
       getProductEquipments();
-      fetchOptionalProducts();
+      const equipVariantId = search.get("productEquipment");
+      if (equipVariantId) fetchOptionalProducts(equipVariantId);
     }, []);
 
+    useEffect(() => {
+      if (selectedEquipVariantId) fetchOptionalProducts(selectedEquipVariantId);
+    }, [selectedEquipVariantId]);
+
     const handleSubmit = async () => {
-      params.set("equipmentName", `${equipment?.name}`);
-      params.set("equipmentId", `${equipment?.id}`);
-      router.push(`/home-internet/review?${params.toString()}`);
+      const currentParams = new URLSearchParams(window.location.search);
+      currentParams.set("equipmentName", `${equipment?.name}`);
+      currentParams.set("equipmentId", `${equipment?.id}`);
+      router.push(`/home-internet/review?${currentParams.toString()}`);
     };
 
     return (
@@ -216,7 +228,10 @@ export default function EquipmentSetup() {
           </div>
         ) : Array.isArray(equipment?.products) &&
           equipment?.products.length > 0 ? (
-          <EquipmentVariant categories={[equipment]} />
+          <EquipmentVariant
+            categories={[equipment]}
+            onEquipmentChange={(variantId) => setSelectedEquipVariantId(variantId)}
+          />
         ) : (
           <div className="mt-6 rounded-xl border border-[#D1D5DB] bg-[#F9FAFB] p-5">
             <div className="flex items-start lg:items-center gap-4">

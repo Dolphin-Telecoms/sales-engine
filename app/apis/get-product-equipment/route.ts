@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
           `/json/2/product.product/search_read`,
           {
             domain: [["id", "in", equipmentIds]],
-            fields: ["id", "name", "display_name", "list_price", "valid_product_template_attribute_line_ids"],
+            fields: ["id", "name", "display_name", "list_price", "recurring_invoice", "valid_product_template_attribute_line_ids"],
           },
         ).then((response) => response.data);
 

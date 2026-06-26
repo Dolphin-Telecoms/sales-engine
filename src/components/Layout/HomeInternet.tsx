@@ -231,8 +231,8 @@ export default function Layout({
         }
       }
 
-      const equipId = search.get("equipmentId");
-      const equipName = search.get("equipmentName");
+      const equipId = search.get("equipmentId") || search.get("productEquipment");
+      const equipName = search.get("equipmentName") || search.get("productNameEquipment");
       const equipProductName = search.get("productNameEquipment");
       const equipPrice = search.get("priceEquipment");
       const isValidStr = (v: string | null) => !!v && v !== "null" && v !== "undefined";
@@ -328,8 +328,8 @@ export default function Layout({
         }
       }
 
-      const equipId2 = search.get("equipmentId");
-      const equipName2 = search.get("equipmentName");
+      const equipId2 = search.get("equipmentId") || search.get("productEquipment");
+      const equipName2 = search.get("equipmentName") || search.get("productNameEquipment");
       const equipProductName2 = search.get("productNameEquipment");
       const equipPrice2 = search.get("priceEquipment");
       const isValidStr2 = (v: string | null) => !!v && v !== "null" && v !== "undefined";

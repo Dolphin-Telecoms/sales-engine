@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    let response = await OddoAxios.post(`/json/2/sale.order/create`, {
+    const response = await OddoAxios.post(`/json/2/sale.order/create`, {
       vals_list: [body],
     }).then((res) => res.data);
 

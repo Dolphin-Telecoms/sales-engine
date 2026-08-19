@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    let response = await OddoAxios.post(`/json/2/product.product/search_read`, {
+    const response = await OddoAxios.post(`/json/2/product.product/search_read`, {
       domain: [["display_name", "=", "Airtime"]],
     }).then((res) => res.data);
 

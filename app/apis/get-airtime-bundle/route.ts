@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    let response = await NetOneAxios.get(`/agents/get-data-bundles-usd`).then(
+    const response = await NetOneAxios.get(`/agents/get-data-bundles-usd`).then(
       (res) => res.data,
     );
 

@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const { attributeIds }: { attributeIds: number[] } = await req.json();
 
-    let response = await OddoAxios.post(
+    const response = await OddoAxios.post(
       `/json/2/product.template.attribute.value/search_read`,
       {
         domain: [["id", "in", attributeIds]],

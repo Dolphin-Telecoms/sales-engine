@@ -46,7 +46,7 @@ export default function ReviewPlan() {
           Review Your Plan Before Checkout
         </h1>
         <p className="font-exo font-normal text-[12px] text-[14px] leading-[1] tracking-normal text-[#2C6176] mt-3">
-          Everything looks good? Click Get Connected and we'll take care of the
+          Everything looks good? Click Get Connected and we&apos;ll take care of the
           rest.
         </p>
 

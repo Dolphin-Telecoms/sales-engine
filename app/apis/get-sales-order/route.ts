@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json();
 
-    let response = await OddoAxios.post(`/json/2/sale.order/search_read`, {
+    const response = await OddoAxios.post(`/json/2/sale.order/search_read`, {
       domain: [["id", "=", id]],
       fields: ["id", "name"]
     }).then((res) => res.data);

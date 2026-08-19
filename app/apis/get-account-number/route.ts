@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       customer_id: string;
     } = await req.json();
 
-    let response = await OddoAxios.post(`/json/2/res.partner/read`, {
+    const response = await OddoAxios.post(`/json/2/res.partner/read`, {
       ids: [parseInt(customer_id)],
       fields: [
         "id",

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
 import { BsStars } from "react-icons/bs";
 import { getSalesOrderName } from "@/src/features/businessInternet/apis/getSalesOrder";
@@ -164,7 +165,7 @@ const PaymentSuccess = () => {
         Review Your Business Plan
       </h1>
       <p className="font-exo font-normal text-[12px] text-[14px] leading-[1] tracking-normal text-[#2C6176] mt-3">
-        Everything looks good? Click Get Connected and we'll take care of the
+        Everything looks good? Click Get Connected and we&apos;ll take care of the
         rest.
       </p>
 
@@ -266,11 +267,11 @@ const PaymentSuccess = () => {
           {/* Back to Home Button */}
           {paymentData?.status === "failed" ||
           paymentData?.status === "cancelled" ? (
-            <a href="/" className="w-full mt-2">
+            <Link href="/" className="w-full mt-2">
               <button className="px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
                 Back to Home
               </button>
-            </a>
+            </Link>
           ) : null}
         </div>
       )}

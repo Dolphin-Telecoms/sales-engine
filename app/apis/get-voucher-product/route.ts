@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    let response = await OddoAxios.post(`/json/2/product.product/search_read`, {
+    const response = await OddoAxios.post(`/json/2/product.product/search_read`, {
       domain: [["display_name", "=", "Voucher"]],
       fields: ["id", "name", "display_name", "product_tmpl_id"],
     }).then((res) => res.data);

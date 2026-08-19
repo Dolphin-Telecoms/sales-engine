@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { getTransaction } from "@/src/features/payment-success/apis/getTransaction";
 import { TransactionResponse } from "@/src/types";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { getSalesOrderName } from "@/src/features/payment-success/apis/getSalesOrder";
 import { Toaster, toast } from "sonner";
 import cn from "classnames"
@@ -280,11 +281,11 @@ const PaymentSuccess = () => {
       </div>
 
       {/* Back to Home Button */}
-      <a href="/" className="w-full">
+      <Link href="/" className="w-full">
         <button className="w-full px-6 py-3 bg-[#1f4d5a] text-white rounded-lg">
           Back to Home
         </button>
-      </a>
+      </Link>
 
       <Toaster position="top-center" />
     </div>

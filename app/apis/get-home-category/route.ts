@@ -6,7 +6,10 @@ export async function GET() {
     const response = await OddoAxios.post(
       `/json/2/product.category/search_read`,
       {
-        domain: [["parent_id", "=", false]],
+        domain: [
+          ["parent_id", "=", false],
+          ["complete_name", "!=", "Mobile"],
+        ],
         fields: ["id", "name", "display_name", "x_studio_label"],
       },
     ).then((res) => res.data);

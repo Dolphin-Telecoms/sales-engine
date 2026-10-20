@@ -1,5 +1,6 @@
 import OddoAxios from "@/src/libs/Oddo";
 import { NextRequest, NextResponse } from "next/server";
+import { REFERRAL_TOKEN_RE } from "@/src/libs/referralToken";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,9 +12,10 @@ export async function POST(req: NextRequest) {
       partnerShippingId,
       order_line,
       plan_id,
+      rewards_referral_token,
     } = await req.json();
 
-    let body = {};
+    let body: Record<string, unknown> = {};
 
     if (plan_id) {
       body = {
@@ -36,6 +38,16 @@ export async function POST(req: NextRequest) {
         picking_policy: "direct",
         order_line: order_line,
       };
+    }
+
+    // Dolphin Rewards: the referral link's token on the order. Only with REWARDS_REFERRALS=on (server setting):
+    // Odoo has the field only once the dolphin_rewards add-on is installed, and an unknown field fails the order.
+    if (
+      process.env.REWARDS_REFERRALS === "on" &&
+      typeof rewards_referral_token === "string" &&
+      REFERRAL_TOKEN_RE.test(rewards_referral_token)
+    ) {
+      body.rewards_referral_token = rewards_referral_token;
     }
 
     const response = await OddoAxios.post(`/json/2/sale.order/create`, {

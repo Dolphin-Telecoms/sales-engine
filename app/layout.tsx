@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Footer from "@/src/components/Footer";
+import ReferralTokenCapture from "@/src/components/ReferralTokenCapture";
 import Script from "next/script";
 import { Exo } from "next/font/google";
 
@@ -62,6 +63,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${exo.className}`}>
+        <ReferralTokenCapture />
         {children}
         <Footer />
         <Script

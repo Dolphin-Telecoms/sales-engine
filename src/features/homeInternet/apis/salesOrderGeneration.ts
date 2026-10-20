@@ -1,4 +1,5 @@
 import Axios from "@/src/libs/Axios";
+import { getReferralToken } from "@/src/libs/referralToken";
 
 export const generateSaleOrder = async ({
   companyId,
@@ -26,6 +27,7 @@ export const generateSaleOrder = async ({
       partnerShippingId,
       order_line,
       plan_id,
+      rewards_referral_token: getReferralToken(), // Dolphin Rewards link, if the customer came from one
     }).then((res) => res.data);
 
     if (response) {

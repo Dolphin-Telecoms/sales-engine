@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json({ message: data?.detail || "Referral code not valid" }, { status: res.status });
     }
-    return NextResponse.json({ rt: data.rt, referrer: data.referrer }, { status: 200 });
+    return NextResponse.json({ rt: data.rt }, { status: 200 });
   } catch (error) {
     console.error("Error in referral code API route:", error);
     return NextResponse.json({ message: "Something went wrong" }, { status: 500 });

@@ -10,6 +10,10 @@ preview_urls = true
 pattern = "*/*"
 zone_name = "dtel.co.zw"
 
+[[routes]]
+pattern = "se.dtel.co.zw"
+custom_domain = true
+
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
